@@ -1,0 +1,37 @@
+services:
+  php:
+    build: .
+    ports:
+      - "8000:80" # Port 80 avec Apache
+    volumes:
+      # Modifie la partie droite (/var/www/html) si tu as choisi un autre Dockerfile 
+      # (/app pour CLI, ou /var/www/html/elgato pour la version académique)
+      - ./:/var/www/html 
+
+  database:
+    image: mariadb:10.3.39 
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: cMqjitAPccsMcDr
+      MYSQL_DATABASE: dbStreamCorner
+      MYSQL_USER: login4719
+      MYSQL_PASSWORD: cMqjitAPccsMcDr
+    ports:
+      - "3306:3306"
+    volumes:
+      # LE BRANCHEMENT : On met la clé USB virtuelle dans le conteneur MariaDB
+      - db_data:/var/lib/mysql 
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    ports:
+      - "8080:80" # Interface accessible sur http://localhost:8080 sur ton Mac
+    environment:
+      PMA_HOST: database # Le nom de la boîte juste au-dessus !
+    depends_on:
+      - database # On s'assure que MariaDB s'allume avant phpMyAdmin
+
+# LA DÉCLARATION : On dit à Docker de créer la clé USB virtuelle (sans chemin)
+volumes:
+  db_data:
+  
