@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Produit;
-use App\Service\UtilisateurContext;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,40 +17,39 @@ final class FavorisController extends AbstractController
         Produit $produit,
         Request $request,
         EntityManagerInterface $entityManager,
-        UtilisateurContext $utilisateurContext,
     ): Response {
-        $utilisateur = $utilisateurContext->getUtilisateur();
+        $user = $this->getUser();
 
-        if ($utilisateur === null) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
-        if ($utilisateur->getProduitsAimers()->contains($produit)) {
-            $utilisateur->removeProduitsAimer($produit);
+        if ($user->getProduitsAimers()->contains($produit)) {
+            $user->removeProduitsAimer($produit);
             $this->addFlash('notice', 'Produit retiré des favoris.');
         } else {
-            $utilisateur->addProduitsAimer($produit);
+            $user->addProduitsAimer($produit);
             $this->addFlash('notice', 'Produit ajouté aux favoris.');
         }
 
-        $entityManager->persist($utilisateur);
+        $entityManager->persist($user);
         $entityManager->flush();
 
         return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_mes_produits'));
     }
 
     #[Route('/private-liste-favoris', name: 'app_liste_favoris')]
-    public function index(UtilisateurContext $utilisateurContext): Response
+    public function index(): Response
     {
-        $utilisateur = $utilisateurContext->getUtilisateur();
+        $user = $this->getUser();
 
-        if ($utilisateur === null) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
         return $this->render('favoris/index.html.twig', [
-            'produits' => $utilisateur->getProduitsAimers(),
-            'utilisateur' => $utilisateur,
+            'produits' => $user->getProduitsAimers(),
+            'user' => $user,
         ]);
     }
 }

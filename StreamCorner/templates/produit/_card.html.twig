@@ -1,4 +1,4 @@
-{% set isFavorite = utilisateur is defined and utilisateur and produit in utilisateur.produitsAimers %}
+{% set isFavorite = user is defined and user and produit in user.produitsAimers %}
 {% set hasImage = produit.image is not empty %}
 {% set imageSrc = hasImage and produit.image starts with 'http' ? produit.image : '/images/' ~ produit.image %}
 

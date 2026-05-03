@@ -25,7 +25,7 @@ class Noter
 
     #[ORM\OneToOne(inversedBy: 'noter', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Utilisateur $utilisateur = null;
+    private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'noters')]
     #[ORM\JoinColumn(nullable: false)]
@@ -72,14 +72,14 @@ class Noter
         return $this;
     }
 
-    public function getUtilisateur(): ?Utilisateur
+    public function getUser(): ?User
     {
-        return $this->utilisateur;
+        return $this->user;
     }
 
-    public function setUtilisateur(Utilisateur $utilisateur): static
+    public function setUser(User $user): static
     {
-        $this->utilisateur = $utilisateur;
+        $this->user = $user;
 
         return $this;
     }

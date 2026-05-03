@@ -5,8 +5,7 @@ namespace App\Controller;
 use App\Entity\Ajouter;
 use App\Entity\Panier;
 use App\Entity\Produit;
-use App\Entity\Utilisateur;
-use App\Service\UtilisateurContext;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,15 +19,14 @@ final class PanierController extends AbstractController
         Produit $produit,
         Request $request,
         EntityManagerInterface $entityManager,
-        UtilisateurContext $utilisateurContext,
     ): Response {
-        $utilisateur = $utilisateurContext->getUtilisateur();
+        $user = $this->getUser();
 
-        if ($utilisateur === null) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
-        $panier = $this->getOrCreatePanier($utilisateur, $entityManager);
+        $panier = $this->getOrCreatePanier($user, $entityManager);
         $ligne = $this->findLine($panier, $produit);
 
         if ($produit->getStock() <= 0) {
@@ -63,21 +61,21 @@ final class PanierController extends AbstractController
     }
 
     #[Route('/private-liste-panier', name: 'app_panier')]
-    public function index(UtilisateurContext $utilisateurContext): Response
+    public function index(): Response
     {
-        $utilisateur = $utilisateurContext->getUtilisateur();
+        $user = $this->getUser();
 
-        if ($utilisateur === null) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
-        $panier = $utilisateur->getPanier();
+        $panier = $user->getPanier();
 
         return $this->render('panier/index.html.twig', [
             'panier' => $panier,
             'lignes' => $panier?->getAjouters() ?? [],
             'total' => $panier?->getTotalHtPa() ?? '0.00',
-            'utilisateur' => $utilisateur,
+            'user' => $user,
         ]);
     }
 
@@ -85,15 +83,14 @@ final class PanierController extends AbstractController
     public function plus(
         Produit $produit,
         EntityManagerInterface $entityManager,
-        UtilisateurContext $utilisateurContext,
     ): Response {
-        $utilisateur = $utilisateurContext->getUtilisateur();
+        $user = $this->getUser();
 
-        if ($utilisateur === null) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
-        $panier = $this->getOrCreatePanier($utilisateur, $entityManager);
+        $panier = $this->getOrCreatePanier($user, $entityManager);
         $ligne = $this->findLine($panier, $produit);
 
         if ($ligne !== null && $ligne->getQuantite() < $produit->getStock()) {
@@ -110,15 +107,14 @@ final class PanierController extends AbstractController
     public function moins(
         Produit $produit,
         EntityManagerInterface $entityManager,
-        UtilisateurContext $utilisateurContext,
     ): Response {
-        $utilisateur = $utilisateurContext->getUtilisateur();
+        $user = $this->getUser();
 
-        if ($utilisateur === null) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
-        $panier = $this->getOrCreatePanier($utilisateur, $entityManager);
+        $panier = $this->getOrCreatePanier($user, $entityManager);
         $ligne = $this->findLine($panier, $produit);
 
         if ($ligne !== null) {
@@ -140,15 +136,14 @@ final class PanierController extends AbstractController
     public function supprimer(
         Produit $produit,
         EntityManagerInterface $entityManager,
-        UtilisateurContext $utilisateurContext,
     ): Response {
-        $utilisateur = $utilisateurContext->getUtilisateur();
+        $user = $this->getUser();
 
-        if ($utilisateur === null) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 
-        $panier = $this->getOrCreatePanier($utilisateur, $entityManager);
+        $panier = $this->getOrCreatePanier($user, $entityManager);
         $ligne = $this->findLine($panier, $produit);
 
         if ($ligne !== null) {
@@ -162,18 +157,18 @@ final class PanierController extends AbstractController
         return $this->redirectToRoute('app_panier');
     }
 
-    private function getOrCreatePanier(Utilisateur $utilisateur, EntityManagerInterface $entityManager): Panier
+    private function getOrCreatePanier(User $user, EntityManagerInterface $entityManager): Panier
     {
-        $panier = $utilisateur->getPanier();
+        $panier = $user->getPanier();
 
         if ($panier !== null) {
             return $panier;
         }
 
         $panier = (new Panier())->setTotalHtPa('0.00');
-        $utilisateur->setPanier($panier);
+        $user->setPanier($panier);
 
-        $entityManager->persist($utilisateur);
+        $entityManager->persist($user);
         $entityManager->persist($panier);
 
         return $panier;

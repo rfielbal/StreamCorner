@@ -10,10 +10,10 @@
     <div class="container auth-layout">
       <section class="auth-brand stack-lg">
         <div class="stack-md">
-          <div class="eyebrow eyebrow-bright">Creation de profil</div>
+          <div class="eyebrow eyebrow-bright">Creation de compte</div>
           <h1>Stream<br>Corner</h1>
           <p>
-            Creez un compte pour preparer le panier, conserver les favoris et suivre les commandes.
+            Creez votre espace client pour synchroniser le panier, retrouver vos favoris et suivre les commandes du setup.
           </p>
         </div>
 
@@ -33,44 +33,78 @@
         <article class="auth-card glass-panel">
           <div class="stack-md">
             <div>
-              <h2 class="product-name">Nouveau compte</h2>
-              <p class="muted">Renseignez les informations minimales pour initialiser le profil.</p>
+              <div class="eyebrow eyebrow-bright">Nouveau profil</div>
+              <h2 class="product-name">Initialisation</h2>
+              <p class="muted">Renseignez vos informations de compte StreamCorner.</p>
             </div>
 
+            {% for message in app.flashes('success') %}
+              <div class="requirements-panel glass-panel auth-feedback is-success">
+                <span class="material-symbols-outlined">check_circle</span>
+                <p class="muted">{{ message }}</p>
+              </div>
+            {% endfor %}
+
             {% for flash_error in app.flashes('verify_email_error') %}
-              <div class="requirements-panel glass-panel">
+              <div class="requirements-panel glass-panel auth-feedback is-danger">
+                <span class="material-symbols-outlined">error</span>
                 <p class="muted">{{ flash_error }}</p>
               </div>
             {% endfor %}
 
-            {{ form_errors(registrationForm) }}
+            <div class="form-error-list">
+              {{ form_errors(registrationForm) }}
+            </div>
 
             {{ form_start(registrationForm, { attr: { class: 'stack-md' } }) }}
-              <div class="field">
-                {{ form_label(registrationForm.email, 'Email') }}
-                <div class="input-icon">
-                  <span class="material-symbols-outlined">alternate_email</span>
-                  {{ form_widget(registrationForm.email, { attr: { placeholder: 'user@streamcorner.fr' } }) }}
+              <div class="field-grid auth-field-grid">
+                <div class="field">
+                  {{ form_label(registrationForm.prenom, 'Prenom') }}
+                  <div class="input-icon">
+                    <span class="material-symbols-outlined">badge</span>
+                    {{ form_widget(registrationForm.prenom, { attr: { placeholder: 'Raphael' } }) }}
+                  </div>
+                  {{ form_errors(registrationForm.prenom) }}
                 </div>
-                {{ form_errors(registrationForm.email) }}
-              </div>
 
-              <div class="field">
-                {{ form_label(registrationForm.plainPassword, 'Mot de passe') }}
-                <div class="input-icon">
-                  <span class="material-symbols-outlined">lock</span>
-                  {{ form_widget(registrationForm.plainPassword, { attr: { placeholder: 'Minimum 6 caracteres' } }) }}
+                <div class="field">
+                  {{ form_label(registrationForm.nom, 'Nom') }}
+                  <div class="input-icon">
+                    <span class="material-symbols-outlined">id_card</span>
+                    {{ form_widget(registrationForm.nom, { attr: { placeholder: 'Dupont' } }) }}
+                  </div>
+                  {{ form_errors(registrationForm.nom) }}
                 </div>
-                {{ form_errors(registrationForm.plainPassword) }}
+
+                <div class="field full">
+                  {{ form_label(registrationForm.email, 'Email') }}
+                  <div class="input-icon">
+                    <span class="material-symbols-outlined">alternate_email</span>
+                    {{ form_widget(registrationForm.email, { attr: { placeholder: 'user@streamcorner.fr' } }) }}
+                  </div>
+                  {{ form_errors(registrationForm.email) }}
+                </div>
+
+                <div class="field full">
+                  {{ form_label(registrationForm.plainPassword, 'Mot de passe') }}
+                  <div class="input-icon">
+                    <span class="material-symbols-outlined">lock</span>
+                    {{ form_widget(registrationForm.plainPassword, { attr: { placeholder: 'Minimum 6 caracteres' } }) }}
+                  </div>
+                  {{ form_errors(registrationForm.plainPassword) }}
+                </div>
               </div>
 
               <label class="checkbox-line">
                 {{ form_widget(registrationForm.agreeTerms) }}
-                <span>J'accepte les conditions d'utilisation.</span>
+                <span>J'accepte les conditions d'utilisation de StreamCorner.</span>
               </label>
               {{ form_errors(registrationForm.agreeTerms) }}
 
-              <button type="submit" class="btn btn-primary">Creer le profil</button>
+              <button type="submit" class="btn btn-primary">
+                Creer le compte
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
             {{ form_end(registrationForm) }}
 
             <div class="auth-meta-line">
@@ -84,15 +118,26 @@
           <div class="stack-md">
             <div class="auth-meta-line">
               <div>
-                <div class="eyebrow eyebrow-bright">Verification mail</div>
-                <h2 class="product-name">Activation</h2>
+                <div class="eyebrow eyebrow-bright">Espace client</div>
+                <h2 class="product-name">Setup synchronise</h2>
               </div>
-              <span class="material-symbols-outlined">mark_email_read</span>
+              <span class="material-symbols-outlined">deployed_code_account</span>
             </div>
 
-            <p class="muted">
-              Le controleur d'inscription conserve l'envoi de confirmation par email existant.
-            </p>
+            <div class="auth-benefit-list">
+              <div class="auth-benefit-row">
+                <span class="material-symbols-outlined">shopping_cart</span>
+                <p>Panier conserve entre les sessions.</p>
+              </div>
+              <div class="auth-benefit-row">
+                <span class="material-symbols-outlined">favorite</span>
+                <p>Favoris rattaches au profil client.</p>
+              </div>
+              <div class="auth-benefit-row">
+                <span class="material-symbols-outlined">mark_email_read</span>
+                <p>Email de verification envoye apres inscription.</p>
+              </div>
+            </div>
 
             <a class="btn btn-secondary" href="{{ path('app_accueil') }}">
               <span class="material-symbols-outlined">storefront</span>

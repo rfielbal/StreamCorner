@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Entity\Utilisateur;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use App\Security\AppCustomAuthenticator;
@@ -37,28 +36,25 @@ class RegistrationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
+            $prenom = trim((string) $form->get('prenom')->getData());
+            $nom = trim((string) $form->get('nom')->getData());
 
             // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
-
-            $localPart = trim((string) strstr((string) $user->getEmail(), '@', true));
-            $utilisateur = (new Utilisateur())
-                ->setNomU($localPart !== '' ? $localPart : 'Client')
-                ->setPrenomU('StreamCorner')
-                ->setEmailU((string) $user->getEmail())
-                ->setMdpU((string) $user->getPassword())
-                ->setRoleU('ROLE_USER');
+            $user->setRoles(['ROLE_USER']);
+            $user
+                ->setPrenom($prenom)
+                ->setNom($nom);
 
             $entityManager->persist($user);
-            $entityManager->persist($utilisateur);
             $entityManager->flush();
 
             // generate a signed url and email it to the user
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
-                    ->from(new Address('contact@rfielbal.fr', 'RStreamCore Bot'))
+                    ->from(new Address('contact@rfielbal.fr', 'StreamCorner Bot'))
                     ->to((string) $user->getEmail())
-                    ->subject('Please Confirm your Email')
+                    ->subject('Confirmez votre email StreamCorner')
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
