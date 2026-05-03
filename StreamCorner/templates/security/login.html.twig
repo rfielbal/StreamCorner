@@ -1,36 +1,123 @@
 {% extends 'base.html.twig' %}
-{% block title %}
-	{{parent()}}
-	Se connecter
-{% endblock %}
+
+{% block title %}StreamCorner | Connexion{% endblock %}
+{% block body_class %}compact-shell{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
 {% block body %}
-	<div class="container-fluid">
-		<h1 class="text-center text-primary mt-4 pt-4 display-1 fw-bold">
-			Se connecter</h1>
-		<div class="row justify-content-center">
-			<div class="col-12 col-md-6 bg-white p-4 m-0 text-primary">
-				<form method="post">
-					{% if error %}
-						<div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-					{% endif %}
-					{% if app.user %}
-						<div class="mb-3">
-							You are logged in as
-							{{ app.user.userIdentifier }},
-							<a href="{{ path('app_logout') }}">Logout</a>
-						</div>
-					{% endif %}
-					<label for="inputEmail">Email</label>
-					<input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-					<label for="inputPassword">Password</label>
-					<input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-					<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-					<div class="text-center">
-						<button class="btn btn-lg btn-primary mt-2" type="submit">se connecter
-                        </bouton>
-                        </div>
-				</form>
-			</div>
-		</div>
-	</div>
+  <main class="auth-page">
+    <div class="container auth-layout">
+      <section class="auth-brand stack-lg">
+        <div class="stack-md">
+          <div class="eyebrow eyebrow-bright">Noeud d'acces securise</div>
+          <h1>Stream<br>Corner</h1>
+          <p>
+            Accedez a votre espace client, votre panier et l'administration du catalogue selon vos droits.
+          </p>
+        </div>
+
+        <div class="stat-grid">
+          <article class="stat-card panel">
+            <div class="eyebrow">Session</div>
+            <h2 class="product-name">Secure</h2>
+          </article>
+          <article class="stat-card panel">
+            <div class="eyebrow">Catalogue</div>
+            <h2 class="product-name">Live</h2>
+          </article>
+        </div>
+      </section>
+
+      <section class="auth-stack">
+        <article class="auth-card glass-panel">
+          <div class="stack-md">
+            <div>
+              <h2 class="product-name">Connexion securisee</h2>
+              <p class="muted">Initialisez une session avant d'acceder aux donnees.</p>
+            </div>
+
+            {% if error %}
+              <div class="requirements-panel glass-panel">
+                <p class="muted">{{ error.messageKey|trans(error.messageData, 'security') }}</p>
+              </div>
+            {% endif %}
+
+            {% if app.user %}
+              <div class="requirements-panel glass-panel">
+                <p class="muted">
+                  Vous etes connecte avec {{ app.user.userIdentifier }}.
+                  <a class="eyebrow eyebrow-bright" href="{{ path('app_logout') }}">Deconnexion</a>
+                </p>
+              </div>
+            {% endif %}
+
+            <form class="stack-md" method="post">
+              <div class="field">
+                <label for="inputEmail">Identifiant</label>
+                <div class="input-icon">
+                  <span class="material-symbols-outlined">alternate_email</span>
+                  <input id="inputEmail" type="email" value="{{ last_username }}" name="email" autocomplete="email" placeholder="user@streamcorner.fr" required autofocus>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="auth-meta-line">
+                  <label for="inputPassword">Cle d'acces</label>
+                  <a class="eyebrow" href="{{ path('app_register') }}">Creer un compte</a>
+                </div>
+                <div class="input-icon">
+                  <span class="material-symbols-outlined">lock</span>
+                  <input id="inputPassword" type="password" name="password" autocomplete="current-password" placeholder="Mot de passe" required>
+                </div>
+              </div>
+
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+              <button class="btn btn-primary" type="submit">Authentifier le profil</button>
+            </form>
+
+            <div class="auth-meta-line">
+              <span class="muted">Retour boutique</span>
+              <a class="eyebrow eyebrow-bright" href="{{ path('app_accueil') }}">Accueil</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="auth-card glass-panel">
+          <div class="stack-md">
+            <div class="auth-meta-line">
+              <div>
+                <div class="eyebrow eyebrow-bright">Double facteur</div>
+                <h2 class="product-name">Verification</h2>
+              </div>
+              <span class="material-symbols-outlined">security</span>
+            </div>
+
+            <p class="muted">
+              Bloc visuel pret a raccorder a un vrai flux 2FA si le projet en a besoin.
+            </p>
+
+            <div class="otp-grid">
+              <input class="otp-input" data-otp-input type="text" value="4">
+              <input class="otp-input" data-otp-input type="text" value="8">
+              <input class="otp-input" data-otp-input type="text" value="1">
+              <input class="otp-input" data-otp-input type="text" placeholder="0">
+              <input class="otp-input" data-otp-input type="text" placeholder="0">
+              <input class="otp-input" data-otp-input type="text" placeholder="0">
+            </div>
+
+            <button class="btn btn-secondary" type="button">Verifier le code</button>
+            <button class="btn btn-ghost" type="button">
+              <span class="material-symbols-outlined">refresh</span>
+              Renvoyer dans 00:54
+            </button>
+          </div>
+        </article>
+
+        <div class="footer-copy">(c) 2026 StreamCorner. Tous droits reserves.</div>
+      </section>
+    </div>
+
+    <div class="auth-watermark" aria-hidden="true">STREAM</div>
+  </main>
 {% endblock %}

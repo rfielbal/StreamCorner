@@ -1,23 +1,110 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}StreamCorner | Inscription{% endblock %}
+{% block body_class %}compact-shell{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block body %}
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
+  <main class="auth-page">
+    <div class="container auth-layout">
+      <section class="auth-brand stack-lg">
+        <div class="stack-md">
+          <div class="eyebrow eyebrow-bright">Creation de profil</div>
+          <h1>Stream<br>Corner</h1>
+          <p>
+            Creez un compte pour preparer le panier, conserver les favoris et suivre les commandes.
+          </p>
+        </div>
 
-    <h1>Register</h1>
+        <div class="stat-grid">
+          <article class="stat-card panel">
+            <div class="eyebrow">Profil</div>
+            <h2 class="product-name">Client</h2>
+          </article>
+          <article class="stat-card panel">
+            <div class="eyebrow">Acces</div>
+            <h2 class="product-name">Secure</h2>
+          </article>
+        </div>
+      </section>
 
-    {{ form_errors(registrationForm) }}
+      <section class="auth-stack">
+        <article class="auth-card glass-panel">
+          <div class="stack-md">
+            <div>
+              <h2 class="product-name">Nouveau compte</h2>
+              <p class="muted">Renseignez les informations minimales pour initialiser le profil.</p>
+            </div>
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+            {% for flash_error in app.flashes('verify_email_error') %}
+              <div class="requirements-panel glass-panel">
+                <p class="muted">{{ flash_error }}</p>
+              </div>
+            {% endfor %}
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+            {{ form_errors(registrationForm) }}
+
+            {{ form_start(registrationForm, { attr: { class: 'stack-md' } }) }}
+              <div class="field">
+                {{ form_label(registrationForm.email, 'Email') }}
+                <div class="input-icon">
+                  <span class="material-symbols-outlined">alternate_email</span>
+                  {{ form_widget(registrationForm.email, { attr: { placeholder: 'user@streamcorner.fr' } }) }}
+                </div>
+                {{ form_errors(registrationForm.email) }}
+              </div>
+
+              <div class="field">
+                {{ form_label(registrationForm.plainPassword, 'Mot de passe') }}
+                <div class="input-icon">
+                  <span class="material-symbols-outlined">lock</span>
+                  {{ form_widget(registrationForm.plainPassword, { attr: { placeholder: 'Minimum 6 caracteres' } }) }}
+                </div>
+                {{ form_errors(registrationForm.plainPassword) }}
+              </div>
+
+              <label class="checkbox-line">
+                {{ form_widget(registrationForm.agreeTerms) }}
+                <span>J'accepte les conditions d'utilisation.</span>
+              </label>
+              {{ form_errors(registrationForm.agreeTerms) }}
+
+              <button type="submit" class="btn btn-primary">Creer le profil</button>
+            {{ form_end(registrationForm) }}
+
+            <div class="auth-meta-line">
+              <span class="muted">Deja inscrit ?</span>
+              <a class="eyebrow eyebrow-bright" href="{{ path('app_login') }}">Connexion</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="auth-card glass-panel">
+          <div class="stack-md">
+            <div class="auth-meta-line">
+              <div>
+                <div class="eyebrow eyebrow-bright">Verification mail</div>
+                <h2 class="product-name">Activation</h2>
+              </div>
+              <span class="material-symbols-outlined">mark_email_read</span>
+            </div>
+
+            <p class="muted">
+              Le controleur d'inscription conserve l'envoi de confirmation par email existant.
+            </p>
+
+            <a class="btn btn-secondary" href="{{ path('app_accueil') }}">
+              <span class="material-symbols-outlined">storefront</span>
+              Retour boutique
+            </a>
+          </div>
+        </article>
+
+        <div class="footer-copy">(c) 2026 StreamCorner. Tous droits reserves.</div>
+      </section>
+    </div>
+
+    <div class="auth-watermark" aria-hidden="true">SIGNUP</div>
+  </main>
 {% endblock %}

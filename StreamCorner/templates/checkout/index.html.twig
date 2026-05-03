@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | Tunnel d'achat{% endblock %}
+{% block body_class %}page-shell{% endblock %}
+{% block body_data %}data-nav-icon="panier"{% endblock %}
+
+{% block body %}
+  <main class="section">
+    <div class="container checkout-layout">
+      <aside class="stack-md">
+        <div>
+          <h1 class="section-title">Resume_Commande</h1>
+          <p class="section-kicker">Verifiez votre configuration materielle</p>
+        </div>
+
+        <div class="order-summary-panel panel">
+          <div class="summary-items">
+            <article class="summary-item">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFAaXCNUKGh5Nrn6MGiVDKMruB9TZ1MsxlgGtDsHDZf4bVqrc3BUBP5IWUtipmSV4niZfDOsy2BugKC4pVvYmmA456CylUjRlNVJAxg2MKXCwj7K5ZTXAV72D-St9KFUejEXHmoajQaFdVYvAouB7fT3QX6e9MF5-sQQgfWu_zdt1moXu1hMPLgLt68AK6HuHLoyMalw1rNkdqaDQNQkJew__guNXfThf79aRSMul397Lkw2f6ltha9ENz_ZMCuDpNUiJskFljlZw" alt="Casque premium">
+              <div class="stack-sm">
+                <div>
+                  <h2 class="product-name">Neural_Link H1</h2>
+                  <div class="eyebrow eyebrow-bright">Latence : 0.2 ms</div>
+                </div>
+                <div class="mini-row">
+                  <span class="muted">Quantite : 01</span>
+                  <strong>299,00 EUR</strong>
+                </div>
+              </div>
+            </article>
+
+            <article class="summary-item">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0BAoIeT5BWGnUQXOBDFzHcEVPH2IoIPyN9JNPRbkadDgubOXa7tZlEJLZxp49he7BkiRXDKMKkm7LMpiSplZc4lyvYuH5BUs-_Pzd87uGNVsULmwii9OEp6IDIv5348gSyfxkZJ18unHnI_lr9z4GF_XxjJ6o2oWU2zGBN7_Xv7R5VWha02BeKA_3m5iewCAG7k__RpgVWR4z75QlrNCBo_cPN69xqXHAk4Zgvjk0XwBGtAaQDkNfPX5y51U_qaePBD3-Ofoh1hg" alt="Souris premium">
+              <div class="stack-sm">
+                <div>
+                  <h2 class="product-name">Kinetic_Glide Pro</h2>
+                  <div class="eyebrow eyebrow-bright">DPI : 25,600</div>
+                </div>
+                <div class="mini-row">
+                  <span class="muted">Quantite : 01</span>
+                  <strong>149,00 EUR</strong>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="summary-total">
+            <div class="row muted"><span>Sous-total</span><span>448,00 EUR</span></div>
+            <div class="row muted"><span>Livraison</span><span>Offerte</span></div>
+            <div class="row muted"><span>Estimation taxes</span><span>35,84 EUR</span></div>
+            <div class="row">
+              <span class="product-name">Total</span>
+              <span class="grand-total">483,84 EUR</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="security-line">
+          <span class="material-symbols-outlined">verified</span>
+          <span class="meta-text">Chiffrement actif</span>
+        </div>
+      </aside>
+
+      <section class="stack-lg">
+        <div class="stepper">
+          <div class="step is-active">
+            <div class="step-bubble">1</div>
+            <div class="step-label">Livraison</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step">
+            <div class="step-bubble">2</div>
+            <div class="step-label">Envoi</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step">
+            <div class="step-bubble">3</div>
+            <div class="step-label">Paiement</div>
+          </div>
+        </div>
+
+        <div class="checkout-panel panel">
+          <div class="stack-lg">
+            <div>
+              <div class="eyebrow eyebrow-bright">Informations de livraison</div>
+              <h2 class="product-name">Coordonnees client</h2>
+            </div>
+
+            <form class="field-grid" method="post">
+              <div class="field">
+                <label for="first-name">Prenom</label>
+                <input id="first-name" name="firstName" type="text" placeholder="Jonathan">
+              </div>
+              <div class="field">
+                <label for="last-name">Nom</label>
+                <input id="last-name" name="lastName" type="text" placeholder="Doe">
+              </div>
+              <div class="field full">
+                <label for="street">Adresse</label>
+                <input id="street" name="street" type="text" placeholder="01 Neon District, Core Plaza">
+              </div>
+              <div class="field">
+                <label for="city">Ville</label>
+                <input id="city" name="city" type="text" placeholder="Cyber Valley">
+              </div>
+              <div class="field">
+                <label for="postal">Code postal</label>
+                <input id="postal" name="postal" type="text" placeholder="90210">
+              </div>
+            </form>
+
+            <div class="stack-md">
+              <div>
+                <div class="eyebrow eyebrow-bright">Mode de livraison</div>
+                <h2 class="product-name">Choisir un mode</h2>
+              </div>
+
+              <div class="radio-grid" data-select-group>
+                <label class="radio-card is-selected">
+                  <input checked name="delivery" type="radio">
+                  <strong>Livraison standard</strong>
+                  <span class="muted">3 a 5 jours ouvres</span>
+                  <span class="eyebrow eyebrow-bright">Offert</span>
+                </label>
+
+                <label class="radio-card">
+                  <input name="delivery" type="radio">
+                  <strong>Express prioritaire</strong>
+                  <span class="muted">Livraison le lendemain</span>
+                  <span class="eyebrow">+25,00 EUR</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <a class="btn btn-ghost" href="{{ path('app_catalogue') }}">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Retour au catalogue
+              </a>
+              <button class="btn btn-primary" type="submit">Passer au paiement</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+{% endblock %}

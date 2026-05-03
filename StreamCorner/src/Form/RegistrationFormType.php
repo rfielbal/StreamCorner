@@ -18,7 +18,7 @@ class RegistrationFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email', EmailType::class, ['attr' => ['class'=> 'form-control'], 'label_attr' => ['class'=> 'fw-bold']])
+            ->add('email', EmailType::class)
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,
 				'data' => false,
@@ -30,8 +30,7 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
-				'label_attr' => ['class'=> 'fw-bold'],
-                'attr' => ['autocomplete' => 'new-password','class'=> 'form-control'],
+                'attr' => ['autocomplete' => 'new-password'],
                 'constraints' => [
                     new NotBlank([
                         'message'=> 'Please enter a password',

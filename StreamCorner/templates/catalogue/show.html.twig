@@ -1,0 +1,176 @@
+{% extends 'base.html.twig' %}
+
+{% set is_demo = demo_mode|default(false) %}
+{% set product_name = produit ? produit.designation : 'Command Center' %}
+{% set product_price = produit ? produit.prixUnitHT ~ ' EUR' : '149,99 EUR' %}
+{% set product_description = produit ? produit.description : "Console de pilotage compacte pour lancer vos scenes, overlays et macros sans quitter l'ecran principal. Une vraie tour de controle pour le setup." %}
+{% set product_category = produit and produit.categorie ? produit.categorie.nomCategorie : 'Console modulaire' %}
+{% set raw_image = produit ? produit.image : 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZUd-zzhzhAwqcvVN5x5xiWvonJvYqPAkq0-VDcd0aCS63A6R_t0PQvISa5_NAig1uME07IzXOJNXHelnRUs_By0otGuKb2EDXVChqpX070n8cok3eul7x_uOw21uugQsspPJR7uEh6Hhpa8xlsb5KsaQuYscb0Mrb8O3jSOZ1z5NBLFbau_3-tOJMW7dqXyMJakzEzgkWA5ibVFFJsCbsGa6Snfh9fcAgohgQ46LdAZjQRDeLDsYPOsE5UzHblvRIbyt0SelZa2s' %}
+{% set product_image = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
+
+{% block title %}StreamCorner | {{ product_name }}{% endblock %}
+{% block body_class %}page-shell product-page{% endblock %}
+{% block body_data %}data-nav-section="streaming"{% if is_demo %} data-product-page="true"{% endif %}{% endblock %}
+
+{% block body %}
+  <main class="section">
+    <div class="container stack-lg">
+      <div class="product-layout">
+        <section>
+          <div class="gallery-main">
+            <img data-gallery-main src="{{ product_image }}" alt="{{ product_name }}">
+          </div>
+
+          <div class="gallery-thumbs">
+            {% set gallery = [
+              { src: product_image, alt: product_name ~ ' vue principale' },
+              { src: is_demo ? 'https://lh3.googleusercontent.com/aida-public/AB6AXuDh_GYQUvU2tq2u3GqxFyjEQrYCvx5xVujOeSnG4mXDl4tUSIBJbNB-ZeK4_8m_amtgivyBobWjWgAyl8J4_yF_rQGRXiB8rqOT68vZ-NnH4uo63HsfCcExfVG2yCbansuYLKMWM2P4bH-UDb2uEAfOMSbxmHK0r99bLz7KRSptHVuWtE_wVdCN3EQs1RNnfDYCd4408W1L8lyPAfXPEWxWx9r-YQal28hcr9VjFg93pYxR5eTvrbWHMCOoXvMHJkk2VqIu0hdO3HE' : product_image, alt: product_name ~ ' detail' },
+              { src: is_demo ? 'https://lh3.googleusercontent.com/aida-public/AB6AXuBgIWccmF2TMZq2iJn2BbmRBpX6Qr_ElVJWjqAv4lWJvja5HTo-bVM0N6XbD_ztfxa7ln1nob918BsdMmoWgf_PNFBiR8jrYBrqg01VmyGsWt61wsVc770JkuF8iNpQstlffQRAcTI4rxOcKGM2dFvOE1hlphYZf_bmmfI6Ik4YEUjyMD5nzLNE0XGamLRREllbh10hncoTQKoZdwrncGFaSC-Xlav2T4S80a-kEvg8KU0-FKifitP7gIRuk7dnqavSDGfFLLsOGMM' : product_image, alt: product_name ~ ' connectique' },
+              { src: is_demo ? 'https://lh3.googleusercontent.com/aida-public/AB6AXuCcCCCjApLgT7Rt7amLjgxBalLDQEh9UZB5-Qxj8-iFzTd5sJfdAVQLw610QSEdP5hPisSsUmBmD__t7lEe-Yx2kEJXK5AesP31rA-x2dEksl4D3WS3QZdM7CThQJ1_sRZ4HSewbCKo3l30u7TdGJJg5ero_cvi3czdGYp0c9Wyk1trFZJ9-KsTxPWygJOJL07vf_tkTT24xNs8zQRVC3c3u85DGJsnBpBlu0NLJ4svTBhXogbJlOsgBxenqm9Slax9o5hlzno17OA' : product_image, alt: product_name ~ ' en situation' }
+            ] %}
+
+            {% for image in gallery %}
+              <button
+                class="gallery-thumb {{ loop.first ? 'is-active' : '' }}"
+                type="button"
+                data-gallery-thumb
+                data-product-gallery-slot="{{ loop.index0 }}"
+                data-gallery-src="{{ image.src }}"
+                data-gallery-alt="{{ image.alt }}"
+                aria-label="{{ image.alt }}"
+              >
+                <img src="{{ image.src }}" alt="{{ image.alt }}">
+              </button>
+            {% endfor %}
+          </div>
+        </section>
+
+        <aside class="product-summary">
+          <div class="summary-panel panel">
+            <div class="stack-md">
+              <div class="pill" data-product-pill>{{ product_category }}</div>
+              <h1 class="section-title" data-product-title>{{ product_name }}</h1>
+              <p class="summary-copy" data-product-summary>{{ product_description }}</p>
+
+              <div class="stock-note">
+                <span data-product-stock-text>{{ produit and produit.stock <= 0 ? 'Rupture' : 'En stock' }}</span>
+                <span class="eyebrow eyebrow-bright" data-product-stock-meta>{{ produit ? produit.stock ~ ' unite(s)' : 'Livraison 48h' }}</span>
+              </div>
+
+              <div class="price-row">
+                <span class="price-value" data-product-price>{{ product_price }}</span>
+                <span class="meta-text" data-product-price-note>Prix net</span>
+              </div>
+
+              <div class="summary-actions">
+                <a class="btn btn-primary" href="{{ path('app_checkout') }}" data-product-buy>
+                  <span class="material-symbols-outlined">shopping_cart</span>
+                  Ajouter au panier
+                </a>
+                <button class="btn btn-secondary" type="button" data-product-favorite>
+                  <span class="material-symbols-outlined">favorite</span>
+                  Ajouter aux favoris
+                </button>
+              </div>
+            </div>
+
+            <div class="summary-specs">
+              <div>
+                <strong data-product-summary-spec-label="0">Categorie</strong>
+                <span data-product-summary-spec-value="0">{{ product_category }}</span>
+              </div>
+              <div>
+                <strong data-product-summary-spec-label="1">Stock</strong>
+                <span data-product-summary-spec-value="1">{{ produit ? produit.stock ~ ' unite(s)' : 'Disponible' }}</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <section class="feature-band">
+      <div class="container feature-band-grid">
+        <div class="stack-md">
+          <div class="eyebrow eyebrow-bright" data-product-feature-eyebrow">Actions multiples</div>
+          <h2 class="section-title" data-product-feature-title>Une fiche, <em>controle total</em></h2>
+          <p class="muted" data-product-feature-text">
+            Cette vue conserve le design frontend et peut recevoir les donnees issues de Doctrine sans changer les routes publiques.
+          </p>
+          <div class="stack-sm">
+            <div class="mini-stat">
+              <span data-product-feature-stat-text="0">Donnees produit branchees sur Symfony</span>
+              <span class="material-symbols-outlined" data-product-feature-stat-icon="0">database</span>
+            </div>
+            <div class="mini-stat">
+              <span data-product-feature-stat-text="1">Galerie conservee cote JS</span>
+              <span class="material-symbols-outlined" data-product-feature-stat-icon="1">photo_library</span>
+            </div>
+          </div>
+        </div>
+        <div class="feature-visual">
+          <img data-product-feature-image src="{{ product_image }}" alt="{{ product_name }}">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container stack-lg">
+        <div class="split-header">
+          <div>
+            <h2 class="section-title">Specifications_<em>Systeme</em></h2>
+            <p class="muted" data-product-specs-intro">Bloc pret a recevoir ensuite les caracteristiques detaillees issues de la base.</p>
+          </div>
+          <div class="meta-text" data-product-protocol>Reference produit : {{ produit ? produit.id : 'DEMO' }}</div>
+        </div>
+
+        <div class="spec-grid">
+          <article class="spec-card">
+            <strong data-product-spec-label="0">Designation</strong>
+            <h3 class="product-name" data-product-spec-value="0">{{ product_name }}</h3>
+            <p class="muted" data-product-spec-text="0">Nom commercial affiche dans le catalogue.</p>
+          </article>
+          <article class="spec-card">
+            <strong data-product-spec-label="1">Categorie</strong>
+            <h3 class="product-name" data-product-spec-value="1">{{ product_category }}</h3>
+            <p class="muted" data-product-spec-text="1">Relation Doctrine avec l'entite Categorie.</p>
+          </article>
+          <article class="spec-card">
+            <strong data-product-spec-label="2">Stock</strong>
+            <h3 class="product-name" data-product-spec-value="2">{{ produit ? produit.stock : 'Demo' }}</h3>
+            <p class="muted" data-product-spec-text="2">Valeur exploitable ensuite par le panier.</p>
+          </article>
+          <article class="spec-card">
+            <strong data-product-spec-label="3">Prix HT</strong>
+            <h3 class="product-name" data-product-spec-value="3">{{ product_price }}</h3>
+            <p class="muted" data-product-spec-text="3">Prix actuel du produit.</p>
+          </article>
+        </div>
+
+        <div class="requirements-panel glass-panel">
+          <div class="stack-md">
+            <div class="eyebrow eyebrow-bright">Integration Symfony</div>
+            <div class="requirements-grid">
+              <div class="requirements-list">
+                <div class="requirements-row">
+                  <span class="meta-text" data-product-requirement-label="0">Route</span>
+                  <span data-product-requirement-value="0">{{ produit ? path('app_produit_show', { id: produit.id }) : path('app_produit_demo') }}</span>
+                </div>
+                <div class="requirements-row">
+                  <span class="meta-text" data-product-requirement-label="1">Panier</span>
+                  <span data-product-requirement-value="1">{{ path('app_checkout') }}</span>
+                </div>
+              </div>
+              <div class="requirements-note">
+                <div class="eyebrow eyebrow-bright">Note technique</div>
+                <p class="muted" data-product-note">
+                  Le mode demo conserve le comportement JS du frontend statique, tandis que le mode Doctrine affiche le produit de la base.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+{% endblock %}

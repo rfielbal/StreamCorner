@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | Admin{% endblock %}
+{% block body_class %}{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block body %}
+  <div class="sidebar-backdrop" id="admin-overlay" data-close-target="#admin-sidebar, #admin-overlay"></div>
+
+  <div class="admin-shell">
+    {% include 'admin/_sidebar.html.twig' with { admin_active: 'dashboard', sidebar_id: 'admin-sidebar' } %}
+
+    <main class="admin-main">
+      <header class="admin-topline">
+        <div class="stack-sm">
+          <button class="mobile-sidebar-toggle mobile-only" type="button" data-toggle-target="#admin-sidebar, #admin-overlay" aria-label="Ouvrir la sidebar admin">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <h1 class="section-title">Vue_Generale</h1>
+          <p class="section-kicker">Systemes nominaux // Administration StreamCorner</p>
+        </div>
+
+        <div class="metric-strip">
+          <div class="metric-chip">
+            <strong>Catalogue</strong>
+            <span style="color: var(--secondary)">{{ produits_count }}</span>
+          </div>
+          <div class="metric-chip">
+            <strong>Latence</strong>
+            <span style="color: var(--primary)">14ms</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="admin-grid">
+        <article class="admin-card padded chart-card span-8-col">
+          <div class="split-header">
+            <div>
+              <div class="eyebrow">Revenu mensuel</div>
+              <h2 class="section-title" style="font-size: clamp(2.2rem, 5vw, 4rem)">482 901,55 EUR</h2>
+              <p class="eyebrow eyebrow-bright">+12.4% par rapport a la periode precedente</p>
+            </div>
+            <div class="toolbar-actions">
+              <button class="toolbar-sort" type="button">7J</button>
+              <button class="btn btn-primary" type="button" style="min-height: auto; padding: 0.7rem 0.9rem;">30J</button>
+            </div>
+          </div>
+          <div class="chart-bars" aria-hidden="true">
+            <span style="height: 28%"></span>
+            <span style="height: 48%"></span>
+            <span style="height: 36%"></span>
+            <span style="height: 68%"></span>
+            <span style="height: 61%"></span>
+            <span style="height: 80%"></span>
+            <span style="height: 62%"></span>
+            <span class="highlight" style="height: 100%"></span>
+          </div>
+        </article>
+
+        <div class="mini-metrics span-4-col">
+          <article class="admin-card padded">
+            <div class="stack-md">
+              <div class="eyebrow">Produits actifs</div>
+              <h2 class="stat-number">{{ produits_count }}</h2>
+              <p class="eyebrow">Donnees issues de ProduitRepository</p>
+            </div>
+          </article>
+          <article class="admin-card padded">
+            <div class="stack-md">
+              <div class="eyebrow">Commandes du jour</div>
+              <h2 class="stat-number">842</h2>
+              <p class="eyebrow eyebrow-bright">Bloc pret pour l'entite Commande</p>
+            </div>
+          </article>
+        </div>
+
+        <section class="admin-card span-12-col">
+          <div class="table-controls">
+            <div>
+              <h2 class="product-name">Transactions_Recentes</h2>
+            </div>
+            <a class="eyebrow" href="{{ path('app_admin_inventory') }}">Voir l'inventaire</a>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Transaction</th>
+                  <th>Client</th>
+                  <th>Article</th>
+                  <th>Valeur</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#SC-8829-X</td>
+                  <td>Elias_Vance<br><span class="muted">elias@streamcorner.fr</span></td>
+                  <td>COMMAND_CENTER</td>
+                  <td>149,99 EUR</td>
+                  <td><span class="status-badge status-success">Confirmee</span></td>
+                </tr>
+                <tr>
+                  <td>#SC-8830-B</td>
+                  <td>Sarah_Chen<br><span class="muted">sarah@streamcorner.fr</span></td>
+                  <td>PULSE_MIC</td>
+                  <td>169,99 EUR</td>
+                  <td><span class="status-badge status-info">En cours</span></td>
+                </tr>
+                <tr>
+                  <td>#SC-8831-Z</td>
+                  <td>Marcus_Knight<br><span class="muted">marcus@streamcorner.fr</span></td>
+                  <td>AETHER_LED</td>
+                  <td>129,99 EUR</td>
+                  <td><span class="status-badge status-danger">Signalee</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="alert-row span-12-col">
+          <article class="admin-card padded log-card">
+            <div class="eyebrow">Activite systeme</div>
+            <div class="log-item">
+              <div class="log-bar"></div>
+              <div>
+                <strong>Signal de reapprovisionnement</strong>
+                <div class="muted">SKU: SC-991 // il y a 2 min</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-bar" style="background: var(--secondary)"></div>
+              <div>
+                <strong>Nouvelle cle API generee</strong>
+                <div class="muted">ADMIN_BETA // il y a 14 min</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="admin-card padded">
+            <div class="split-header">
+              <div>
+                <div class="eyebrow eyebrow-bright">Mode catalogue</div>
+                <p class="muted">Le dashboard conserve la structure frontend et attend les vraies donnees metier.</p>
+              </div>
+              <a class="btn btn-secondary" href="{{ path('app_admin_inventory') }}">Gerer l'inventaire</a>
+            </div>
+          </article>
+        </div>
+
+        <footer class="admin-footer span-12-col">
+          <div class="footer-grid">
+            <div class="footer-links">
+              <a href="{{ path('app_accueil') }}">Boutique</a>
+              <a href="{{ path('app_catalogue') }}">Catalogue public</a>
+              <a href="{{ path('app_logout') }}">Deconnexion</a>
+            </div>
+            <p class="footer-copy">Tableau de bord admin adaptatif avec barre laterale fixe sur ordinateur et panneau mobile.</p>
+          </div>
+        </footer>
+      </section>
+    </main>
+  </div>
+{% endblock %}
