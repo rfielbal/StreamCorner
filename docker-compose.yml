@@ -6,7 +6,9 @@ services:
     volumes:
       # Modifie la partie droite (/var/www/html) si tu as choisi un autre Dockerfile 
       # (/app pour CLI, ou /var/www/html/elgato pour la version académique)
-      - ./:/var/www/html 
+      - ./StreamCorner:/var/www/html/StreamCorner 
+      - symfony_vendor:/var/www/html/StreamCorner/vendor
+      - symfony_var:/var/www/html/StreamCorner/var
 
   database:
     image: mariadb:10.3.39 
@@ -34,4 +36,6 @@ services:
 # LA DÉCLARATION : On dit à Docker de créer la clé USB virtuelle (sans chemin)
 volumes:
   db_data:
+  symfony_vendor:
+  symfony_var:
   

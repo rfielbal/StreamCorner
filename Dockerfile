@@ -11,8 +11,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN a2enmod rewrite
 
 # On écrit exactement la configuration demandée par ton prof dans le bon fichier
-RUN echo "Alias /streamCorner /var/www/html/streamCorner/public\n\
-<Directory /var/www/html/streamCorner/public>\n\
+RUN echo "Alias /streamCorner /var/www/html/StreamCorner/public\n\
+<Directory /var/www/html/StreamCorner/public>\n\
     AllowOverride All\n\
     Order Allow,Deny\n\
     Allow from All\n\
