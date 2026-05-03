@@ -23,7 +23,7 @@ final class ProduitController extends AbstractController
         $sort = $request->query->get('sort');
         $categorie = $request->query->get('categorie');
 
-        return $this->render('produit/index.html.twig', [
+        return $this->render('catalogue/index.html.twig', [
             'produits' => $produitRepository->search(null, $categorie, $sort),
             'categories' => $categorieRepository->findBy([], ['nomCategorie' => 'ASC']),
             'selectedCategorie' => $categorie,
@@ -43,7 +43,7 @@ final class ProduitController extends AbstractController
         $mot = trim((string) $request->query->get('q', ''));
         $sort = $request->query->get('sort');
 
-        return $this->render('produit/index.html.twig', [
+        return $this->render('catalogue/index.html.twig', [
             'produits' => $mot === '' ? [] : $produitRepository->search($mot, null, $sort),
             'categories' => $categorieRepository->findBy([], ['nomCategorie' => 'ASC']),
             'selectedCategorie' => null,

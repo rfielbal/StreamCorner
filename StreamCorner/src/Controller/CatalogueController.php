@@ -3,23 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Produit;
-use App\Repository\CategorieRepository;
-use App\Repository\ProduitRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class CatalogueController extends AbstractController
 {
-    #[Route('/catalogue', name: 'app_catalogue')]
-    public function index(ProduitRepository $produitRepository, CategorieRepository $categorieRepository): Response
-    {
-        return $this->render('catalogue/index.html.twig', [
-            'produits' => $produitRepository->findBy([], ['designation' => 'ASC']),
-            'categories' => $categorieRepository->findBy([], ['nomCategorie' => 'ASC']),
-        ]);
-    }
-
     #[Route('/produit', name: 'app_produit_demo')]
     public function demo(): Response
     {
