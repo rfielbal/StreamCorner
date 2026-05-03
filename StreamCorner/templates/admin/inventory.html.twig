@@ -1,0 +1,163 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | Inventaire{% endblock %}
+{% block body_class %}{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block body %}
+  <div class="sidebar-backdrop" id="inventory-overlay" data-close-target="#inventory-sidebar, #inventory-overlay"></div>
+
+  <div class="admin-shell">
+    {% include 'admin/_sidebar.html.twig' with { admin_active: 'inventory', sidebar_id: 'inventory-sidebar' } %}
+
+    <main class="admin-main">
+      <header class="admin-topline">
+        <div class="stack-sm">
+          <button class="mobile-sidebar-toggle mobile-only" type="button" data-toggle-target="#inventory-sidebar, #inventory-overlay" aria-label="Ouvrir la sidebar admin">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <h1 class="section-title">Catalogue_Produits</h1>
+          <p class="section-kicker">Interface de gestion v.2.0.4</p>
+        </div>
+
+        <button class="btn btn-primary" type="button">
+          <span class="material-symbols-outlined">add_circle</span>
+          Ajouter un produit
+        </button>
+      </header>
+
+      <section class="inventory-stats">
+        <article class="admin-card stats-card primary">
+          <div class="stack-sm">
+            <div class="eyebrow">References totales</div>
+            <h2 class="stat-number">{{ produits|length }}</h2>
+            <p class="muted">Valeur calculee depuis la liste transmise par ProduitRepository.</p>
+          </div>
+        </article>
+
+        <article class="admin-card stats-card secondary">
+          <div class="stack-md">
+            <div>
+              <div class="eyebrow eyebrow-bright">Valeur catalogue</div>
+              <h2 class="stat-number">2,4 M EUR</h2>
+            </div>
+            <div class="stack-sm">
+              <div class="mini-row">
+                <span class="eyebrow">Sante du stock</span>
+                <span class="eyebrow eyebrow-bright">98%</span>
+              </div>
+              <div style="height: 0.35rem; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden;">
+                <div style="width: 98%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-strong));"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="admin-card">
+        <div class="inventory-toolbar">
+          <div class="search-group">
+            <input class="search-input" data-filter-table="#inventory-table" type="search" placeholder="Filtrer les produits...">
+            <button class="btn-icon" type="button" aria-label="Filtrer"><span class="material-symbols-outlined">filter_list</span></button>
+          </div>
+
+          <div class="toolbar-actions">
+            <span class="status-badge status-success">Actifs</span>
+            <span class="status-badge">Archives</span>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table" id="inventory-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Produit</th>
+                <th>Categorie</th>
+                <th>Prix</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for produit in produits %}
+                {% set raw_image = produit.image %}
+                {% set image_src = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
+                <tr>
+                  <td>
+                    <img class="table-media" src="{{ image_src }}" alt="{{ produit.designation }}">
+                  </td>
+                  <td>{{ produit.designation }}<br><span class="muted">SKU: SC-{{ produit.id }}</span></td>
+                  <td><span class="status-badge status-info">{{ produit.categorie ? produit.categorie.nomCategorie : 'Sans categorie' }}</span></td>
+                  <td>{{ produit.prixUnitHT }} EUR</td>
+                  <td>
+                    <span class="status-badge {{ produit.stock > 20 ? 'status-success' : 'status-danger' }}">
+                      {{ produit.stock }} unite(s)
+                    </span>
+                  </td>
+                  <td>
+                    <div class="toolbar-actions">
+                      <a class="btn-icon" href="{{ path('app_produit_show', { id: produit.id }) }}" aria-label="Voir {{ produit.designation }}">
+                        <span class="material-symbols-outlined">visibility</span>
+                      </a>
+                      <button class="btn-icon" type="button" aria-label="Modifier {{ produit.designation }}"><span class="material-symbols-outlined">edit</span></button>
+                      <button class="btn-icon" type="button" aria-label="Supprimer {{ produit.designation }}"><span class="material-symbols-outlined">delete</span></button>
+                    </div>
+                  </td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td><img class="table-media" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcolq6BN3hydyNLuLpxoTraX9agYTDukNhqhuGXLNSu32_IeIXF6BLKq9vJJ3LoRzJ5QPbozJQKumZidlFNS-P0b5D-ZC2ioj0RYnlBX2bgN7obtDCG4gIJkS_VDXFeiQKzabPPBiDEuwph8S39NhHdplM3NKHvufL6NmHVOGLYI0GmnSDbO5UlaYUcTZ9RhB6YoLUNABncNx5kNmO-YLSB-BvMDFqGpnIXvyBx5hVFshNxGcThB_7j_V_K6-cqXxW2UHO5R8bhnQ" alt="Clavier"></td>
+                  <td>Neon_Strike Pro<br><span class="muted">SKU: DEMO-882-X</span></td>
+                  <td><span class="status-badge status-info">Peripheriques</span></td>
+                  <td>189,00 EUR</td>
+                  <td><span class="status-badge status-success">842 unites</span></td>
+                  <td><div class="toolbar-actions"><button class="btn-icon" type="button"><span class="material-symbols-outlined">edit</span></button><button class="btn-icon" type="button"><span class="material-symbols-outlined">delete</span></button></div></td>
+                </tr>
+                <tr>
+                  <td><img class="table-media" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUMcM9M4mr3useZaQpb1yJAprWWQUru4Wh6KWf8bjhxdzqZYEzn_jbnAHlVGfVTeSjhYuJpWbbp8Lpy8R8rhJ4ploomj8M7QTVE3EwYBb9jvWr0WrrhX7WbXUws-DPb2v4I8-X0IDu48npQErY80ccXNlf8ezVFA-foIG0w-2l-iLewgRzJTqGVrkCAZJW7VdaivToJQoS8JP703jb1ta6Pv2if8HayibvecvkIY_BQavwGPtO-mRy5x8BsbROVYqhMNF6VjtPl7Q" alt="Souris"></td>
+                  <td>Kinetic_Flow Mouse<br><span class="muted">SKU: DEMO-112-M</span></td>
+                  <td><span class="status-badge status-info">Peripheriques</span></td>
+                  <td>79,99 EUR</td>
+                  <td><span class="status-badge status-danger">12 unites</span></td>
+                  <td><div class="toolbar-actions"><button class="btn-icon" type="button"><span class="material-symbols-outlined">edit</span></button><button class="btn-icon" type="button"><span class="material-symbols-outlined">delete</span></button></div></td>
+                </tr>
+                <tr>
+                  <td><img class="table-media" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCp55qtN4jNwLGPt6yJGtrGPWRLOtYyeZeFdEJMX2iwPJcPRUIwOkrTQ5wVdANlZmWwIMtNFDh7w_MxjMYcYs0ELlrKw4xnhKm-K7sGHea6T8xr19pAUvV3pi6SPix4W8XB7hl_TD3lUMf9BQIYm9eHcoGzGpQoQNWW5YunRZX2IAkqbc4NMdQwBJ3hyExt6K0wF0R128DrqNr-EaTSzswfJWVtZuwUu5Juym_FPHEUnPbmnpj2K-aZRoSWMLpsEloG1kNWqh7tENs" alt="Ecran 4K"></td>
+                  <td>Ultra_Vision 4K<br><span class="muted">SKU: DEMO-550-V</span></td>
+                  <td><span class="status-badge status-info">Ecrans</span></td>
+                  <td>1 299,00 EUR</td>
+                  <td><span class="status-badge status-success">45 unites</span></td>
+                  <td><div class="toolbar-actions"><button class="btn-icon" type="button"><span class="material-symbols-outlined">edit</span></button><button class="btn-icon" type="button"><span class="material-symbols-outlined">delete</span></button></div></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <span>Affichage de 1 a {{ produits|length > 0 ? produits|length : 3 }} resultat(s)</span>
+          <div class="pagination-controls">
+            <span>Precedent</span>
+            <span class="page-dot is-current">1</span>
+            <span class="page-dot">2</span>
+            <span class="page-dot">3</span>
+            <span>Suivant</span>
+          </div>
+        </div>
+      </section>
+
+      <footer class="admin-footer">
+        <div class="footer-grid">
+          <div class="footer-links">
+            <a href="{{ path('app_admin_dashboard') }}">Dashboard</a>
+            <a href="{{ path('app_catalogue') }}">Catalogue public</a>
+            <a href="{{ path('app_accueil') }}">Boutique</a>
+          </div>
+          <p class="footer-copy">Interface catalogue prete a raccorder aux operations CRUD.</p>
+        </div>
+      </footer>
+    </main>
+  </div>
+{% endblock %}
