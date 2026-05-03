@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }}Boutique{% endblock %}
+
+{% block body %}
+	<div class="container py-5">
+		<div class="row align-items-end g-4 mb-5">
+			<div class="col-lg-7">
+				<p class="text-primary fw-bold text-uppercase small mb-2">Catalogue</p>
+				<h1 class="display-5 fw-bold mb-2">
+					{% if searchTerm %}
+						Résultats pour "{{ searchTerm }}"
+					{% else %}
+						Boutique StreamCorner
+					{% endif %}
+				</h1>
+				<p class="lead text-muted mb-0">Matériel de streaming, audio et éclairage sélectionné pour vos setups.</p>
+			</div>
+
+			<div class="col-lg-5">
+				<form action="{{ path('app_resultat') }}" method="get" class="d-flex gap-2">
+					<input class="form-control" type="search" name="q" value="{{ searchTerm }}" placeholder="Rechercher un produit">
+					<button class="btn btn-secondary" type="submit">
+						<i class="bi bi-search"></i>
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="row g-4">
+			<aside class="col-lg-3">
+				<div class="border rounded bg-white p-3">
+					<div class="d-flex align-items-center gap-2 mb-3">
+						<i class="bi bi-sliders text-primary"></i>
+						<h2 class="h5 mb-0">Filtres</h2>
+					</div>
+
+					<div class="list-group list-group-flush">
+						<a href="{{ path('app_mes_produits') }}" class="list-group-item list-group-item-action {{ selectedCategorie is empty ? 'active' : '' }}">
+							Toutes les catégories
+						</a>
+						{% for categorie in categories %}
+							<a href="{{ path('app_mes_produits', {categorie: categorie.id}) }}" class="list-group-item list-group-item-action {{ selectedCategorie == categorie.id ? 'active' : '' }}">
+								{{ categorie.nomCategorie }}
+							</a>
+						{% endfor %}
+					</div>
+				</div>
+			</aside>
+
+			<section class="col-lg-9">
+				<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+					<p class="mb-0 text-muted">{{ produits|length }} produit{{ produits|length > 1 ? 's' : '' }}</p>
+
+					<select class="form-select stream-sort-select" onchange="if (this.value) window.location.href = this.value;">
+						<option value="">Trier par prix</option>
+						<option value="{{ path(searchTerm ? 'app_resultat' : 'app_mes_produits', {q: searchTerm, categorie: selectedCategorie, sort: 'price_asc'}) }}" {{ sort == 'price_asc' ? 'selected' : '' }}>Prix croissant</option>
+						<option value="{{ path(searchTerm ? 'app_resultat' : 'app_mes_produits', {q: searchTerm, categorie: selectedCategorie, sort: 'price_desc'}) }}" {{ sort == 'price_desc' ? 'selected' : '' }}>Prix décroissant</option>
+					</select>
+				</div>
+
+				{% if produits|length == 0 %}
+					<div class="bg-white border rounded p-5 text-center">
+						<i class="bi bi-search fs-1 text-muted"></i>
+						<h2 class="h4 mt-3">Aucun produit trouvé</h2>
+						<p class="text-muted mb-4">Essayez une autre recherche ou revenez au catalogue complet.</p>
+						<a href="{{ path('app_mes_produits') }}" class="btn btn-primary">Voir la boutique</a>
+					</div>
+				{% else %}
+					<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+						{% for produit in produits %}
+							<div class="col">
+								{% include 'produit/_card.html.twig' with {produit: produit, user: user} %}
+							</div>
+						{% endfor %}
+					</div>
+				{% endif %}
+			</section>
+		</div>
+	</div>
+{% endblock %}

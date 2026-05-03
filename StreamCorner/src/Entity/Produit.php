@@ -54,17 +54,17 @@ class Produit
     private Collection $noters;
 
     /**
-     * @var Collection<int, Utilisateur>
+     * @var Collection<int, User>
      */
-    #[ORM\ManyToMany(targetEntity: Utilisateur::class, mappedBy: 'produitsAimers')]
-    private Collection $UtilisateursAimant;
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'produitsAimers')]
+    private Collection $usersAimant;
 
     public function __construct()
     {
         $this->ajouters = new ArrayCollection();
         $this->parvenirs = new ArrayCollection();
         $this->noters = new ArrayCollection();
-        $this->UtilisateursAimant = new ArrayCollection();
+        $this->usersAimant = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -235,27 +235,27 @@ class Produit
     }
 
     /**
-     * @return Collection<int, Utilisateur>
+     * @return Collection<int, User>
      */
-    public function getUtilisateursAimant(): Collection
+    public function getUsersAimant(): Collection
     {
-        return $this->UtilisateursAimant;
+        return $this->usersAimant;
     }
 
-    public function addUtilisateursAimant(Utilisateur $utilisateursAimant): static
+    public function addUsersAimant(User $usersAimant): static
     {
-        if (!$this->UtilisateursAimant->contains($utilisateursAimant)) {
-            $this->UtilisateursAimant->add($utilisateursAimant);
-            $utilisateursAimant->addProduitsAimer($this);
+        if (!$this->usersAimant->contains($usersAimant)) {
+            $this->usersAimant->add($usersAimant);
+            $usersAimant->addProduitsAimer($this);
         }
 
         return $this;
     }
 
-    public function removeUtilisateursAimant(Utilisateur $utilisateursAimant): static
+    public function removeUsersAimant(User $usersAimant): static
     {
-        if ($this->UtilisateursAimant->removeElement($utilisateursAimant)) {
-            $utilisateursAimant->removeProduitsAimer($this);
+        if ($this->usersAimant->removeElement($usersAimant)) {
+            $usersAimant->removeProduitsAimer($this);
         }
 
         return $this;

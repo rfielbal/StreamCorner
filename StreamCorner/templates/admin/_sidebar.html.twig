@@ -1,0 +1,37 @@
+{% set current = admin_active|default('dashboard') %}
+
+<aside class="admin-sidebar" id="{{ sidebar_id|default('admin-sidebar') }}">
+  <div class="admin-brand">
+    <h1>Centre_Commande</h1>
+    <p>Système actif</p>
+  </div>
+
+  <nav class="admin-nav">
+    <a class="{{ current == 'dashboard' ? 'is-active' : '' }}" href="{{ path('app_admin_dashboard') }}">
+      <span class="material-symbols-outlined">dashboard</span>Tableau de bord
+    </a>
+    <a class="{{ current == 'inventory' ? 'is-active' : '' }}" href="{{ path('app_admin_inventory') }}">
+      <span class="material-symbols-outlined">inventory_2</span>Inventaire
+    </a>
+    <a href="#">
+      <span class="material-symbols-outlined">insights</span>Analyses
+    </a>
+    <a href="#">
+      <span class="material-symbols-outlined">local_shipping</span>Commandes
+    </a>
+    <a href="#">
+      <span class="material-symbols-outlined">settings</span>Parametres
+    </a>
+  </nav>
+
+  <div class="admin-sidebar-bottom">
+    <button class="btn btn-primary" type="button">Generer rapport</button>
+    <div class="admin-user">
+      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWaopfrDf4ouaL8FtQ6mmTomLfF7fzRqcN76sg4yx9q5uvrzS0hp2Qn_VRPROoBt625WM2HnaZDvlF_Q4j7c4OHpO_ZFpi1gC7VcgD78nWxZfIz6mAbMrO1meCisOqbT1UmvVYy8RkR0izdx6Jbu8lkMaDI99ijVKN7Wc63Twx1ZSxZtWgZpFX-WG_gq6dhdt_Vj0Wci3-04xy-G2G3oXpkRpVjSuIWGR1HotZa5TnkVrUqRvpXKqomAPeEnn_4oSlkC9SII9HrY8" alt="Admin">
+      <div>
+        <div class="eyebrow">{{ app.user ? app.user.userIdentifier : 'Admin_Alpha' }}</div>
+        <div class="muted">Accès admin</div>
+      </div>
+    </div>
+  </div>
+</aside>

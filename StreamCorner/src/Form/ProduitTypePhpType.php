@@ -4,7 +4,7 @@ namespace App\Form;
 
 use App\Entity\Categorie;
 use App\Entity\Produit;
-use App\Entity\Utilisateur;
+use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -24,9 +24,9 @@ class ProduitTypePhpType extends AbstractType
                 'class' => Categorie::class,
                 'choice_label' => 'id',
             ])
-            ->add('UtilisateursAimant', EntityType::class, [
-                'class' => Utilisateur::class,
-                'choice_label' => 'id',
+            ->add('usersAimant', EntityType::class, [
+                'class' => User::class,
+                'choice_label' => 'email',
                 'multiple' => true,
             ])
         ;

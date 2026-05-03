@@ -1,0 +1,143 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | Catalogue{% endblock %}
+{% block body_class %}page-shell{% endblock %}
+{% block body_data %}data-nav-section="boutique"{% endblock %}
+
+{% block body %}
+  <div class="sidebar-backdrop" id="catalogue-overlay" data-close-target="#catalogue-filters, #catalogue-overlay"></div>
+
+  <main class="container">
+    <div class="catalog-layout">
+      <aside class="catalog-sidebar" id="catalogue-filters">
+        <div class="stack-lg">
+          <div class="catalog-sidebar-header">
+            <div>
+              <div class="eyebrow eyebrow-bright">Centre de commande</div>
+              <h1 class="product-name">SYSTEME_ACTIF</h1>
+            </div>
+            <button class="catalog-sidebar-close" type="button" data-close-target="#catalogue-filters, #catalogue-overlay" aria-label="Fermer les filtres">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <section class="filter-group">
+            <h2 class="filter-label">Catégorie</h2>
+            <div class="filter-options">
+              <label class="checkbox-line"><input checked type="checkbox">Tout le matériel</label>
+              {% for categorie in categories %}
+                <label class="checkbox-line"><input type="checkbox">{{ categorie.nomCategorie }}</label>
+              {% else %}
+                <label class="checkbox-line"><input type="checkbox">Microphones</label>
+                <label class="checkbox-line"><input type="checkbox">Éclairages</label>
+                <label class="checkbox-line"><input type="checkbox">Contrôleurs</label>
+              {% endfor %}
+            </div>
+          </section>
+
+          <section class="filter-group">
+            <h2 class="filter-label">Fourchette de prix</h2>
+            <input type="range" min="0" max="2000" value="950">
+            <div class="mini-row muted">
+              <span>0 EUR</span>
+              <span>2 000 EUR+</span>
+            </div>
+          </section>
+
+          <section class="filter-group">
+            <h2 class="filter-label">Note minimale</h2>
+            <div class="filter-options">
+              <label class="radio-line"><input checked name="rating" type="radio">4+ etoiles</label>
+              <label class="radio-line"><input name="rating" type="radio">3+ etoiles</label>
+            </div>
+          </section>
+
+          <button class="btn btn-primary" type="button" data-close-target="#catalogue-filters, #catalogue-overlay">Appliquer</button>
+        </div>
+      </aside>
+
+      <section class="catalog-main">
+        <div class="catalog-toolbar">
+          <div class="stack-sm">
+            <h1 class="section-title">Catalogue_Produits</h1>
+            <div class="pill">Inventaire actif</div>
+          </div>
+          <div class="toolbar-actions">
+            <button class="panel-toggle" type="button" data-toggle-target="#catalogue-filters, #catalogue-overlay" aria-label="Ouvrir les filtres">
+              <span class="material-symbols-outlined">tune</span>
+            </button>
+            <button class="toolbar-sort" type="button">
+              Trier : nouveautes
+              <span class="material-symbols-outlined">expand_more</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="product-grid catalog-grid" id="catalogue-grid">
+          {% if produits is not empty %}
+            {% for produit in produits %}
+              {% set raw_image = produit.image %}
+              {% set image_src = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
+              {% set category_name = produit.categorie ? produit.categorie.nomCategorie : 'Matériel streaming' %}
+              {% set category_key = category_name|lower %}
+              <article class="product-card" id="produit-{{ produit.id }}">
+                {% if 'audio' in category_key %}
+                  <span class="catalog-anchor" id="audio" aria-hidden="true"></span>
+                {% elseif 'eclairage' in category_key or 'light' in category_key %}
+                  <span class="catalog-anchor" id="eclairage" aria-hidden="true"></span>
+                {% endif %}
+                <button class="product-favorite btn-icon" type="button" aria-label="Favori">
+                  <span class="material-symbols-outlined">favorite</span>
+                </button>
+                <div class="product-media">
+                  <img src="{{ image_src }}" alt="{{ produit.designation }}">
+                </div>
+                <div class="product-body">
+                  <div class="eyebrow eyebrow-bright">{{ category_name }}</div>
+                  <div class="product-meta">
+                    <h2 class="product-name">{{ produit.designation }}</h2>
+                    <div class="price-value">{{ produit.prixUnitHT }} EUR</div>
+                  </div>
+                  <p class="product-description">{{ produit.description|striptags|slice(0, 140) }}{% if produit.description|length > 140 %}...{% endif %}</p>
+                  <a class="btn btn-secondary" href="{{ path('app_produit_show', { id: produit.id }) }}">Voir la fiche</a>
+                </div>
+              </article>
+            {% endfor %}
+          {% else %}
+            {% set demo_products = [
+              { id: 'pulse-mic', anchor: 'audio', category: 'Audio // Micro', name: 'Pulse_Mic', price: '169,99 EUR', description: 'Capsule cardioïde USB-C, monitoring direct et traitement vocal net pour le live.', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAf9lkx4JS60LtmUXqE2RqDU84zwL4L-FEbinGer0EGcivKEz_4UO0aXiuoj8ofo7lgW9ljb-oNqHjHKwHhKctR63NzuTTqHFcWkEFvrMiA5FxLKcryc25c7xYr7AwgjBIdXKW0n2Z-0RiArcOBthP2uCH4Sq4Heqf4FTrS6aQm3uiVxk3qT9Fa_Vk8ja3qvp2C76OZwJdCU2nsA6nSdmRkaAkSCF7ATsLhYAPxyG_7vjYQ2cD0Eqs_GIMpAMBBMll1kKK5S3btbw4' },
+              { id: 'aether-pro-led-panels', anchor: 'eclairage', category: 'Éclairage // Studio', name: 'Aether_Pro_LED_Panels', price: '129,99 EUR', description: 'Kit lumineux bi-color calibré pour webcam, streaming et plans produit homogènes.', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBX6wGKp-ag71Zmuw5lTrBp889H17uU9GTtTxvuVA-nXmvxnW2idcyGjyhCmLwW7me7biQiZgYIf6yUnV5sxIPhOvleBQd3P5bkskFvO_Eu3xOdScIO6pejV1XIIdEqpXmsgmMaq2u2Vws33_5CfHVZNaTvWVGiGRm4JWDENI7QhvD9_jhzWBalhHY6lgJvWWl2cTeSki50jkQztT3LI03odo9wpZSFSNDPE0L62s0NwvdlehYl69fnp59neVxxK1XUUcAb6B_2tvY' },
+              { id: 'command-center', anchor: '', category: 'Contrôle // Interface', name: 'Command_Center', price: '149,99 EUR', description: 'Commandes LCD, profils logiciels et scènes instantanées pour centraliser le setup.', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCCipA8MzyRpb0E57bDx9-cNnpkhXB4mzjjuUEM7XcUiho51DbG1Ntpu7NaVBb4aOZwrUplxi6Z_nZAfkV59tcDwQDc5h7x3kQZEBwhihtkfSz0QDSAfm2Za-JdOCzwkrfqxnuxRHyMmoBi_X5jS3DlOtWcrUvqoTLJ2U9rmiG8igV8ioCg9FgrPyGuJ5gUcleLZ8q2aQD3Zir-vJpw-tEkxwYqpdaP0rzG2JKXspnW8LTYrDIuxfRDMPBfIa4VcREl7AG9QfeW6i8' },
+              { id: 'obsidian-stream-webcam', anchor: '', category: 'Vidéo // Webcam', name: 'Obsidian_Stream_Webcam', price: '299,99 EUR', description: 'Capteur 4K, recadrage net et colorimétrie stable pour une image toujours propre.', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB7kLllgyGsY2dnnVjWOkjsfyluLmq8EwJLPDgsIh0NOKihK9TZH4DSaYiE5ioKL4TyfpWNBBblhJ5I_FaxP9TewDVumeVTKfjcp0-_k2JIYMaAI1urkYMTUYiAHBa-fNr0EtOjwm02dPcIiivhzJvumStHMa0Z-QYMrEGfJf8qJtVBmrkzQfo0BHlS_qZfxNQMJXtAG_n548SYeRU1ULefCY3f7YrOd0HCgUZtZeGjXwPnHujYqbEzaZjaNpI2cpi7PbKN89kFXzQ' },
+              { id: 'kraken-tkl-mechanical-keyboard', anchor: '', category: 'Entrée // Clavier', name: 'Kraken_TKL_Keyboard', price: '210 EUR', description: 'Format TKL, switches précis et rétroéclairage net pour les longues sessions.', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCRVViC56cIcAc856cP5oHrWIfQRCZxNPHokVzOBwMdlUvqp-OlQAAqp4CRIW2oZi0fn0yN17X7CdcrBYWuBEyLTFm2LU-HECAcWU__WgEluENxE8PSH-MS-Ll5C0MWuaDUg_lXGPMqtQ_mrpiYl-KvuwdtcCOdvdLyDPsouLwtYOEMrGgJmRxmnjoNecHjrD3ujFh_KzDegJskok9NdoAF6WOQ854LwtIrG5sq7VS6JuC2z-zwbNofGd9AFB6JWyvRYXaeLkUpicU' },
+              { id: 'system-monitor-audio', anchor: '', category: 'Monitoring // Audio', name: 'System_Monitor_Audio', price: '389 EUR', description: 'Affichage secondaire et retour audio dédié pour garder le flux sous contrôle.', image: '/assets/images/cliquable.png' }
+            ] %}
+
+            {% for item in demo_products %}
+              <article class="product-card" id="{{ item.id }}">
+                {% if item.anchor %}
+                  <span class="catalog-anchor" id="{{ item.anchor }}" aria-hidden="true"></span>
+                {% endif %}
+                <button class="product-favorite btn-icon" type="button" aria-label="Favori">
+                  <span class="material-symbols-outlined">favorite</span>
+                </button>
+                <div class="product-media">
+                  <img src="{{ item.image }}" alt="{{ item.name }}">
+                </div>
+                <div class="product-body">
+                  <div class="eyebrow eyebrow-bright">{{ item.category }}</div>
+                  <div class="product-meta">
+                    <h2 class="product-name">{{ item.name }}</h2>
+                    <div class="price-value">{{ item.price }}</div>
+                  </div>
+                  <p class="product-description">{{ item.description }}</p>
+                  <a class="btn btn-secondary" href="{{ path('app_produit_demo', { product: item.id }) }}">Voir la fiche</a>
+                </div>
+              </article>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </section>
+    </div>
+  </main>
+{% endblock %}

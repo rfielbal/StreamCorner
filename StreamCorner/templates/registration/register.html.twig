@@ -1,23 +1,155 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Inscription{% endblock %}
+{% block title %}StreamCorner | Inscription{% endblock %}
+{% block body_class %}compact-shell{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block body %}
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
+  <main class="auth-page">
+    <div class="container auth-layout">
+      <section class="auth-brand stack-lg">
+        <div class="stack-md">
+          <div class="eyebrow eyebrow-bright">Création de compte</div>
+          <h1>Stream<br>Corner</h1>
+          <p>
+            Créez votre espace client pour synchroniser le panier, retrouver vos favoris et suivre les commandes du setup.
+          </p>
+        </div>
 
-    <h1>Inscription</h1>
+        <div class="stat-grid">
+          <article class="stat-card panel">
+            <div class="eyebrow">Profil</div>
+            <h2 class="product-name">Client</h2>
+          </article>
+          <article class="stat-card panel">
+            <div class="eyebrow">Accès</div>
+            <h2 class="product-name">Secure</h2>
+          </article>
+        </div>
+      </section>
 
-    {{ form_errors(registrationForm) }}
+      <section class="auth-stack">
+        <article class="auth-card glass-panel">
+          <div class="stack-md">
+            <div>
+              <div class="eyebrow eyebrow-bright">Nouveau profil</div>
+              <h2 class="product-name">Initialisation</h2>
+              <p class="muted">Renseignez vos informations de compte StreamCorner.</p>
+            </div>
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Mot de passe'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+            {% for message in app.flashes('success') %}
+              <div class="requirements-panel glass-panel auth-feedback is-success">
+                <span class="material-symbols-outlined">check_circle</span>
+                <p class="muted">{{ message }}</p>
+              </div>
+            {% endfor %}
 
-        <button type="submit" class="btn">S'inscrire</button>
-    {{ form_end(registrationForm) }}
+            {% for flash_error in app.flashes('verify_email_error') %}
+              <div class="requirements-panel glass-panel auth-feedback is-danger">
+                <span class="material-symbols-outlined">error</span>
+                <p class="muted">{{ flash_error }}</p>
+              </div>
+            {% endfor %}
+
+            <div class="form-error-list">
+              {{ form_errors(registrationForm) }}
+            </div>
+
+            {{ form_start(registrationForm, { attr: { class: 'stack-md' } }) }}
+              <div class="field-grid auth-field-grid">
+                <div class="field">
+                  {{ form_label(registrationForm.prenom, 'Prénom') }}
+                  <div class="input-icon">
+                    <span class="material-symbols-outlined">badge</span>
+                    {{ form_widget(registrationForm.prenom, { attr: { placeholder: 'Raphaël' } }) }}
+                  </div>
+                  {{ form_errors(registrationForm.prenom) }}
+                </div>
+
+                <div class="field">
+                  {{ form_label(registrationForm.nom, 'Nom') }}
+                  <div class="input-icon">
+                    <span class="material-symbols-outlined">id_card</span>
+                    {{ form_widget(registrationForm.nom, { attr: { placeholder: 'Dupont' } }) }}
+                  </div>
+                  {{ form_errors(registrationForm.nom) }}
+                </div>
+
+                <div class="field full">
+                  {{ form_label(registrationForm.email, 'Email') }}
+                  <div class="input-icon">
+                    <span class="material-symbols-outlined">alternate_email</span>
+                    {{ form_widget(registrationForm.email, { attr: { placeholder: 'user@streamcorner.fr' } }) }}
+                  </div>
+                  {{ form_errors(registrationForm.email) }}
+                </div>
+
+                <div class="field full">
+                  {{ form_label(registrationForm.plainPassword, 'Mot de passe') }}
+                  <div class="input-icon">
+                    <span class="material-symbols-outlined">lock</span>
+                    {{ form_widget(registrationForm.plainPassword, { attr: { placeholder: 'Minimum 6 caractères' } }) }}
+                  </div>
+                  {{ form_errors(registrationForm.plainPassword) }}
+                </div>
+              </div>
+
+              <label class="checkbox-line">
+                {{ form_widget(registrationForm.agreeTerms) }}
+                <span>J'accepte les conditions d'utilisation de StreamCorner.</span>
+              </label>
+              {{ form_errors(registrationForm.agreeTerms) }}
+
+              <button type="submit" class="btn btn-primary">
+                Créer le compte
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
+            {{ form_end(registrationForm) }}
+
+            <div class="auth-meta-line">
+              <span class="muted">Déjà inscrit ?</span>
+              <a class="eyebrow eyebrow-bright" href="{{ path('app_login') }}">Connexion</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="auth-card glass-panel">
+          <div class="stack-md">
+            <div class="auth-meta-line">
+              <div>
+                <div class="eyebrow eyebrow-bright">Espace client</div>
+                <h2 class="product-name">Setup synchronisé</h2>
+              </div>
+              <span class="material-symbols-outlined">deployed_code_account</span>
+            </div>
+
+            <div class="auth-benefit-list">
+              <div class="auth-benefit-row">
+                <span class="material-symbols-outlined">shopping_cart</span>
+                <p>Panier conservé entre les sessions.</p>
+              </div>
+              <div class="auth-benefit-row">
+                <span class="material-symbols-outlined">favorite</span>
+                <p>Favoris rattachés au profil client.</p>
+              </div>
+              <div class="auth-benefit-row">
+                <span class="material-symbols-outlined">mark_email_read</span>
+                <p>Email de vérification envoyé après inscription.</p>
+              </div>
+            </div>
+
+            <a class="btn btn-secondary" href="{{ path('app_accueil') }}">
+              <span class="material-symbols-outlined">storefront</span>
+              Retour boutique
+            </a>
+          </div>
+        </article>
+
+        <div class="footer-copy">(c) 2026 StreamCorner. Tous droits réservés.</div>
+      </section>
+    </div>
+
+    <div class="auth-watermark" aria-hidden="true">SIGNUP</div>
+  </main>
 {% endblock %}

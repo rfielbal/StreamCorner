@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }}Favoris{% endblock %}
+
+{% block body %}
+	<div class="container py-5">
+		<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5">
+			<div>
+				<p class="text-primary fw-bold text-uppercase small mb-2">Ma sélection</p>
+				<h1 class="display-5 fw-bold mb-0">Mes favoris</h1>
+			</div>
+			<a href="{{ path('app_mes_produits') }}" class="btn btn-outline-primary">
+				<i class="bi bi-arrow-left me-1"></i>
+				Retour boutique
+			</a>
+		</div>
+
+		{% if produits|length == 0 %}
+			<div class="bg-white border rounded p-5 text-center">
+				<i class="bi bi-heart fs-1 text-muted"></i>
+				<h2 class="h4 mt-3">Aucun favori pour le moment</h2>
+				<p class="text-muted mb-4">Ajoutez vos produits préférés depuis la boutique.</p>
+				<a href="{{ path('app_mes_produits') }}" class="btn btn-primary">Découvrir les produits</a>
+			</div>
+		{% else %}
+			<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+				{% for produit in produits %}
+					<div class="col">
+						{% include 'produit/_card.html.twig' with {produit: produit, user: user} %}
+					</div>
+				{% endfor %}
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}

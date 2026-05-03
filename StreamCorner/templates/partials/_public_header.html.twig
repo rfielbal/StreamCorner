@@ -1,0 +1,51 @@
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="{{ path('app_accueil') }}">STREAM_CORNER</a>
+    <nav class="site-nav" aria-label="Navigation principale">
+      <a data-nav-item="accueil" href="{{ path('app_accueil') }}">Accueil</a>
+      <a data-nav-item="boutique" href="{{ path('app_catalogue') }}">Boutique</a>
+      <a data-nav-item="streaming" href="{{ path('app_catalogue') }}">Diffusion</a>
+      <a data-nav-item="audio" href="{{ path('app_catalogue') }}#audio">Audio</a>
+      <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
+    </nav>
+    <div class="topbar-actions">
+      <div class="nav-search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="search" name="q" placeholder="rechercher_matériel...">
+      </div>
+      <button class="nav-toggle" type="button" data-toggle-target="#mobile-nav" aria-label="Ouvrir la navigation">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <a class="btn-icon" data-nav-icon-item="panier" href="{{ path('app_checkout') }}" aria-label="Panier">
+        <span class="material-symbols-outlined">shopping_cart</span>
+      </a>
+      {% if app.user %}
+        <a class="btn-icon" data-nav-icon-item="compte" href="{{ path('app_logout') }}" aria-label="Déconnexion {{ app.user.userIdentifier }}">
+          <span class="material-symbols-outlined">logout</span>
+        </a>
+      {% else %}
+        <a class="btn-icon" data-nav-icon-item="compte" href="{{ path('app_login') }}" aria-label="Compte">
+          <span class="material-symbols-outlined">account_circle</span>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="container">
+    <div class="mobile-nav" id="mobile-nav">
+      <nav class="site-nav" aria-label="Navigation mobile">
+        <a data-nav-item="accueil" href="{{ path('app_accueil') }}">Accueil</a>
+        <a data-nav-item="boutique" href="{{ path('app_catalogue') }}">Boutique</a>
+        <a data-nav-item="streaming" href="{{ path('app_catalogue') }}">Diffusion</a>
+        <a data-nav-item="audio" href="{{ path('app_catalogue') }}#audio">Audio</a>
+        <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
+        <a href="{{ path('app_checkout') }}">Panier</a>
+        {% if app.user %}
+          <a href="{{ path('app_logout') }}">Déconnexion</a>
+        {% else %}
+          <a href="{{ path('app_login') }}">Connexion</a>
+          <a href="{{ path('app_register') }}">Inscription</a>
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+</header>
