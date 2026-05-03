@@ -1,0 +1,48 @@
+{% set isFavorite = utilisateur is defined and utilisateur and produit in utilisateur.produitsAimers %}
+{% set hasImage = produit.image is not empty %}
+{% set imageSrc = hasImage and produit.image starts with 'http' ? produit.image : '/images/' ~ produit.image %}
+
+<article class="card h-100 shadow-sm stream-product-card">
+	<div class="stream-product-media">
+		{% if hasImage %}
+			<img src="{{ imageSrc }}" alt="{{ produit.designation }}" class="stream-product-img" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+			<div class="stream-product-placeholder d-none">
+				<i class="bi bi-camera-video fs-1"></i>
+			</div>
+		{% else %}
+			<div class="stream-product-placeholder">
+				<i class="bi bi-camera-video fs-1"></i>
+			</div>
+		{% endif %}
+
+		<a href="{{ is_granted('IS_AUTHENTICATED_FULLY') ? path('app_favoris', {id: produit.id}) : path('app_login') }}" class="btn btn-light btn-sm rounded-circle stream-favorite-btn" title="{{ isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
+			<i class="bi {{ isFavorite ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
+		</a>
+
+		{% if produit.stock <= 0 %}
+			<span class="badge bg-danger stream-stock-badge">Rupture</span>
+		{% elseif produit.stock <= 3 %}
+			<span class="badge bg-warning text-dark stream-stock-badge">Stock faible</span>
+		{% endif %}
+	</div>
+
+	<div class="card-body d-flex flex-column">
+		<div class="d-flex justify-content-between gap-3">
+			<div>
+				<p class="text-primary fw-bold small mb-1">{{ produit.categorie.nomCategorie }}</p>
+				<h2 class="h5 card-title mb-2">{{ produit.designation }}</h2>
+			</div>
+			<p class="fw-bold fs-5 text-nowrap mb-0">{{ produit.prixUnitHT|number_format(2, ',', ' ') }} €</p>
+		</div>
+
+		<p class="card-text text-muted small flex-grow-1">{{ produit.description|striptags|slice(0, 130) }}{% if produit.description|length > 130 %}...{% endif %}</p>
+
+		<div class="d-flex align-items-center justify-content-between gap-2 mt-3">
+			<span class="small text-muted">{{ produit.stock }} en stock</span>
+			<a href="{{ is_granted('IS_AUTHENTICATED_FULLY') ? path('app_panier_add', {id: produit.id}) : path('app_login') }}" class="btn btn-primary btn-sm {{ produit.stock <= 0 ? 'disabled' : '' }}">
+				<i class="bi bi-bag-plus me-1"></i>
+				Ajouter
+			</a>
+		</div>
+	</div>
+</article>

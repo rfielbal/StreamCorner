@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Utilisateur;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use App\Security\AppCustomAuthenticator;
@@ -40,7 +41,16 @@ class RegistrationController extends AbstractController
             // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
+            $localPart = trim((string) strstr((string) $user->getEmail(), '@', true));
+            $utilisateur = (new Utilisateur())
+                ->setNomU($localPart !== '' ? $localPart : 'Client')
+                ->setPrenomU('StreamCorner')
+                ->setEmailU((string) $user->getEmail())
+                ->setMdpU((string) $user->getPassword())
+                ->setRoleU('ROLE_USER');
+
             $entityManager->persist($user);
+            $entityManager->persist($utilisateur);
             $entityManager->flush();
 
             // generate a signed url and email it to the user

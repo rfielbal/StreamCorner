@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }}Panier{% endblock %}
+
+{% block body %}
+	<div class="container py-5">
+		<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5">
+			<div>
+				<p class="text-primary fw-bold text-uppercase small mb-2">Commande</p>
+				<h1 class="display-5 fw-bold mb-0">Mon panier</h1>
+			</div>
+			<a href="{{ path('app_mes_produits') }}" class="btn btn-outline-primary">
+				<i class="bi bi-bag me-1"></i>
+				Continuer mes achats
+			</a>
+		</div>
+
+		{% if lignes|length == 0 %}
+			<div class="bg-white border rounded p-5 text-center">
+				<i class="bi bi-cart fs-1 text-muted"></i>
+				<h2 class="h4 mt-3">Votre panier est vide</h2>
+				<p class="text-muted mb-4">Ajoutez des produits depuis la boutique pour préparer votre commande.</p>
+				<a href="{{ path('app_mes_produits') }}" class="btn btn-primary">Voir la boutique</a>
+			</div>
+		{% else %}
+			<div class="row g-4">
+				<section class="col-lg-8">
+					<div class="list-group shadow-sm">
+						{% for ligne in lignes %}
+							{% set produit = ligne.produit %}
+							{% set hasImage = produit.image is not empty %}
+							{% set imageSrc = hasImage and produit.image starts with 'http' ? produit.image : '/images/' ~ produit.image %}
+							{% set lineTotal = ligne.quantite * produit.prixUnitHT %}
+
+							<div class="list-group-item p-3">
+								<div class="d-flex gap-3">
+									<div class="stream-cart-media flex-shrink-0">
+										{% if hasImage %}
+											<img src="{{ imageSrc }}" alt="{{ produit.designation }}" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+											<div class="stream-product-placeholder d-none">
+												<i class="bi bi-camera-video"></i>
+											</div>
+										{% else %}
+											<div class="stream-product-placeholder">
+												<i class="bi bi-camera-video"></i>
+											</div>
+										{% endif %}
+									</div>
+
+									<div class="flex-grow-1">
+										<div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+											<div>
+												<p class="text-primary fw-bold small mb-1">{{ produit.categorie.nomCategorie }}</p>
+												<h2 class="h5 mb-1">{{ produit.designation }}</h2>
+												<p class="text-muted small mb-0">{{ produit.prixUnitHT|number_format(2, ',', ' ') }} € / unité</p>
+											</div>
+											<p class="fw-bold fs-5 mb-0 text-nowrap">{{ lineTotal|number_format(2, ',', ' ') }} €</p>
+										</div>
+
+										<div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+											<div class="btn-group" role="group" aria-label="Quantité">
+												<a href="{{ path('app_panier_moins', {id: produit.id}) }}" class="btn btn-outline-secondary btn-sm">
+													<i class="bi bi-dash"></i>
+												</a>
+												<span class="btn btn-outline-secondary btn-sm disabled">{{ ligne.quantite }}</span>
+												<a href="{{ path('app_panier_plus', {id: produit.id}) }}" class="btn btn-outline-secondary btn-sm">
+													<i class="bi bi-plus"></i>
+												</a>
+											</div>
+
+											<a href="{{ path('app_panier_supprimer', {id: produit.id}) }}" class="btn btn-outline-danger btn-sm">
+												<i class="bi bi-trash me-1"></i>
+												Supprimer
+											</a>
+
+											<a href="{{ path('app_favoris', {id: produit.id}) }}" class="btn btn-outline-primary btn-sm">
+												<i class="bi {{ produit in utilisateur.produitsAimers ? 'bi-heart-fill' : 'bi-heart' }} me-1"></i>
+												Favori
+											</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				</section>
+
+				<aside class="col-lg-4">
+					<div class="card shadow-sm">
+						<div class="card-body">
+							<h2 class="h4 mb-4">Récapitulatif</h2>
+							<div class="d-flex justify-content-between mb-2">
+								<span>Total HT</span>
+								<strong>{{ total|number_format(2, ',', ' ') }} €</strong>
+							</div>
+							<div class="d-flex justify-content-between text-muted mb-3">
+								<span>TVA estimée</span>
+								<span>{{ (total * 0.2)|number_format(2, ',', ' ') }} €</span>
+							</div>
+							<hr>
+							<div class="d-flex justify-content-between fs-5">
+								<span>Total TTC</span>
+								<strong>{{ (total * 1.2)|number_format(2, ',', ' ') }} €</strong>
+							</div>
+						</div>
+					</div>
+				</aside>
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}
