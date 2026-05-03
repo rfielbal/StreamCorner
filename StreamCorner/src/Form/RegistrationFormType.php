@@ -18,10 +18,15 @@ class RegistrationFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email', EmailType::class, ['attr' => ['class'=> 'form-control'], 'label_attr' => ['class'=> 'fw-bold']])
+            ->add('email', EmailType::class, [
+                'label' => 'Adresse email',
+                'attr' => ['class'=> 'form-control'],
+                'label_attr' => ['class'=> 'fw-bold'],
+            ])
             ->add('agreeTerms', CheckboxType::class, [
+                'label' => 'J\'accepte les conditions d\'utilisation',
                 'mapped' => false,
-				'data' => false,
+                'data' => false,
                 'constraints' => [
                     new IsTrue([
                         'message'=> 'Veuillez accepter les conditions d\'utilisation.',
@@ -34,11 +39,11 @@ class RegistrationFormType extends AbstractType
                 'attr' => ['autocomplete' => 'new-password','class'=> 'form-control'],
                 'constraints' => [
                     new NotBlank([
-                        'message'=> 'Please enter a password',
+                        'message'=> 'Veuillez saisir un mot de passe.',
                     ]),
                     new Length([
                         'min'=> 6,
-                        'minMessage'=> 'Your password should be at least {{ limit }} characters',
+                        'minMessage'=> 'Votre mot de passe doit contenir au moins {{ limit }} caractères.',
                         'max'=> 4096,
                     ]),
                 ],
