@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class ProduitController extends AbstractController
 {
+    #[Route('/catalogue', name: 'app_catalogue')]
     #[Route('/boutique', name: 'app_mes_produits')]
     public function index(
         Request $request,
