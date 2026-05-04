@@ -36,7 +36,7 @@
 						{% for ligne in lignes %}
 							{% set produit = ligne.produit %}
 							{% set hasImage = produit.image is not empty %}
-							{% set imageSrc = hasImage and produit.image starts with 'http' ? produit.image : '/images/' ~ produit.image %}
+							{% set imageSrc = hasImage and (produit.image starts with 'http' or produit.image starts with '/') ? produit.image : '/assets/images/products/' ~ produit.image %}
 							{% set lineTotal = ligne.quantite * produit.prixUnitHT %}
 
 							<div class="list-group-item p-3">

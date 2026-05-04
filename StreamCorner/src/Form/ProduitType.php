@@ -53,6 +53,9 @@ class ProduitType extends AbstractType
                 'label' => 'Image',
                 'mapped' => false,
                 'required' => $options['image_required'],
+                'attr' => [
+                    'accept' => 'image/jpeg,image/png,image/webp,image/gif',
+                ],
                 'help' => $options['image_required']
                     ? 'Image du produit. Formats acceptés : JPG, PNG, WEBP ou GIF. Taille maximale : 10 Mo.'
                     : 'Laissez vide pour conserver l’image actuelle. Formats acceptés : JPG, PNG, WEBP ou GIF. Taille maximale : 10 Mo.',

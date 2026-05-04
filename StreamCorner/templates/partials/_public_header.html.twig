@@ -13,10 +13,10 @@
       {% endif %}
     </nav>
     <div class="topbar-actions">
-      <div class="nav-search">
+      <form class="nav-search" method="get" action="{{ path('app_resultat') }}">
         <span class="material-symbols-outlined">search</span>
-        <input type="search" name="q" placeholder="rechercher_matériel...">
-      </div>
+        <input type="search" name="q" placeholder="rechercher_matériel..." value="{{ app.request.query.get('q') }}">
+      </form>
       <button class="nav-toggle" type="button" data-toggle-target="#mobile-nav" aria-label="Ouvrir la navigation">
         <span class="material-symbols-outlined">menu</span>
       </button>

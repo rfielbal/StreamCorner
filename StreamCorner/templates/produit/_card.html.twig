@@ -1,6 +1,6 @@
 {% set isFavorite = user is defined and user and produit in user.produitsAimers %}
 {% set hasImage = produit.image is not empty %}
-{% set imageSrc = hasImage and produit.image starts with 'http' ? produit.image : '/images/' ~ produit.image %}
+{% set imageSrc = hasImage and (produit.image starts with 'http' or produit.image starts with '/') ? produit.image : '/assets/images/products/' ~ produit.image %}
 
 <article class="card h-100 shadow-sm stream-product-card">
 	<div class="stream-product-media">

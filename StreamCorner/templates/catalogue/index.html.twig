@@ -1,5 +1,12 @@
 {% extends 'base.html.twig' %}
 
+{% set selectedCategories = selectedCategories|default([]) %}
+{% set currentSort = sort|default('newest') %}
+{% set currentMaxPrice = maxPrice|default('2000') %}
+{% set onlyInStock = inStock|default(false) %}
+{% set filter_route = searchTerm ? 'app_resultat' : 'app_catalogue' %}
+{% set reset_params = searchTerm ? { q: searchTerm } : {} %}
+
 {% block title %}StreamCorner | Catalogue{% endblock %}
 {% block body_class %}page-shell{% endblock %}
 {% block body_data %}data-nav-section="boutique"{% endblock %}
@@ -10,7 +17,11 @@
   <main class="container">
     <div class="catalog-layout">
       <aside class="catalog-sidebar" id="catalogue-filters">
-        <div class="stack-lg">
+        <form id="catalogue-filter-form" class="stack-lg catalog-filter-form" method="get" action="{{ path(filter_route) }}">
+          {% if searchTerm %}
+            <input type="hidden" name="q" value="{{ searchTerm }}">
+          {% endif %}
+
           <div class="catalog-sidebar-header">
             <div>
               <div class="eyebrow eyebrow-bright">Centre de commande</div>
@@ -24,36 +35,47 @@
           <section class="filter-group">
             <h2 class="filter-label">Catégorie</h2>
             <div class="filter-options">
-              <label class="checkbox-line"><input checked type="checkbox">Tout le matériel</label>
+              <label class="checkbox-line"><input type="checkbox" disabled {{ selectedCategories is empty ? 'checked' : '' }}>Tout le matériel</label>
               {% for categorie in categories %}
-                <label class="checkbox-line"><input type="checkbox">{{ categorie.nomCategorie }}</label>
+                <label class="checkbox-line">
+                  <input
+                    type="checkbox"
+                    name="categories[]"
+                    value="{{ categorie.id }}"
+                    {{ categorie.id ~ '' in selectedCategories ? 'checked' : '' }}
+                  >
+                  {{ categorie.nomCategorie }}
+                </label>
               {% else %}
-                <label class="checkbox-line"><input type="checkbox">Microphones</label>
-                <label class="checkbox-line"><input type="checkbox">Éclairages</label>
-                <label class="checkbox-line"><input type="checkbox">Contrôleurs</label>
+                <p class="muted filter-empty">Ajoutez d'abord une catégorie depuis l'administration.</p>
               {% endfor %}
             </div>
           </section>
 
           <section class="filter-group">
-            <h2 class="filter-label">Fourchette de prix</h2>
-            <input type="range" min="0" max="2000" value="950">
+            <h2 class="filter-label">Prix maximum</h2>
+            <input type="range" name="max_price" min="0" max="2000" step="10" value="{{ currentMaxPrice }}">
             <div class="mini-row muted">
               <span>0 EUR</span>
-              <span>2 000 EUR+</span>
+              <span>{{ currentMaxPrice == '2000' ? '2 000 EUR+' : currentMaxPrice ~ ' EUR' }}</span>
             </div>
           </section>
 
           <section class="filter-group">
-            <h2 class="filter-label">Note minimale</h2>
+            <h2 class="filter-label">Disponibilité</h2>
             <div class="filter-options">
-              <label class="radio-line"><input checked name="rating" type="radio">4+ etoiles</label>
-              <label class="radio-line"><input name="rating" type="radio">3+ etoiles</label>
+              <label class="checkbox-line">
+                <input type="checkbox" name="in_stock" value="1" {{ onlyInStock ? 'checked' : '' }}>
+                En stock uniquement
+              </label>
             </div>
           </section>
 
-          <button class="btn btn-primary" type="button" data-close-target="#catalogue-filters, #catalogue-overlay">Appliquer</button>
-        </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary" type="submit">Appliquer</button>
+            <a class="btn btn-ghost" href="{{ path(filter_route, reset_params) }}">Réinitialiser</a>
+          </div>
+        </form>
       </aside>
 
       <section class="catalog-main">
@@ -66,10 +88,18 @@
             <button class="panel-toggle" type="button" data-toggle-target="#catalogue-filters, #catalogue-overlay" aria-label="Ouvrir les filtres">
               <span class="material-symbols-outlined">tune</span>
             </button>
-            <button class="toolbar-sort" type="button">
-              Trier : nouveautes
+            <label class="toolbar-sort" for="catalog-sort">
+              Trier
+              <select id="catalog-sort" name="sort" form="catalogue-filter-form" onchange="this.form.submit()">
+                <option value="newest" {{ currentSort == 'newest' ? 'selected' : '' }}>Nouveautés</option>
+                <option value="name_asc" {{ currentSort == 'name_asc' ? 'selected' : '' }}>Nom A-Z</option>
+                <option value="name_desc" {{ currentSort == 'name_desc' ? 'selected' : '' }}>Nom Z-A</option>
+                <option value="price_asc" {{ currentSort == 'price_asc' ? 'selected' : '' }}>Prix croissant</option>
+                <option value="price_desc" {{ currentSort == 'price_desc' ? 'selected' : '' }}>Prix décroissant</option>
+                <option value="stock_desc" {{ currentSort == 'stock_desc' ? 'selected' : '' }}>Stock</option>
+              </select>
               <span class="material-symbols-outlined">expand_more</span>
-            </button>
+            </label>
           </div>
         </div>
 
@@ -80,13 +110,14 @@
               {% set image_src = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
               {% set category_name = produit.categorie ? produit.categorie.nomCategorie : 'Matériel streaming' %}
               {% set category_key = category_name|lower %}
+              {% set is_favorite = user and produit in user.produitsAimers %}
               <article class="product-card" id="produit-{{ produit.id }}">
                 {% if 'audio' in category_key %}
                   <span class="catalog-anchor" id="audio" aria-hidden="true"></span>
                 {% elseif 'eclairage' in category_key or 'light' in category_key %}
                   <span class="catalog-anchor" id="eclairage" aria-hidden="true"></span>
                 {% endif %}
-                <a class="product-favorite btn-icon" href="{{ path('app_favoris', { id: produit.id }) }}" aria-label="Favori">
+                <a class="product-favorite btn-icon {{ is_favorite ? 'is-active' : '' }}" href="{{ app.user ? path('app_favoris', { id: produit.id }) : path('app_login') }}" aria-label="{{ is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
                   <span class="material-symbols-outlined">favorite</span>
                 </a>
                 <div class="product-media">
@@ -99,7 +130,17 @@
                     <div class="price-value">{{ produit.prixUnitHT }} EUR</div>
                   </div>
                   <p class="product-description">{{ produit.description|striptags|slice(0, 140) }}{% if produit.description|length > 140 %}...{% endif %}</p>
-                  <a class="btn btn-secondary" href="{{ path('app_produit_show', { id: produit.id }) }}">Voir la fiche</a>
+                  <div class="product-card-actions">
+                    <a class="btn btn-secondary" href="{{ path('app_produit_show', { id: produit.id }) }}">Voir la fiche</a>
+                    {% if produit.stock > 0 %}
+                      <a class="btn btn-primary" href="{{ app.user ? path('app_panier_add', { id: produit.id }) : path('app_login') }}">
+                        <span class="material-symbols-outlined">add_shopping_cart</span>
+                        Ajouter
+                      </a>
+                    {% else %}
+                      <span class="btn btn-secondary is-disabled" aria-disabled="true">Rupture</span>
+                    {% endif %}
+                  </div>
                 </div>
               </article>
             {% endfor %}

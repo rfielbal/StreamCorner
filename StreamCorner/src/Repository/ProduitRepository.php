@@ -17,9 +17,17 @@ class ProduitRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param string[]|string|null $categorieIds
+     *
      * @return Produit[]
      */
-    public function search(?string $term = null, ?string $categorieId = null, ?string $sort = null): array
+    public function search(
+        ?string $term = null,
+        array|string|null $categorieIds = null,
+        ?string $sort = null,
+        ?string $maxPrice = null,
+        bool $inStock = false,
+    ): array
     {
         $qb = $this->createQueryBuilder('p')
             ->leftJoin('p.categorie', 'c')
@@ -31,18 +39,41 @@ class ProduitRepository extends ServiceEntityRepository
                 ->setParameter('term', '%' . strtolower(trim($term)) . '%');
         }
 
-        if ($categorieId !== null && $categorieId !== '') {
+        $selectedCategories = is_array($categorieIds) ? $categorieIds : [$categorieIds];
+        $selectedCategories = array_values(array_filter(
+            array_map(static fn (mixed $id): string => trim((string) $id), $selectedCategories),
+            static fn (string $id): bool => $id !== ''
+        ));
+
+        if ($selectedCategories !== []) {
             $qb
-                ->andWhere('c.id = :categorie')
-                ->setParameter('categorie', $categorieId);
+                ->andWhere('c.id IN (:categories)')
+                ->setParameter('categories', $selectedCategories);
+        }
+
+        if ($maxPrice !== null && is_numeric($maxPrice) && (float) $maxPrice < 2000.0) {
+            $qb
+                ->andWhere('p.prixUnitHT <= :maxPrice')
+                ->setParameter('maxPrice', number_format((float) $maxPrice, 2, '.', ''));
+        }
+
+        if ($inStock) {
+            $qb->andWhere('p.stock > 0');
         }
 
         if ($sort === 'price_asc') {
             $qb->orderBy('p.prixUnitHT', 'ASC');
         } elseif ($sort === 'price_desc') {
             $qb->orderBy('p.prixUnitHT', 'DESC');
-        } else {
+        } elseif ($sort === 'name_asc') {
             $qb->orderBy('p.designation', 'ASC');
+        } elseif ($sort === 'name_desc') {
+            $qb->orderBy('p.designation', 'DESC');
+        } elseif ($sort === 'stock_desc') {
+            $qb->orderBy('p.stock', 'DESC')
+                ->addOrderBy('p.designation', 'ASC');
+        } else {
+            $qb->orderBy('p.id', 'DESC');
         }
 
         return $qb->getQuery()->getResult();
