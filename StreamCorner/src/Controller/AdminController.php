@@ -7,6 +7,7 @@ use App\Entity\Admin;
 use App\Entity\Ajouter;
 use App\Entity\Categorie;
 use App\Entity\Commande;
+use App\Entity\Contact;
 use App\Entity\Noter;
 use App\Entity\Panier;
 use App\Entity\Parvenir;
@@ -18,6 +19,7 @@ use App\Form\AdminType;
 use App\Form\AjouterType;
 use App\Form\CategorieType;
 use App\Form\CommandeType;
+use App\Form\ContactType;
 use App\Form\NoterType;
 use App\Form\PanierType;
 use App\Form\ParvenirType;
@@ -73,6 +75,11 @@ final class AdminController extends AbstractController
                     'value' => $entityManager->getRepository(Sav::class)->count([]),
                     'tone' => 'danger',
                 ],
+                [
+                    'label' => 'Contacts',
+                    'value' => $entityManager->getRepository(Contact::class)->count([]),
+                    'tone' => 'secondary',
+                ],
             ],
             'admin_sections' => $sections,
         ]);
@@ -112,6 +119,12 @@ final class AdminController extends AbstractController
     public function reviews(EntityManagerInterface $entityManager): Response
     {
         return $this->renderIndex('avis', $entityManager);
+    }
+
+    #[Route('/contacts', name: 'app_admin_contacts')]
+    public function contacts(EntityManagerInterface $entityManager): Response
+    {
+        return $this->renderIndex('contacts', $entityManager);
     }
 
     #[Route('/droits', name: 'app_admin_permissions')]
@@ -334,6 +347,10 @@ final class AdminController extends AbstractController
             $entity->setDateMessage(new \DateTime());
         }
 
+        if ($entity instanceof Contact && $entity->getDateEnvoi() === null) {
+            $entity->setDateEnvoi(new \DateTime());
+        }
+
         return true;
     }
 
@@ -499,6 +516,18 @@ final class AdminController extends AbstractController
                 'new_title' => 'Nouveau_SAV',
                 'edit_title' => 'Modifier_SAV',
             ],
+            'contacts' => [
+                'active' => 'contacts',
+                'title' => 'Contacts',
+                'kicker' => 'Table Contact // Messages publics',
+                'entity' => Contact::class,
+                'form' => ContactType::class,
+                'order' => ['dateEnvoi' => 'DESC'],
+                'columns' => ['ID', 'Nom', 'Prénom', 'Sujet', 'Message', 'Date'],
+                'empty' => 'Aucun message de contact enregistré.',
+                'new_title' => 'Nouveau_Contact',
+                'edit_title' => 'Modifier_Contact',
+            ],
             'admins' => [
                 'active' => 'permissions',
                 'title' => 'Administrateurs',
@@ -530,6 +559,7 @@ final class AdminController extends AbstractController
             Parvenir::class => (new Parvenir())->setQuantite(1)->setPrixHt('0.00'),
             Noter::class => (new Noter())->setDateMessage(new \DateTime()),
             Sav::class => (new Sav())->setDateMessage(new \DateTime())->setTraitement('Nouveau'),
+            Contact::class => (new Contact())->setDateEnvoi(new \DateTime()),
             default => new $class(),
         };
     }
@@ -623,6 +653,14 @@ final class AdminController extends AbstractController
                 $item->getTraitement() ?? 'Nouveau',
                 $this->formatDate($item->getDateMessage()),
             ],
+            'contacts' => [
+                (string) $item->getId(),
+                $item->getNom() ?? '',
+                $item->getPrenom() ?? '',
+                $item->getSujet() ?? '',
+                $this->shorten($item->getMessage()),
+                $this->formatDate($item->getDateEnvoi()),
+            ],
             'admins' => [
                 (string) $item->getId(),
                 $item->getEmailA() ?? '',
@@ -667,7 +705,7 @@ final class AdminController extends AbstractController
      */
     private function adminSections(EntityManagerInterface $entityManager): array
     {
-        $resources = ['produits', 'categories', 'commandes', 'utilisateurs', 'adresses', 'paniers', 'ajouter', 'parvenir', 'avis', 'sav', 'admins'];
+        $resources = ['produits', 'categories', 'commandes', 'utilisateurs', 'adresses', 'paniers', 'ajouter', 'parvenir', 'avis', 'sav', 'contacts', 'admins'];
 
         return array_map(function (string $resource) use ($entityManager): array {
             $config = $this->resourceConfig($resource);
@@ -685,6 +723,7 @@ final class AdminController extends AbstractController
                     'ajouter', 'parvenir' => 'format_list_bulleted',
                     'avis' => 'rate_review',
                     'sav' => 'support_agent',
+                    'contacts' => 'contact_mail',
                     'admins' => 'admin_panel_settings',
                     default => 'table',
                 },

@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | Contact{% endblock %}
+{% block body_class %}page-shell{% endblock %}
+{% block body_data %}data-nav-section="contact"{% endblock %}
+
+{% block body %}
+  <main class="section">
+    <div class="container contact-layout">
+      <section class="stack-lg">
+        <div class="split-header">
+          <div>
+            <div class="eyebrow eyebrow-bright">Assistance</div>
+            <h1 class="section-title">Contact_<em>StreamCorner</em></h1>
+            <p class="muted">Envoyez une demande au support boutique. Elle sera transmise dans l'administration.</p>
+          </div>
+          <a class="btn btn-secondary" href="{{ path('app_catalogue') }}">
+            <span class="material-symbols-outlined">storefront</span>
+            Boutique
+          </a>
+        </div>
+
+        {% include 'components/_flash_messages.html.twig' ignore missing %}
+
+        {% include 'components/_form_panel.html.twig' with {
+          form: form,
+          title: 'Message_Client',
+          kicker: 'Formulaire contact',
+          submit_label: 'Envoyer le message',
+          back_path: path('app_accueil')
+        } %}
+      </section>
+
+      <aside class="contact-aside panel">
+        <div class="stack-md">
+          <div>
+            <div class="eyebrow eyebrow-bright">Suivi admin</div>
+            <h2 class="product-name">Messages centralisés</h2>
+          </div>
+          <div class="requirements-list">
+            <div class="requirements-row">
+              <span class="meta-text">Champs</span>
+              <span>Nom, prénom, sujet, message</span>
+            </div>
+            <div class="requirements-row">
+              <span class="meta-text">Stockage</span>
+              <span>Base StreamCorner</span>
+            </div>
+            <div class="requirements-row">
+              <span class="meta-text">Lecture</span>
+              <span>Administration</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+{% endblock %}

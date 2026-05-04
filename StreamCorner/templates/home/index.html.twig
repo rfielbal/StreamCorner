@@ -184,13 +184,15 @@
     <section class="section newsletter">
       <div class="container">
         <div class="newsletter-panel">
-          <h2 class="section-title">Recevoir les mises à jour_<em>StreamCorner</em></h2>
-          <p class="muted">Nouveaux produits, réassorts et configurations prêtes pour le streaming.</p>
-          <form class="newsletter-form">
-            <input type="email" placeholder="email@streamcorner.fr">
-            <button class="btn btn-primary" type="submit">S'abonner</button>
-          </form>
-          <div class="newsletter-note">Données chiffrées // Confidentialité assurée</div>
+          <h2 class="section-title">Contacter_<em>StreamCorner</em></h2>
+          <p class="muted">Une question sur un produit, une commande ou un setup streaming ? Envoyez un message au support.</p>
+          <div class="newsletter-form">
+            <a class="btn btn-primary" href="{{ path('app_contact') }}">
+              Ouvrir le formulaire
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+          </div>
+          <div class="newsletter-note">Messages stockés en base // Consultation administration</div>
         </div>
       </div>
     </section>

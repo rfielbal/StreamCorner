@@ -7,6 +7,7 @@
       <a data-nav-item="streaming" href="{{ path('app_catalogue') }}">Diffusion</a>
       <a data-nav-item="audio" href="{{ path('app_catalogue') }}#audio">Audio</a>
       <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
+      <a data-nav-item="contact" href="{{ path('app_contact') }}">Contact</a>
       {% if app.user %}
         <a data-nav-item="commandes" href="{{ path('app_commande_index') }}">Commandes</a>
       {% endif %}
@@ -46,6 +47,7 @@
         <a data-nav-item="streaming" href="{{ path('app_catalogue') }}">Diffusion</a>
         <a data-nav-item="audio" href="{{ path('app_catalogue') }}#audio">Audio</a>
         <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
+        <a data-nav-item="contact" href="{{ path('app_contact') }}">Contact</a>
         <a href="{{ path('app_panier') }}">Panier</a>
         {% if is_granted('ROLE_ADMIN') %}
           <a href="{{ path('app_admin_dashboard') }}">Administration</a>
