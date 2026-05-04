@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | {{ title|replace({'_': ' '}) }}{% endblock %}
+{% block body_class %}{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block body %}
+  <div class="sidebar-backdrop" id="{{ overlay_id }}" data-close-target="#{{ sidebar_id }}, #{{ overlay_id }}"></div>
+
+  <div class="admin-shell">
+    {% include 'admin/_sidebar.html.twig' with { admin_active: admin_active, sidebar_id: sidebar_id } %}
+
+    <main class="admin-main">
+      <header class="admin-topline">
+        <div class="stack-sm">
+          <button class="mobile-sidebar-toggle mobile-only" type="button" data-toggle-target="#{{ sidebar_id }}, #{{ overlay_id }}" aria-label="Ouvrir la sidebar admin">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <h1 class="section-title">{{ title }}</h1>
+          <p class="section-kicker">{{ kicker }}</p>
+        </div>
+
+        <div class="toolbar-actions">
+          <a class="btn btn-primary" href="{{ path('app_admin_crud_new', { resource: resource }) }}">
+            <span class="material-symbols-outlined">add_circle</span>
+            Ajouter
+          </a>
+          <a class="btn btn-secondary" href="{{ path('app_admin_dashboard') }}">
+            <span class="material-symbols-outlined">dashboard</span>
+            Admin
+          </a>
+        </div>
+      </header>
+
+      {% include 'components/_flash_messages.html.twig' ignore missing %}
+
+      <section class="admin-card">
+        <div class="inventory-toolbar">
+          <div class="search-group">
+            <input class="search-input" data-filter-table="#admin-resource-table" type="search" placeholder="Filtrer la table...">
+            <button class="btn-icon" type="button" aria-label="Filtrer">
+              <span class="material-symbols-outlined">filter_list</span>
+            </button>
+          </div>
+
+          <div class="toolbar-actions">
+            <span class="status-badge status-info">{{ rows|length }} ligne(s)</span>
+            <span class="status-badge status-success">CRUD actif</span>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table" id="admin-resource-table">
+            <thead>
+              <tr>
+                {% for column in columns %}
+                  <th>{{ column }}</th>
+                {% endfor %}
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in rows %}
+                <tr>
+                  {% for cell in row.cells %}
+                    <td>{{ cell }}</td>
+                  {% endfor %}
+                  <td>
+                    <div class="toolbar-actions table-actions">
+                      <a class="btn-icon" href="{{ path('app_admin_crud_edit', { resource: resource, id: row.id }) }}" aria-label="Modifier">
+                        <span class="material-symbols-outlined">edit</span>
+                      </a>
+                      <form method="post" action="{{ path('app_admin_crud_delete', { resource: resource, id: row.id }) }}" onsubmit="return confirm('Confirmer la suppression ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete-' ~ resource ~ '-' ~ row.id) }}">
+                        <button class="btn-icon" type="submit" aria-label="Supprimer">
+                          <span class="material-symbols-outlined">delete</span>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td class="empty-table-cell" colspan="{{ columns|length + 1 }}">{{ empty_message }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <span>Affichage de {{ rows|length }} résultat(s)</span>
+          <div class="pagination-controls">
+            <span class="page-dot is-current">1</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+{% endblock %}

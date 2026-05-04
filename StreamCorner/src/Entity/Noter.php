@@ -5,8 +5,11 @@ namespace App\Entity;
 use App\Repository\NoterRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: NoterRepository::class)]
+#[ORM\UniqueConstraint(name: 'UNIQ_NOTER_USER_PRODUIT', columns: ['user_id', 'produit_id'])]
+#[UniqueEntity(fields: ['user', 'produit'], message: 'Vous avez déjà donné un avis sur ce produit.')]
 class Noter
 {
     #[ORM\Id]
@@ -20,10 +23,7 @@ class Noter
     #[ORM\Column]
     private ?\DateTime $dateMessage = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $traitement = null;
-
-    #[ORM\OneToOne(inversedBy: 'noter', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'noters')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
@@ -60,24 +60,12 @@ class Noter
         return $this;
     }
 
-    public function getTraitement(): ?string
-    {
-        return $this->traitement;
-    }
-
-    public function setTraitement(string $traitement): static
-    {
-        $this->traitement = $traitement;
-
-        return $this;
-    }
-
     public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(User $user): static
+    public function setUser(?User $user): static
     {
         $this->user = $user;
 

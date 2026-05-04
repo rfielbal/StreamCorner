@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | Mes adresses{% endblock %}
+{% block body_class %}page-shell{% endblock %}
+
+{% block body %}
+  <main class="section">
+    <div class="container stack-lg">
+      <div class="split-header">
+        <div>
+          <h1 class="section-title">Mes_Adresses</h1>
+          <p class="section-kicker">Coordonnées de livraison</p>
+        </div>
+        <a class="btn btn-primary" href="{{ path('app_adresse_new') }}">
+          <span class="material-symbols-outlined">add_location</span>
+          Ajouter
+        </a>
+      </div>
+
+      {% include 'components/_flash_messages.html.twig' ignore missing %}
+
+      <section class="entity-card-grid">
+        {% for adresse in adresses %}
+          <article class="admin-card padded">
+            <div class="stack-md">
+              <div>
+                <div class="eyebrow eyebrow-bright">{{ adresse.pays }}</div>
+                <h2 class="product-name">{{ adresse.ville }}</h2>
+              </div>
+              <p class="muted">{{ adresse.rue }}<br>{{ adresse.cp }} {{ adresse.ville }}</p>
+              <div class="admin-action-set">
+                <a class="btn btn-secondary" href="{{ path('app_adresse_edit', { id: adresse.id }) }}">Modifier</a>
+                <form method="post" action="{{ path('app_adresse_delete', { id: adresse.id }) }}" onsubmit="return confirm('Supprimer cette adresse ?');">
+                  <input type="hidden" name="_token" value="{{ csrf_token('delete-adresse-' ~ adresse.id) }}">
+                  <button class="btn btn-ghost" type="submit">Supprimer</button>
+                </form>
+              </div>
+            </div>
+          </article>
+        {% else %}
+          <article class="requirements-panel glass-panel">
+            <p class="muted">Aucune adresse enregistrée.</p>
+          </article>
+        {% endfor %}
+      </section>
+    </div>
+  </main>
+{% endblock %}

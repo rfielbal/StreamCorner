@@ -86,9 +86,9 @@
                 {% elseif 'eclairage' in category_key or 'light' in category_key %}
                   <span class="catalog-anchor" id="eclairage" aria-hidden="true"></span>
                 {% endif %}
-                <button class="product-favorite btn-icon" type="button" aria-label="Favori">
+                <a class="product-favorite btn-icon" href="{{ path('app_favoris', { id: produit.id }) }}" aria-label="Favori">
                   <span class="material-symbols-outlined">favorite</span>
-                </button>
+                </a>
                 <div class="product-media">
                   <img src="{{ image_src }}" alt="{{ produit.designation }}">
                 </div>

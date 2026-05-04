@@ -63,8 +63,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Commande::class, mappedBy: 'user')]
     private Collection $commandes;
 
-    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-    private ?Noter $noter = null;
+    /**
+     * @var Collection<int, Noter>
+     */
+    #[ORM\OneToMany(targetEntity: Noter::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $noters;
 
     /**
      * @var Collection<int, Produit>
@@ -77,6 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->adresses = new ArrayCollection();
         $this->commandes = new ArrayCollection();
+        $this->noters = new ArrayCollection();
         $this->produitsAimers = new ArrayCollection();
     }
 
@@ -274,18 +278,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getNoter(): ?Noter
+    /**
+     * @return Collection<int, Noter>
+     */
+    public function getNoters(): Collection
     {
-        return $this->noter;
+        return $this->noters;
     }
 
-    public function setNoter(Noter $noter): static
+    public function addNoter(Noter $noter): static
     {
-        if ($noter->getUser() !== $this) {
+        if (!$this->noters->contains($noter)) {
+            $this->noters->add($noter);
             $noter->setUser($this);
         }
 
-        $this->noter = $noter;
+        return $this;
+    }
+
+    public function removeNoter(Noter $noter): static
+    {
+        if ($this->noters->removeElement($noter) && $noter->getUser() === $this) {
+            $noter->setUser(null);
+        }
 
         return $this;
     }

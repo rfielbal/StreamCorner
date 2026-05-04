@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | {{ title|replace({'_': ' '}) }}{% endblock %}
+{% block body_class %}page-shell{% endblock %}
+
+{% block body %}
+  <main class="section">
+    <div class="container form-page-layout">
+      {% include 'components/_flash_messages.html.twig' ignore missing %}
+      {% include 'components/_form_panel.html.twig' with {
+        form: form,
+        title: title,
+        kicker: kicker,
+        submit_label: submit_label|default('Envoyer'),
+        back_path: back_path|default(null)
+      } %}
+    </div>
+  </main>
+{% endblock %}

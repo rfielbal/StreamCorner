@@ -9,11 +9,18 @@
 				<p class="text-primary fw-bold text-uppercase small mb-2">Commande</p>
 				<h1 class="display-5 fw-bold mb-0">Mon panier</h1>
 			</div>
-			<a href="{{ path('app_mes_produits') }}" class="btn btn-outline-primary">
-				<i class="bi bi-bag me-1"></i>
-				Continuer mes achats
-			</a>
+			<div class="d-flex flex-wrap gap-2">
+				<a href="{{ path('app_mes_produits') }}" class="btn btn-outline-primary">
+					<i class="bi bi-bag me-1"></i>
+					Continuer mes achats
+				</a>
+				{% if lignes|length > 0 %}
+					<a href="{{ path('app_checkout') }}" class="btn btn-primary">Valider la commande</a>
+				{% endif %}
+			</div>
 		</div>
+
+		{% include 'components/_flash_messages.html.twig' ignore missing %}
 
 		{% if lignes|length == 0 %}
 			<div class="bg-white border rounded p-5 text-center">
@@ -102,6 +109,7 @@
 								<span>Total TTC</span>
 								<strong>{{ (total * 1.2)|number_format(2, ',', ' ') }} €</strong>
 							</div>
+							<a class="btn btn-primary w-100 mt-4" href="{{ path('app_checkout') }}">Valider la commande</a>
 						</div>
 					</div>
 				</aside>

@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -20,7 +21,6 @@ class RegistrationFormType extends AbstractType
     {
         $builder
             ->add('prenom', TextType::class, [
-                'mapped' => false,
                 'attr' => ['autocomplete' => 'given-name'],
                 'constraints' => [
                     new NotBlank([
@@ -34,7 +34,6 @@ class RegistrationFormType extends AbstractType
                 ],
             ])
             ->add('nom', TextType::class, [
-                'mapped' => false,
                 'attr' => ['autocomplete' => 'family-name'],
                 'constraints' => [
                     new NotBlank([
@@ -49,6 +48,17 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('email', EmailType::class, [
                 'attr' => ['autocomplete' => 'email'],
+                'constraints' => [
+                    new NotBlank([
+                        'message'=> 'Veuillez saisir votre email.',
+                    ]),
+                    new Email([
+                        'message'=> 'Veuillez saisir une adresse email valide.',
+                    ]),
+                    new Length([
+                        'max'=> 180,
+                    ]),
+                ],
             ])
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,

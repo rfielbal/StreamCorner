@@ -1,0 +1,8 @@
+{% for type, messages in app.flashes %}
+  {% for message in messages %}
+    <div class="requirements-panel glass-panel auth-feedback {{ type == 'danger' ? 'is-danger' : 'is-success' }}">
+      <span class="material-symbols-outlined">{{ type == 'danger' ? 'error' : 'check_circle' }}</span>
+      <p class="muted">{{ message }}</p>
+    </div>
+  {% endfor %}
+{% endfor %}

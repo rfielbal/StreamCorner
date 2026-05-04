@@ -7,6 +7,8 @@
 {% set product_category = produit and produit.categorie ? produit.categorie.nomCategorie : 'Console modulaire' %}
 {% set raw_image = produit ? produit.image : 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZUd-zzhzhAwqcvVN5x5xiWvonJvYqPAkq0-VDcd0aCS63A6R_t0PQvISa5_NAig1uME07IzXOJNXHelnRUs_By0otGuKb2EDXVChqpX070n8cok3eul7x_uOw21uugQsspPJR7uEh6Hhpa8xlsb5KsaQuYscb0Mrb8O3jSOZ1z5NBLFbau_3-tOJMW7dqXyMJakzEzgkWA5ibVFFJsCbsGa6Snfh9fcAgohgQ46LdAZjQRDeLDsYPOsE5UzHblvRIbyt0SelZa2s' %}
 {% set product_image = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
+{% set cart_path = produit ? path('app_panier_add', { id: produit.id }) : path('app_checkout') %}
+{% set favorite_path = produit ? path('app_favoris', { id: produit.id }) : path('app_login') %}
 
 {% block title %}StreamCorner | {{ product_name }}{% endblock %}
 {% block body_class %}page-shell product-page{% endblock %}
@@ -63,14 +65,14 @@
               </div>
 
               <div class="summary-actions">
-                <a class="btn btn-primary" href="{{ path('app_checkout') }}" data-product-buy>
+                <a class="btn btn-primary" href="{{ cart_path }}" data-product-buy>
                   <span class="material-symbols-outlined">shopping_cart</span>
                   Ajouter au panier
                 </a>
-                <button class="btn btn-secondary" type="button" data-product-favorite>
+                <a class="btn btn-secondary" href="{{ favorite_path }}" data-product-favorite>
                   <span class="material-symbols-outlined">favorite</span>
                   Ajouter aux favoris
-                </button>
+                </a>
               </div>
             </div>
 
@@ -158,7 +160,7 @@
                 </div>
                 <div class="requirements-row">
                   <span class="meta-text" data-product-requirement-label="1">Panier</span>
-                  <span data-product-requirement-value="1">{{ path('app_checkout') }}</span>
+                  <span data-product-requirement-value="1">{{ cart_path }}</span>
                 </div>
               </div>
               <div class="requirements-note">
@@ -170,6 +172,67 @@
             </div>
           </div>
         </div>
+
+        <section class="reviews-layout">
+          {% if app.user and noterForm %}
+            {% include 'components/_form_panel.html.twig' with {
+              form: noterForm,
+              title: 'Donner_un_avis',
+              kicker: product_name,
+              submit_label: 'Envoyer',
+              back_path: null
+            } only %}
+          {% else %}
+            <article class="form-panel panel">
+              <div class="stack-lg">
+                <div>
+                  <div class="eyebrow eyebrow-bright">Avis produit</div>
+                  <h2 class="product-name">Retour_Client</h2>
+                </div>
+
+                {% include 'components/_flash_messages.html.twig' ignore missing %}
+
+                {% if app.user and userReview %}
+                  <div class="requirements-panel glass-panel">
+                    <p class="muted">Vous avez déjà donné un avis pour ce produit.</p>
+                  </div>
+                {% elseif not app.user %}
+                  <div class="requirements-panel glass-panel">
+                    <p class="muted">
+                      <a class="eyebrow eyebrow-bright" href="{{ path('app_login') }}">Connectez-vous</a>
+                      pour donner votre avis.
+                    </p>
+                  </div>
+                {% endif %}
+              </div>
+            </article>
+          {% endif %}
+
+          <article class="admin-card padded">
+            <div class="stack-md">
+              <div>
+                <div class="eyebrow eyebrow-bright">Avis existants</div>
+                <h2 class="product-name">{{ produit ? produit.noters|length : 0 }} message(s)</h2>
+              </div>
+
+              {% if produit and produit.noters|length > 0 %}
+                <div class="review-list">
+                  {% for avis in produit.noters %}
+                    <div class="review-item">
+                      <div class="mini-row">
+                        <strong>{{ avis.user ? avis.user.email : 'Client' }}</strong>
+                        <span class="meta-text">{{ avis.dateMessage ? avis.dateMessage|date('d/m/Y') : '' }}</span>
+                      </div>
+                      <p class="muted">{{ avis.message }}</p>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <p class="muted">Aucun avis pour ce produit.</p>
+              {% endif %}
+            </div>
+          </article>
+        </section>
       </div>
     </section>
   </main>

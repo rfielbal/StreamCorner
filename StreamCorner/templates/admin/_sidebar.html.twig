@@ -1,36 +1,78 @@
 {% set current = admin_active|default('dashboard') %}
+{% set nav_groups = [
+  {
+    label: 'Pilotage',
+    links: [
+      { key: 'dashboard', label: 'Tableau de bord', route: 'app_admin_dashboard', icon: 'dashboard' }
+    ]
+  },
+  {
+    label: 'Catalogue',
+    links: [
+      { key: 'inventory', label: 'Produits', route: 'app_admin_inventory', icon: 'inventory_2' },
+      { key: 'categories', label: 'Catégories', route: 'app_admin_categories', icon: 'category' }
+    ]
+  },
+  {
+    label: 'Ventes',
+    links: [
+      { key: 'orders', label: 'Commandes', route: 'app_admin_orders', icon: 'receipt_long' },
+      { key: 'carts', label: 'Paniers', route: 'app_admin_carts', icon: 'shopping_cart' },
+      { key: 'cart-lines', label: 'Lignes panier', route: 'app_admin_cart_lines', icon: 'format_list_bulleted' },
+      { key: 'order-lines', label: 'Lignes commande', route: 'app_admin_order_lines', icon: 'list_alt' }
+    ]
+  },
+  {
+    label: 'Clients',
+    links: [
+      { key: 'users', label: 'Utilisateurs', route: 'app_admin_users', icon: 'group' },
+      { key: 'addresses', label: 'Adresses', route: 'app_admin_addresses', icon: 'location_on' }
+    ]
+  },
+  {
+    label: 'Support',
+    links: [
+      { key: 'support', label: 'SAV', route: 'app_admin_support', icon: 'support_agent' },
+      { key: 'reviews', label: 'Avis', route: 'app_admin_reviews', icon: 'rate_review' }
+    ]
+  },
+  {
+    label: 'Sécurité',
+    links: [
+      { key: 'permissions', label: 'Droits', route: 'app_admin_permissions', icon: 'admin_panel_settings' }
+    ]
+  }
+] %}
 
 <aside class="admin-sidebar" id="{{ sidebar_id|default('admin-sidebar') }}">
   <div class="admin-brand">
-    <h1>Centre_Commande</h1>
-    <p>Système actif</p>
+    <h1>Stream_Admin</h1>
+    <p>Centre de gestion</p>
   </div>
 
-  <nav class="admin-nav">
-    <a class="{{ current == 'dashboard' ? 'is-active' : '' }}" href="{{ path('app_admin_dashboard') }}">
-      <span class="material-symbols-outlined">dashboard</span>Tableau de bord
-    </a>
-    <a class="{{ current == 'inventory' ? 'is-active' : '' }}" href="{{ path('app_admin_inventory') }}">
-      <span class="material-symbols-outlined">inventory_2</span>Inventaire
-    </a>
-    <a href="#">
-      <span class="material-symbols-outlined">insights</span>Analyses
-    </a>
-    <a href="#">
-      <span class="material-symbols-outlined">local_shipping</span>Commandes
-    </a>
-    <a href="#">
-      <span class="material-symbols-outlined">settings</span>Parametres
-    </a>
+  <nav class="admin-nav" aria-label="Navigation administration">
+    {% for group in nav_groups %}
+      <div class="admin-nav-group">
+        <div class="admin-nav-label">{{ group.label }}</div>
+        {% for item in group.links %}
+          <a class="{{ current == item.key ? 'is-active' : '' }}" href="{{ path(item.route) }}">
+            <span class="material-symbols-outlined">{{ item.icon }}</span>{{ item.label }}
+          </a>
+        {% endfor %}
+      </div>
+    {% endfor %}
   </nav>
 
   <div class="admin-sidebar-bottom">
-    <button class="btn btn-primary" type="button">Generer rapport</button>
+    <a class="btn btn-secondary" href="{{ path('app_accueil') }}">
+      <span class="material-symbols-outlined">storefront</span>
+      Boutique
+    </a>
     <div class="admin-user">
-      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWaopfrDf4ouaL8FtQ6mmTomLfF7fzRqcN76sg4yx9q5uvrzS0hp2Qn_VRPROoBt625WM2HnaZDvlF_Q4j7c4OHpO_ZFpi1gC7VcgD78nWxZfIz6mAbMrO1meCisOqbT1UmvVYy8RkR0izdx6Jbu8lkMaDI99ijVKN7Wc63Twx1ZSxZtWgZpFX-WG_gq6dhdt_Vj0Wci3-04xy-G2G3oXpkRpVjSuIWGR1HotZa5TnkVrUqRvpXKqomAPeEnn_4oSlkC9SII9HrY8" alt="Admin">
+      <span class="admin-user-avatar material-symbols-outlined">shield_person</span>
       <div>
-        <div class="eyebrow">{{ app.user ? app.user.userIdentifier : 'Admin_Alpha' }}</div>
-        <div class="muted">Accès admin</div>
+        <div class="eyebrow">{{ app.user ? app.user.userIdentifier : 'Session locale' }}</div>
+        <div class="muted">{{ is_granted('ROLE_ADMIN') ? 'Accès administrateur' : 'Accès développement' }}</div>
       </div>
     </div>
   </div>

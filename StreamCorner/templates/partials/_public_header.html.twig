@@ -7,6 +7,9 @@
       <a data-nav-item="streaming" href="{{ path('app_catalogue') }}">Diffusion</a>
       <a data-nav-item="audio" href="{{ path('app_catalogue') }}#audio">Audio</a>
       <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
+      {% if app.user %}
+        <a data-nav-item="commandes" href="{{ path('app_commande_index') }}">Commandes</a>
+      {% endif %}
     </nav>
     <div class="topbar-actions">
       <div class="nav-search">
@@ -16,7 +19,12 @@
       <button class="nav-toggle" type="button" data-toggle-target="#mobile-nav" aria-label="Ouvrir la navigation">
         <span class="material-symbols-outlined">menu</span>
       </button>
-      <a class="btn-icon" data-nav-icon-item="panier" href="{{ path('app_checkout') }}" aria-label="Panier">
+      {% if is_granted('ROLE_ADMIN') %}
+        <a class="btn-icon" data-nav-icon-item="admin" href="{{ path('app_admin_dashboard') }}" aria-label="Administration">
+          <span class="material-symbols-outlined">admin_panel_settings</span>
+        </a>
+      {% endif %}
+      <a class="btn-icon" data-nav-icon-item="panier" href="{{ path('app_panier') }}" aria-label="Panier">
         <span class="material-symbols-outlined">shopping_cart</span>
       </a>
       {% if app.user %}
@@ -38,8 +46,13 @@
         <a data-nav-item="streaming" href="{{ path('app_catalogue') }}">Diffusion</a>
         <a data-nav-item="audio" href="{{ path('app_catalogue') }}#audio">Audio</a>
         <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
-        <a href="{{ path('app_checkout') }}">Panier</a>
+        <a href="{{ path('app_panier') }}">Panier</a>
+        {% if is_granted('ROLE_ADMIN') %}
+          <a href="{{ path('app_admin_dashboard') }}">Administration</a>
+        {% endif %}
         {% if app.user %}
+          <a href="{{ path('app_commande_index') }}">Commandes</a>
+          <a href="{{ path('app_adresse_index') }}">Adresses</a>
           <a href="{{ path('app_logout') }}">Déconnexion</a>
         {% else %}
           <a href="{{ path('app_login') }}">Connexion</a>

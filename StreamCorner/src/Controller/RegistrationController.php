@@ -36,15 +36,10 @@ class RegistrationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
-            $prenom = trim((string) $form->get('prenom')->getData());
-            $nom = trim((string) $form->get('nom')->getData());
 
             // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
             $user->setRoles(['ROLE_USER']);
-            $user
-                ->setPrenom($prenom)
-                ->setNom($nom);
 
             $entityManager->persist($user);
             $entityManager->flush();

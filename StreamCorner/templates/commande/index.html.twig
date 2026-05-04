@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | Mes commandes{% endblock %}
+{% block body_class %}page-shell{% endblock %}
+
+{% block body %}
+  <main class="section">
+    <div class="container stack-lg">
+      <div class="split-header">
+        <div>
+          <h1 class="section-title">Mes_Commandes</h1>
+          <p class="section-kicker">Historique client</p>
+        </div>
+        <a class="btn btn-secondary" href="{{ path('app_catalogue') }}">
+          <span class="material-symbols-outlined">storefront</span>
+          Boutique
+        </a>
+      </div>
+
+      {% include 'components/_flash_messages.html.twig' ignore missing %}
+
+      <section class="admin-card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Commande</th>
+                <th>Date</th>
+                <th>Adresse</th>
+                <th>Total HT</th>
+                <th>TVA</th>
+                <th>Total TTC</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for commande in commandes %}
+                <tr>
+                  <td>#SC-{{ commande.id }}</td>
+                  <td>{{ commande.dateCommande|date('d/m/Y H:i') }}</td>
+                  <td>{{ commande.adresse ? commande.adresse.ville : 'Adresse supprimée' }}</td>
+                  <td>{{ commande.totalHtCo|number_format(2, ',', ' ') }} €</td>
+                  <td>{{ commande.totalTaxe|number_format(2, ',', ' ') }} €</td>
+                  <td>{{ commande.total|number_format(2, ',', ' ') }} €</td>
+                  <td>
+                    <a class="btn btn-secondary" href="{{ path('app_commande_show', { id: commande.id }) }}">Détail</a>
+                  </td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td class="empty-table-cell" colspan="7">Aucune commande enregistrée.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+{% endblock %}

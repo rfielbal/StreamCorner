@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | Commande #{{ commande.id }}{% endblock %}
+{% block body_class %}page-shell{% endblock %}
+
+{% block body %}
+  <main class="section">
+    <div class="container stack-lg">
+      <div class="split-header">
+        <div>
+          <h1 class="section-title">Commande_{{ commande.id }}</h1>
+          <p class="section-kicker">{{ commande.dateCommande|date('d/m/Y H:i') }}</p>
+        </div>
+        <a class="btn btn-secondary" href="{{ path('app_commande_index') }}">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Retour
+        </a>
+      </div>
+
+      {% include 'components/_flash_messages.html.twig' ignore missing %}
+
+      <section class="order-detail-layout">
+        <article class="admin-card padded">
+          <div class="stack-md">
+            <div>
+              <div class="eyebrow eyebrow-bright">Lignes commande</div>
+              <h2 class="product-name">{{ commande.parvenirs|length }} produit(s)</h2>
+            </div>
+
+            <div class="summary-items">
+              {% for ligne in commande.parvenirs %}
+                {% set produit = ligne.produit %}
+                <article class="summary-item">
+                  <div class="stack-sm">
+                    <div>
+                      <h3 class="product-name">{{ produit ? produit.designation : 'Produit supprimé' }}</h3>
+                      <div class="eyebrow eyebrow-bright">{{ ligne.prixHt|number_format(2, ',', ' ') }} € HT</div>
+                    </div>
+                    <div class="mini-row">
+                      <span class="muted">Quantité : {{ ligne.quantite }}</span>
+                      <strong>{{ (ligne.quantite * ligne.prixHt)|number_format(2, ',', ' ') }} €</strong>
+                    </div>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+
+            <div class="summary-total">
+              <div class="row muted"><span>Total HT</span><span>{{ commande.totalHtCo|number_format(2, ',', ' ') }} €</span></div>
+              <div class="row muted"><span>TVA</span><span>{{ commande.totalTaxe|number_format(2, ',', ' ') }} €</span></div>
+              <div class="row"><span class="product-name">Total TTC</span><span class="grand-total">{{ commande.total|number_format(2, ',', ' ') }} €</span></div>
+            </div>
+          </div>
+        </article>
+
+        {% include 'components/_form_panel.html.twig' with {
+          form: savForm,
+          title: 'Contacter_le_SAV',
+          kicker: 'Commande #' ~ commande.id,
+          submit_label: 'Envoyer',
+          back_path: null
+        } %}
+      </section>
+    </div>
+  </main>
+{% endblock %}

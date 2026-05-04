@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | {{ title|replace({'_': ' '}) }}{% endblock %}
+{% block body_class %}{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block body %}
+  <div class="sidebar-backdrop" id="{{ overlay_id }}" data-close-target="#{{ sidebar_id }}, #{{ overlay_id }}"></div>
+
+  <div class="admin-shell">
+    {% include 'admin/_sidebar.html.twig' with { admin_active: admin_active, sidebar_id: sidebar_id } %}
+
+    <main class="admin-main">
+      <header class="admin-topline">
+        <div class="stack-sm">
+          <button class="mobile-sidebar-toggle mobile-only" type="button" data-toggle-target="#{{ sidebar_id }}, #{{ overlay_id }}" aria-label="Ouvrir la sidebar admin">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <h1 class="section-title">{{ title }}</h1>
+          <p class="section-kicker">{{ kicker }}</p>
+        </div>
+
+        <a class="btn btn-secondary" href="{{ back_path }}">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Retour
+        </a>
+      </header>
+
+      <section class="admin-form-layout">
+        {% include 'components/_form_panel.html.twig' with {
+          form: form,
+          title: title,
+          kicker: kicker,
+          submit_label: submit_label,
+          back_path: back_path
+        } %}
+      </section>
+    </main>
+  </div>
+{% endblock %}
