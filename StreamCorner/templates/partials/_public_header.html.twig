@@ -28,8 +28,8 @@
         <span class="material-symbols-outlined">shopping_cart</span>
       </a>
       {% if app.user %}
-        <a class="btn-icon" data-nav-icon-item="compte" href="{{ path('app_logout') }}" aria-label="Déconnexion {{ app.user.userIdentifier }}">
-          <span class="material-symbols-outlined">logout</span>
+        <a class="btn-icon" data-nav-icon-item="compte" href="{{ path('app_profil') }}" aria-label="Profil {{ app.user.userIdentifier }}">
+          <span class="material-symbols-outlined">account_circle</span>
         </a>
       {% else %}
         <a class="btn-icon" data-nav-icon-item="compte" href="{{ path('app_login') }}" aria-label="Compte">
@@ -51,6 +51,7 @@
           <a href="{{ path('app_admin_dashboard') }}">Administration</a>
         {% endif %}
         {% if app.user %}
+          <a href="{{ path('app_profil') }}">Profil</a>
           <a href="{{ path('app_commande_index') }}">Commandes</a>
           <a href="{{ path('app_adresse_index') }}">Adresses</a>
           <a href="{{ path('app_logout') }}">Déconnexion</a>

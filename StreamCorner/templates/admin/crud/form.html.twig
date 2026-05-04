@@ -21,10 +21,13 @@
           <p class="section-kicker">{{ kicker }}</p>
         </div>
 
-        <a class="btn btn-secondary" href="{{ back_path }}">
-          <span class="material-symbols-outlined">arrow_back</span>
-          Retour
-        </a>
+        <div class="admin-header-actions">
+          <a class="btn btn-secondary" href="{{ back_path }}">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Retour
+          </a>
+          {% include 'admin/_quick_actions.html.twig' %}
+        </div>
       </header>
 
       <section class="admin-form-layout">

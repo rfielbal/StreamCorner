@@ -30,11 +30,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/admin')]
 final class AdminController extends AbstractController
@@ -148,14 +151,14 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/gestion/{resource}/nouveau', name: 'app_admin_crud_new', methods: ['GET', 'POST'])]
-    public function new(string $resource, Request $request, EntityManagerInterface $entityManager): Response
+    public function new(string $resource, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $config = $this->resourceConfig($resource);
         $entity = $this->newEntity($config['entity']);
         $form = $this->createResourceForm($resource, $entity);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid() && $this->prepareEntity($entity, $form, true)) {
+        if ($form->isSubmitted() && $form->isValid() && $this->prepareEntity($entity, $form, true, $slugger)) {
             try {
                 $entityManager->persist($entity);
                 $entityManager->flush();
@@ -171,7 +174,7 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/gestion/{resource}/{id}/modifier', name: 'app_admin_crud_edit', methods: ['GET', 'POST'])]
-    public function edit(string $resource, int $id, Request $request, EntityManagerInterface $entityManager): Response
+    public function edit(string $resource, int $id, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $config = $this->resourceConfig($resource);
         $entity = $entityManager->getRepository($config['entity'])->find($id);
@@ -183,7 +186,7 @@ final class AdminController extends AbstractController
         $form = $this->createResourceForm($resource, $entity);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid() && $this->prepareEntity($entity, $form, false)) {
+        if ($form->isSubmitted() && $form->isValid() && $this->prepareEntity($entity, $form, false, $slugger)) {
             try {
                 $entityManager->flush();
                 $this->addFlash('success', 'Enregistrement modifié.');
@@ -254,6 +257,7 @@ final class AdminController extends AbstractController
     {
         $config = $this->resourceConfig($resource);
         $options = match ($resource) {
+            'produits' => ['image_required' => $entity instanceof Produit && $entity->getImage() === null],
             'adresses' => ['include_user' => true],
             'commandes' => ['admin' => true],
             'avis' => ['admin' => true],
@@ -266,8 +270,12 @@ final class AdminController extends AbstractController
         return $this->createForm($config['form'], $entity, $options);
     }
 
-    private function prepareEntity(object $entity, FormInterface $form, bool $isNew): bool
+    private function prepareEntity(object $entity, FormInterface $form, bool $isNew, SluggerInterface $slugger): bool
     {
+        if ($entity instanceof Produit && !$this->storeProductImage($entity, $form, $slugger)) {
+            return false;
+        }
+
         if ($entity instanceof User) {
             $plainPassword = (string) $form->get('plainPassword')->getData();
 
@@ -325,6 +333,42 @@ final class AdminController extends AbstractController
         if ($entity instanceof Sav && $entity->getDateMessage() === null) {
             $entity->setDateMessage(new \DateTime());
         }
+
+        return true;
+    }
+
+    private function storeProductImage(Produit $produit, FormInterface $form, SluggerInterface $slugger): bool
+    {
+        if (!$form->has('imageFile')) {
+            return true;
+        }
+
+        $imageFile = $form->get('imageFile')->getData();
+
+        if (!$imageFile instanceof UploadedFile) {
+            if ($produit->getImage() === null) {
+                $form->get('imageFile')->addError(new FormError('Veuillez sélectionner une image.'));
+
+                return false;
+            }
+
+            return true;
+        }
+
+        $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = (string) $slugger->slug($originalFilename);
+        $extension = $imageFile->guessExtension() ?: $imageFile->getClientOriginalExtension();
+        $serverFilename = $safeFilename . '-' . uniqid('', true) . '.' . $extension;
+
+        try {
+            $imageFile->move($this->getParameter('product_images_directory'), $serverFilename);
+        } catch (FileException) {
+            $form->get('imageFile')->addError(new FormError('Erreur pendant l’envoi de l’image.'));
+
+            return false;
+        }
+
+        $produit->setImage($serverFilename);
 
         return true;
     }

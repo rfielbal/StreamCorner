@@ -21,10 +21,13 @@
           <p class="section-kicker">Table Produit // stock, categorie, prix HT</p>
         </div>
 
-        <button class="btn btn-primary" type="button" aria-disabled="true" disabled>
-          <span class="material-symbols-outlined">add_circle</span>
-          Ajouter
-        </button>
+        <div class="admin-header-actions">
+          <a class="btn btn-primary" href="{{ path('app_admin_crud_new', { resource: 'produits' }) }}">
+            <span class="material-symbols-outlined">add_circle</span>
+            Ajouter
+          </a>
+          {% include 'admin/_quick_actions.html.twig' %}
+        </div>
       </header>
 
       <section class="inventory-stats">
@@ -61,7 +64,7 @@
 
           <div class="toolbar-actions">
             <span class="status-badge status-info">{{ produits|length }} ligne(s)</span>
-            <span class="status-badge">CRUD à compléter</span>
+            <span class="status-badge status-success">CRUD actif</span>
           </div>
         </div>
 
@@ -98,12 +101,15 @@
                       <a class="btn-icon" href="{{ path('app_produit_show', { id: produit.id }) }}" aria-label="Voir {{ produit.designation }}">
                         <span class="material-symbols-outlined">visibility</span>
                       </a>
-                      <button class="btn-icon is-disabled" type="button" aria-label="Modifier {{ produit.designation }}" aria-disabled="true" disabled>
+                      <a class="btn-icon" href="{{ path('app_admin_crud_edit', { resource: 'produits', id: produit.id }) }}" aria-label="Modifier {{ produit.designation }}">
                         <span class="material-symbols-outlined">edit</span>
-                      </button>
-                      <button class="btn-icon is-disabled" type="button" aria-label="Supprimer {{ produit.designation }}" aria-disabled="true" disabled>
-                        <span class="material-symbols-outlined">delete</span>
-                      </button>
+                      </a>
+                      <form method="post" action="{{ path('app_admin_crud_delete', { resource: 'produits', id: produit.id }) }}" onsubmit="return confirm('Confirmer la suppression ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete-produits-' ~ produit.id) }}">
+                        <button class="btn-icon" type="submit" aria-label="Supprimer {{ produit.designation }}">
+                          <span class="material-symbols-outlined">delete</span>
+                        </button>
+                      </form>
                     </div>
                   </td>
                 </tr>
@@ -131,7 +137,7 @@
             <a href="{{ path('app_admin_categories') }}">Catégories</a>
             <a href="{{ path('app_catalogue') }}">Catalogue public</a>
           </div>
-          <p class="footer-copy">Liste Produit prête à recevoir les formulaires d'ajout, modification et suppression.</p>
+          <p class="footer-copy">Liste Produit branchée aux formulaires d'ajout, modification et suppression.</p>
         </div>
       </footer>
     </main>

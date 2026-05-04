@@ -13,12 +13,10 @@
       <div class="field-grid">
         {% for child in form %}
           {% if child.vars.name != '_token' %}
-            {% set is_wide = 'textarea' in child.vars.block_prefixes or child.vars.expanded %}
+            {% set is_expanded = child.vars.expanded is defined and child.vars.expanded %}
+            {% set is_wide = 'textarea' in child.vars.block_prefixes or is_expanded %}
             <div class="field {{ is_wide ? 'full' : '' }}">
-              {{ form_label(child) }}
-              {{ form_widget(child) }}
-              {{ form_help(child) }}
-              {{ form_errors(child) }}
+              {{ form_row(child) }}
             </div>
           {% endif %}
         {% endfor %}

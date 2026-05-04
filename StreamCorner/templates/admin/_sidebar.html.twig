@@ -64,10 +64,20 @@
   </nav>
 
   <div class="admin-sidebar-bottom">
-    <a class="btn btn-secondary" href="{{ path('app_accueil') }}">
-      <span class="material-symbols-outlined">storefront</span>
-      Boutique
-    </a>
+    <div class="admin-sidebar-actions">
+      <a class="btn btn-secondary" href="{{ path('app_catalogue') }}">
+        <span class="material-symbols-outlined">storefront</span>
+        Boutique
+      </a>
+      <a class="btn btn-secondary" href="{{ path('app_profil') }}">
+        <span class="material-symbols-outlined">account_circle</span>
+        Profil
+      </a>
+      <a class="btn btn-secondary" href="{{ path('app_logout') }}">
+        <span class="material-symbols-outlined">logout</span>
+        Déconnexion
+      </a>
+    </div>
     <div class="admin-user">
       <span class="admin-user-avatar material-symbols-outlined">shield_person</span>
       <div>

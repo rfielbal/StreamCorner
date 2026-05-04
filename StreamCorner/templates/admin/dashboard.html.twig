@@ -21,13 +21,16 @@
           <p class="section-kicker">Accès centralisé aux tables du projet</p>
         </div>
 
-        <div class="metric-strip">
-          {% for metric in metrics %}
-            <div class="metric-chip">
-              <strong>{{ metric.label }}</strong>
-              <span class="metric-{{ metric.tone }}">{{ metric.value }}</span>
-            </div>
-          {% endfor %}
+        <div class="admin-header-actions">
+          <div class="metric-strip">
+            {% for metric in metrics %}
+              <div class="metric-chip">
+                <strong>{{ metric.label }}</strong>
+                <span class="metric-{{ metric.tone }}">{{ metric.value }}</span>
+              </div>
+            {% endfor %}
+          </div>
+          {% include 'admin/_quick_actions.html.twig' %}
         </div>
       </header>
 

@@ -6,12 +6,14 @@ use App\Entity\Categorie;
 use App\Entity\Produit;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\PositiveOrZero;
@@ -47,15 +49,23 @@ class ProduitType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('image', TextType::class, [
+            ->add('imageFile', FileType::class, [
                 'label' => 'Image',
-                'help' => 'URL complète ou nom de fichier présent dans public/assets/images/products.',
+                'mapped' => false,
+                'required' => $options['image_required'],
+                'help' => $options['image_required']
+                    ? 'Image du produit. Formats acceptés : JPG, PNG, WEBP ou GIF. Taille maximale : 10 Mo.'
+                    : 'Laissez vide pour conserver l’image actuelle. Formats acceptés : JPG, PNG, WEBP ou GIF. Taille maximale : 10 Mo.',
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez saisir une image.',
-                    ]),
-                    new Length([
-                        'max' => 255,
+                    new File([
+                        'maxSize' => '10M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp',
+                            'image/gif',
+                        ],
+                        'mimeTypesMessage' => 'Le site accepte uniquement les images JPG, PNG, WEBP et GIF.',
                     ]),
                 ],
             ])
@@ -98,6 +108,9 @@ class ProduitType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Produit::class,
+            'image_required' => true,
         ]);
+
+        $resolver->setAllowedTypes('image_required', 'bool');
     }
 }

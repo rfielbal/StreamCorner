@@ -62,10 +62,7 @@
               </div>
 
               <div class="field">
-                <div class="auth-meta-line">
-                  <label for="inputPassword">Clé d'accès</label>
-                  <a class="eyebrow" href="{{ path('app_register') }}">Créer un compte</a>
-                </div>
+                <label for="inputPassword">Clé d'accès</label>
                 <div class="input-icon">
                   <span class="material-symbols-outlined">lock</span>
                   <input id="inputPassword" type="password" name="password" autocomplete="current-password" placeholder="Mot de passe" required>
@@ -75,6 +72,11 @@
               <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
               <button class="btn btn-primary" type="submit">Authentifier le profil</button>
             </form>
+
+            <div class="auth-meta-line">
+              <span class="muted">Pas encore inscrit ?</span>
+              <a class="eyebrow eyebrow-bright" href="{{ path('app_register') }}">Créer un compte</a>
+            </div>
 
             <div class="auth-meta-line">
               <span class="muted">Retour boutique</span>

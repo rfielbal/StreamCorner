@@ -1,0 +1,206 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | Mon profil{% endblock %}
+{% block body_class %}page-shell profile-page{% endblock %}
+{% block body_data %}data-nav-icon="compte"{% endblock %}
+
+{% block body %}
+  <main class="section profile-main">
+    <div class="container stack-lg">
+      <div class="split-header profile-topline">
+        <div>
+          <div class="eyebrow eyebrow-bright">Espace client</div>
+          <h1 class="section-title">Profil_Client</h1>
+          <p class="section-lead">Vue centrale de votre compte StreamCorner, de vos commandes et de vos préférences d'achat.</p>
+        </div>
+        <div class="profile-top-actions">
+          {% if is_granted('ROLE_ADMIN') %}
+            <a class="btn btn-secondary" href="{{ path('app_admin_dashboard') }}">
+              <span class="material-symbols-outlined">admin_panel_settings</span>
+              Administration
+            </a>
+          {% endif %}
+          <a class="btn btn-secondary" href="{{ path('app_logout') }}">
+            <span class="material-symbols-outlined">logout</span>
+            Déconnexion
+          </a>
+        </div>
+      </div>
+
+      {% include 'components/_flash_messages.html.twig' ignore missing %}
+
+      <section class="profile-layout">
+        <aside class="admin-card profile-identity-panel">
+          <div class="profile-avatar">
+            <span class="material-symbols-outlined">account_circle</span>
+          </div>
+          <div class="stack-sm">
+            <div class="eyebrow eyebrow-bright">Compte actif</div>
+            <h2 class="product-name">{{ profile_name }}</h2>
+            <p class="muted">{{ user.email }}</p>
+          </div>
+
+          <div class="admin-profile-list profile-info-list">
+            <div>
+              <span>Prénom</span>
+              <strong>{{ user.prenom|default('Non renseigné') }}</strong>
+            </div>
+            <div>
+              <span>Nom</span>
+              <strong>{{ user.nom|default('Non renseigné') }}</strong>
+            </div>
+            <div>
+              <span>Email</span>
+              <strong>{{ user.email }}</strong>
+            </div>
+            <div>
+              <span>Validation</span>
+              <strong>{{ user.verified ? 'Email vérifié' : 'En attente' }}</strong>
+            </div>
+            <div>
+              <span>Accès</span>
+              <strong>{{ is_granted('ROLE_ADMIN') ? 'Client + Admin' : 'Client' }}</strong>
+            </div>
+          </div>
+
+          <div class="profile-session-actions">
+            <a class="btn btn-secondary" href="{{ path('app_catalogue') }}">
+              <span class="material-symbols-outlined">storefront</span>
+              Boutique
+            </a>
+            <a class="btn btn-secondary" href="{{ path('app_logout') }}">
+              <span class="material-symbols-outlined">logout</span>
+              Déconnexion
+            </a>
+          </div>
+        </aside>
+
+        <section class="profile-dashboard">
+          <div class="profile-stat-grid">
+            <a class="profile-stat-card admin-card padded" href="{{ path('app_commande_index') }}">
+              <span class="material-symbols-outlined">receipt_long</span>
+              <div>
+                <strong>{{ commandes|length }}</strong>
+                <p>Commandes</p>
+              </div>
+            </a>
+            <a class="profile-stat-card admin-card padded" href="{{ path('app_adresse_index') }}">
+              <span class="material-symbols-outlined">location_on</span>
+              <div>
+                <strong>{{ adresses|length }}</strong>
+                <p>Adresses</p>
+              </div>
+            </a>
+            <a class="profile-stat-card admin-card padded" href="{{ path('app_liste_favoris') }}">
+              <span class="material-symbols-outlined">favorite</span>
+              <div>
+                <strong>{{ favoris|length }}</strong>
+                <p>Favoris</p>
+              </div>
+            </a>
+            <a class="profile-stat-card admin-card padded" href="{{ path('app_panier') }}">
+              <span class="material-symbols-outlined">shopping_cart</span>
+              <div>
+                <strong>{{ articles_panier }}</strong>
+                <p>Articles panier</p>
+              </div>
+            </a>
+          </div>
+
+          <div class="profile-action-grid">
+            <article class="profile-action-card admin-card padded">
+              <div class="profile-action-head">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <div>
+                  <div class="eyebrow eyebrow-bright">Achats</div>
+                  <h2 class="product-name">Historique</h2>
+                </div>
+              </div>
+              <p class="muted">Retrouvez vos commandes, les totaux et le support SAV associé.</p>
+              <a class="btn btn-secondary" href="{{ path('app_commande_index') }}">Voir les commandes</a>
+            </article>
+
+            <article class="profile-action-card admin-card padded">
+              <div class="profile-action-head">
+                <span class="material-symbols-outlined">home_pin</span>
+                <div>
+                  <div class="eyebrow eyebrow-bright">Livraison</div>
+                  <h2 class="product-name">Adresses</h2>
+                </div>
+              </div>
+              <p class="muted">Gérez les coordonnées utilisées au moment du paiement.</p>
+              <a class="btn btn-secondary" href="{{ path('app_adresse_index') }}">Gérer les adresses</a>
+            </article>
+
+            <article class="profile-action-card admin-card padded">
+              <div class="profile-action-head">
+                <span class="material-symbols-outlined">shopping_bag</span>
+                <div>
+                  <div class="eyebrow eyebrow-bright">Préparation</div>
+                  <h2 class="product-name">Panier</h2>
+                </div>
+              </div>
+              <p class="muted">Total panier HT : {{ panier ? panier.totalHtPa|number_format(2, ',', ' ') : '0,00' }} €.</p>
+              <a class="btn btn-primary" href="{{ path('app_panier') }}">Ouvrir le panier</a>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <section class="profile-detail-grid">
+        <article class="admin-card padded">
+          <div class="profile-section-head">
+            <div>
+              <div class="eyebrow eyebrow-bright">Dernières commandes</div>
+              <h2 class="product-name">Suivi</h2>
+            </div>
+            <a class="eyebrow" href="{{ path('app_commande_index') }}">Tout voir</a>
+          </div>
+
+          <div class="profile-order-list">
+            {% for commande in commandes_recentes %}
+              <a class="profile-order-row" href="{{ path('app_commande_show', { id: commande.id }) }}">
+                <div>
+                  <strong>#SC-{{ commande.id }}</strong>
+                  <span>{{ commande.dateCommande|date('d/m/Y H:i') }}</span>
+                </div>
+                <span>{{ commande.total|number_format(2, ',', ' ') }} €</span>
+                <span class="status-badge status-info">Détail</span>
+              </a>
+            {% else %}
+              <div class="profile-empty-state">
+                <span class="material-symbols-outlined">receipt_long</span>
+                <p>Aucune commande enregistrée.</p>
+              </div>
+            {% endfor %}
+          </div>
+        </article>
+
+        <article class="admin-card padded">
+          <div class="profile-section-head">
+            <div>
+              <div class="eyebrow eyebrow-bright">Livraison</div>
+              <h2 class="product-name">Adresse principale</h2>
+            </div>
+            <a class="eyebrow" href="{{ path('app_adresse_index') }}">Gérer</a>
+          </div>
+
+          {% if adresse_principale %}
+            <div class="profile-address-card">
+              <span class="material-symbols-outlined">location_on</span>
+              <div>
+                <strong>{{ adresse_principale.ville }}</strong>
+                <p>{{ adresse_principale.rue }}<br>{{ adresse_principale.cp }} {{ adresse_principale.ville }}<br>{{ adresse_principale.pays }}</p>
+              </div>
+            </div>
+          {% else %}
+            <div class="profile-empty-state">
+              <span class="material-symbols-outlined">add_location</span>
+              <p>Aucune adresse enregistrée.</p>
+            </div>
+          {% endif %}
+        </article>
+      </section>
+    </div>
+  </main>
+{% endblock %}
