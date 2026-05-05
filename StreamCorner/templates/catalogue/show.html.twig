@@ -5,14 +5,16 @@
 {% set product_price = produit ? produit.prixUnitHT ~ ' EUR' : '149,99 EUR' %}
 {% set product_description = produit ? produit.description : "Console de pilotage compacte pour lancer vos scènes, overlays et macros sans quitter l'écran principal. Une vraie tour de contrôle pour le setup." %}
 {% set product_category = produit and produit.categorie ? produit.categorie.nomCategorie : 'Console modulaire' %}
-{% set raw_image = produit ? produit.image : 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZUd-zzhzhAwqcvVN5x5xiWvonJvYqPAkq0-VDcd0aCS63A6R_t0PQvISa5_NAig1uME07IzXOJNXHelnRUs_By0otGuKb2EDXVChqpX070n8cok3eul7x_uOw21uugQsspPJR7uEh6Hhpa8xlsb5KsaQuYscb0Mrb8O3jSOZ1z5NBLFbau_3-tOJMW7dqXyMJakzEzgkWA5ibVFFJsCbsGa6Snfh9fcAgohgQ46LdAZjQRDeLDsYPOsE5UzHblvRIbyt0SelZa2s' %}
+{% set product_gallery = produit ? produit.images : [] %}
+{% set primary_gallery_image = product_gallery|length > 0 ? product_gallery|first : null %}
+{% set raw_image = primary_gallery_image ? primary_gallery_image.filename : (produit ? produit.image : 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZUd-zzhzhAwqcvVN5x5xiWvonJvYqPAkq0-VDcd0aCS63A6R_t0PQvISa5_NAig1uME07IzXOJNXHelnRUs_By0otGuKb2EDXVChqpX070n8cok3eul7x_uOw21uugQsspPJR7uEh6Hhpa8xlsb5KsaQuYscb0Mrb8O3jSOZ1z5NBLFbau_3-tOJMW7dqXyMJakzEzgkWA5ibVFFJsCbsGa6Snfh9fcAgohgQ46LdAZjQRDeLDsYPOsE5UzHblvRIbyt0SelZa2s') %}
 {% set product_image = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
-{% set cart_path = produit ? path('app_panier_add', { id: produit.id }) : path('app_checkout') %}
+{% set cart_path = produit ? path('app_panier_add', { id: produit.id }) : path('app_catalogue') %}
 {% set favorite_path = produit ? path('app_favoris', { id: produit.id }) : path('app_login') %}
 
 {% block title %}StreamCorner | {{ product_name }}{% endblock %}
 {% block body_class %}page-shell product-page{% endblock %}
-{% block body_data %}data-nav-section="streaming"{% if is_demo %} data-product-page="true"{% endif %}{% endblock %}
+{% block body_data %}data-nav-section="boutique"{% if is_demo %} data-product-page="true"{% endif %}{% endblock %}
 
 {% block body %}
   <main class="section">
@@ -24,26 +26,34 @@
           </div>
 
           <div class="gallery-thumbs">
-            {% set gallery = [
-              { src: product_image, alt: product_name ~ ' vue principale' },
-              { src: is_demo ? 'https://lh3.googleusercontent.com/aida-public/AB6AXuDh_GYQUvU2tq2u3GqxFyjEQrYCvx5xVujOeSnG4mXDl4tUSIBJbNB-ZeK4_8m_amtgivyBobWjWgAyl8J4_yF_rQGRXiB8rqOT68vZ-NnH4uo63HsfCcExfVG2yCbansuYLKMWM2P4bH-UDb2uEAfOMSbxmHK0r99bLz7KRSptHVuWtE_wVdCN3EQs1RNnfDYCd4408W1L8lyPAfXPEWxWx9r-YQal28hcr9VjFg93pYxR5eTvrbWHMCOoXvMHJkk2VqIu0hdO3HE' : product_image, alt: product_name ~ ' détail' },
-              { src: is_demo ? 'https://lh3.googleusercontent.com/aida-public/AB6AXuBgIWccmF2TMZq2iJn2BbmRBpX6Qr_ElVJWjqAv4lWJvja5HTo-bVM0N6XbD_ztfxa7ln1nob918BsdMmoWgf_PNFBiR8jrYBrqg01VmyGsWt61wsVc770JkuF8iNpQstlffQRAcTI4rxOcKGM2dFvOE1hlphYZf_bmmfI6Ik4YEUjyMD5nzLNE0XGamLRREllbh10hncoTQKoZdwrncGFaSC-Xlav2T4S80a-kEvg8KU0-FKifitP7gIRuk7dnqavSDGfFLLsOGMM' : product_image, alt: product_name ~ ' connectique' },
-              { src: is_demo ? 'https://lh3.googleusercontent.com/aida-public/AB6AXuCcCCCjApLgT7Rt7amLjgxBalLDQEh9UZB5-Qxj8-iFzTd5sJfdAVQLw610QSEdP5hPisSsUmBmD__t7lEe-Yx2kEJXK5AesP31rA-x2dEksl4D3WS3QZdM7CThQJ1_sRZ4HSewbCKo3l30u7TdGJJg5ero_cvi3czdGYp0c9Wyk1trFZJ9-KsTxPWygJOJL07vf_tkTT24xNs8zQRVC3c3u85DGJsnBpBlu0NLJ4svTBhXogbJlOsgBxenqm9Slax9o5hlzno17OA' : product_image, alt: product_name ~ ' en situation' }
-            ] %}
-
-            {% for image in gallery %}
+            {% if product_gallery|length > 0 %}
+              {% for image in product_gallery %}
+                {% set gallery_src = (image.filename starts with 'http' or image.filename starts with '/') ? image.filename : '/assets/images/products/' ~ image.filename %}
+                <button
+                  class="gallery-thumb {{ loop.first ? 'is-active' : '' }}"
+                  type="button"
+                  data-gallery-thumb
+                  data-product-gallery-slot="{{ loop.index0 }}"
+                  data-gallery-src="{{ gallery_src }}"
+                  data-gallery-alt="{{ image.alt ?: product_name }}"
+                  aria-label="{{ image.alt ?: product_name }}"
+                >
+                  <img src="{{ gallery_src }}" alt="{{ image.alt ?: product_name }}">
+                </button>
+              {% endfor %}
+            {% else %}
               <button
-                class="gallery-thumb {{ loop.first ? 'is-active' : '' }}"
+                class="gallery-thumb is-active"
                 type="button"
                 data-gallery-thumb
-                data-product-gallery-slot="{{ loop.index0 }}"
-                data-gallery-src="{{ image.src }}"
-                data-gallery-alt="{{ image.alt }}"
-                aria-label="{{ image.alt }}"
+                data-product-gallery-slot="0"
+                data-gallery-src="{{ product_image }}"
+                data-gallery-alt="{{ product_name }}"
+                aria-label="{{ product_name }}"
               >
-                <img src="{{ image.src }}" alt="{{ image.alt }}">
+                <img src="{{ product_image }}" alt="{{ product_name }}">
               </button>
-            {% endfor %}
+            {% endif %}
           </div>
         </section>
 
@@ -65,9 +75,9 @@
               </div>
 
               <div class="summary-actions">
-                <a class="btn btn-primary" href="{{ cart_path }}" data-product-buy>
+                <a class="btn btn-primary {{ produit and produit.stock <= 0 ? 'is-disabled' : '' }}" href="{{ cart_path }}" data-product-buy aria-disabled="{{ produit and produit.stock <= 0 ? 'true' : 'false' }}">
                   <span class="material-symbols-outlined">shopping_cart</span>
-                  Ajouter au panier
+                  {{ produit and produit.stock <= 0 ? 'Rupture' : 'Ajouter au panier' }}
                 </a>
                 <a class="btn btn-secondary" href="{{ favorite_path }}" data-product-favorite>
                   <span class="material-symbols-outlined">favorite</span>
@@ -97,7 +107,7 @@
           <div class="eyebrow eyebrow-bright" data-product-feature-eyebrow">Actions multiples</div>
           <h2 class="section-title" data-product-feature-title>Une fiche, <em>contrôle total</em></h2>
           <p class="muted" data-product-feature-text">
-            Cette vue conserve le design frontend et peut recevoir les données issues de Doctrine sans changer les routes publiques.
+            Cette fiche affiche les données Doctrine du produit, sa galerie complète, son stock et ses actions panier/favoris.
           </p>
           <div class="stack-sm">
             <div class="mini-stat">
@@ -105,7 +115,7 @@
               <span class="material-symbols-outlined" data-product-feature-stat-icon="0">database</span>
             </div>
             <div class="mini-stat">
-              <span data-product-feature-stat-text="1">Galerie conservée côté JS</span>
+              <span data-product-feature-stat-text="1">Galerie alimentée par les uploads admin</span>
               <span class="material-symbols-outlined" data-product-feature-stat-icon="1">photo_library</span>
             </div>
           </div>
@@ -121,7 +131,7 @@
         <div class="split-header">
           <div>
             <h2 class="section-title">Spécifications_<em>Système</em></h2>
-            <p class="muted" data-product-specs-intro">Bloc prêt à recevoir ensuite les caractéristiques détaillées issues de la base.</p>
+            <p class="muted" data-product-specs-intro">Informations enregistrées depuis le formulaire d'administration.</p>
           </div>
           <div class="meta-text" data-product-protocol>Référence produit : {{ produit ? produit.id : 'DEMO' }}</div>
         </div>
@@ -166,7 +176,7 @@
               <div class="requirements-note">
                 <div class="eyebrow eyebrow-bright">Note technique</div>
                 <p class="muted" data-product-note">
-                  Le mode démo conserve le comportement JS du frontend statique, tandis que le mode Doctrine affiche le produit de la base.
+                  Les images de galerie proviennent de la table produit_image, et l'image principale reste utilisée dans les cartes catalogue.
                 </p>
               </div>
             </div>

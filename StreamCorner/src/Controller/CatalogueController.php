@@ -19,12 +19,7 @@ final class CatalogueController extends AbstractController
     #[Route('/produit', name: 'app_produit_demo')]
     public function demo(): Response
     {
-        return $this->render('catalogue/show.html.twig', [
-            'produit' => null,
-            'demo_mode' => true,
-            'noterForm' => null,
-            'userReview' => null,
-        ]);
+        return $this->redirectToRoute('app_catalogue');
     }
 
     #[Route('/produit/{id<\d+>}', name: 'app_produit_show', methods: ['GET', 'POST'])]

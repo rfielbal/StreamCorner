@@ -1165,6 +1165,11 @@ main {
   letter-spacing: 0.12em;
 }
 
+.catalog-empty-state {
+  grid-column: 1 / -1;
+  padding: 2rem;
+}
+
 .product-meta {
   display: flex;
   justify-content: space-between;
@@ -1367,6 +1372,7 @@ main {
 }
 
 .toolbar-sort select {
+  appearance: none;
   max-width: 9.5rem;
   border: 0;
   background: transparent;

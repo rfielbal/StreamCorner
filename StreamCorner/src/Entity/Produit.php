@@ -25,6 +25,13 @@ class Produit
     #[ORM\Column(length: 255)]
     private ?string $image = null;
 
+    /**
+     * @var Collection<int, ProduitImage>
+     */
+    #[ORM\OneToMany(targetEntity: ProduitImage::class, mappedBy: 'produit', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC', 'id' => 'ASC'])]
+    private Collection $images;
+
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
@@ -65,6 +72,7 @@ class Produit
         $this->parvenirs = new ArrayCollection();
         $this->noters = new ArrayCollection();
         $this->usersAimant = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -104,6 +112,33 @@ class Produit
     public function setImage(string $image): static
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProduitImage>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(ProduitImage $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setProduit($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(ProduitImage $image): static
+    {
+        if ($this->images->removeElement($image) && $image->getProduit() === $this) {
+            $image->setProduit(null);
+        }
 
         return $this;
     }

@@ -12,6 +12,7 @@ use App\Entity\Noter;
 use App\Entity\Panier;
 use App\Entity\Parvenir;
 use App\Entity\Produit;
+use App\Entity\ProduitImage;
 use App\Entity\Sav;
 use App\Entity\User;
 use App\Form\AdresseType;
@@ -285,7 +286,7 @@ final class AdminController extends AbstractController
 
     private function prepareEntity(object $entity, FormInterface $form, bool $isNew, SluggerInterface $slugger): bool
     {
-        if ($entity instanceof Produit && !$this->storeProductImage($entity, $form, $slugger)) {
+        if ($entity instanceof Produit && !$this->storeProductImages($entity, $form, $slugger)) {
             return false;
         }
 
@@ -354,13 +355,14 @@ final class AdminController extends AbstractController
         return true;
     }
 
-    private function storeProductImage(Produit $produit, FormInterface $form, SluggerInterface $slugger): bool
+    private function storeProductImages(Produit $produit, FormInterface $form, SluggerInterface $slugger): bool
     {
         if (!$form->has('imageFile')) {
             return true;
         }
 
         $imageFile = $form->get('imageFile')->getData();
+        $nextPosition = $produit->getImages()->count();
 
         if (!$imageFile instanceof UploadedFile) {
             if ($produit->getImage() === null) {
@@ -368,26 +370,77 @@ final class AdminController extends AbstractController
 
                 return false;
             }
+        } else {
+            $serverFilename = $this->storeUploadedProductImage($imageFile, $slugger);
 
-            return true;
+            if ($serverFilename === null) {
+                $form->get('imageFile')->addError(new FormError('Erreur pendant l’envoi de l’image.'));
+
+                return false;
+            }
+
+            $produit->setImage($serverFilename);
+            $produit->addImage(
+                (new ProduitImage())
+                    ->setFilename($serverFilename)
+                    ->setAlt($produit->getDesignation())
+                    ->setPosition($nextPosition++)
+            );
         }
 
+        if ($produit->getImages()->isEmpty() && $produit->getImage() !== null) {
+            $produit->addImage(
+                (new ProduitImage())
+                    ->setFilename($produit->getImage())
+                    ->setAlt($produit->getDesignation())
+                    ->setPosition($nextPosition++)
+            );
+        }
+
+        if ($form->has('galleryFiles')) {
+            $galleryFiles = $form->get('galleryFiles')->getData();
+
+            if (is_iterable($galleryFiles)) {
+                foreach ($galleryFiles as $galleryFile) {
+                    if (!$galleryFile instanceof UploadedFile) {
+                        continue;
+                    }
+
+                    $serverFilename = $this->storeUploadedProductImage($galleryFile, $slugger);
+
+                    if ($serverFilename === null) {
+                        $form->get('galleryFiles')->addError(new FormError('Erreur pendant l’envoi d’une photo de galerie.'));
+
+                        return false;
+                    }
+
+                    $produit->addImage(
+                        (new ProduitImage())
+                            ->setFilename($serverFilename)
+                            ->setAlt($produit->getDesignation())
+                            ->setPosition($nextPosition++)
+                    );
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private function storeUploadedProductImage(UploadedFile $imageFile, SluggerInterface $slugger): ?string
+    {
         $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = (string) $slugger->slug($originalFilename);
         $extension = $imageFile->guessExtension() ?: $imageFile->getClientOriginalExtension();
-        $serverFilename = $safeFilename . '-' . uniqid('', true) . '.' . $extension;
+        $serverFilename = $safeFilename . '-' . uniqid('', true) . '.' . strtolower($extension);
 
         try {
             $imageFile->move($this->getParameter('product_images_directory'), $serverFilename);
         } catch (FileException) {
-            $form->get('imageFile')->addError(new FormError('Erreur pendant l’envoi de l’image.'));
-
-            return false;
+            return null;
         }
 
-        $produit->setImage($serverFilename);
-
-        return true;
+        return $serverFilename;
     }
 
     /**

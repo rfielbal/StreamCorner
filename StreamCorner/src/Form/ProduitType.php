@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -50,15 +51,15 @@ class ProduitType extends AbstractType
                 ],
             ])
             ->add('imageFile', FileType::class, [
-                'label' => 'Image',
+                'label' => 'Image principale',
                 'mapped' => false,
                 'required' => $options['image_required'],
                 'attr' => [
                     'accept' => 'image/jpeg,image/png,image/webp,image/gif',
                 ],
                 'help' => $options['image_required']
-                    ? 'Image du produit. Formats acceptés : JPG, PNG, WEBP ou GIF. Taille maximale : 10 Mo.'
-                    : 'Laissez vide pour conserver l’image actuelle. Formats acceptés : JPG, PNG, WEBP ou GIF. Taille maximale : 10 Mo.',
+                    ? 'Image utilisée dans les cartes catalogue. Formats acceptés : JPG, PNG, WEBP ou GIF. Taille maximale : 10 Mo.'
+                    : 'Laissez vide pour conserver l’image principale actuelle. Formats acceptés : JPG, PNG, WEBP ou GIF. Taille maximale : 10 Mo.',
                 'constraints' => [
                     new File([
                         'maxSize' => '10M',
@@ -69,6 +70,30 @@ class ProduitType extends AbstractType
                             'image/gif',
                         ],
                         'mimeTypesMessage' => 'Le site accepte uniquement les images JPG, PNG, WEBP et GIF.',
+                    ]),
+                ],
+            ])
+            ->add('galleryFiles', FileType::class, [
+                'label' => 'Photos supplémentaires',
+                'mapped' => false,
+                'required' => false,
+                'multiple' => true,
+                'attr' => [
+                    'accept' => 'image/jpeg,image/png,image/webp,image/gif',
+                ],
+                'help' => 'Ajoutez plusieurs photos pour la galerie de la fiche produit. Chaque fichier doit faire 10 Mo maximum.',
+                'constraints' => [
+                    new All([
+                        new File([
+                            'maxSize' => '10M',
+                            'mimeTypes' => [
+                                'image/jpeg',
+                                'image/png',
+                                'image/webp',
+                                'image/gif',
+                            ],
+                            'mimeTypesMessage' => 'La galerie accepte uniquement les images JPG, PNG, WEBP et GIF.',
+                        ]),
                     ]),
                 ],
             ])
