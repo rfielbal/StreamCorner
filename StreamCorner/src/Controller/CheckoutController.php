@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Adresse;
 use App\Entity\Commande;
 use App\Entity\Parvenir;
 use App\Entity\User;
+use App\Form\AdresseType;
 use App\Form\CommandeType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,10 +42,19 @@ final class CheckoutController extends AbstractController
 
         $adresses = $user->getAdresses()->toArray();
 
-        if (count($adresses) === 0) {
-            $this->addFlash('danger', 'Ajoutez une adresse avant de valider la commande.');
+        $adresse = new Adresse();
+        $addressForm = $this->createForm(AdresseType::class, $adresse);
+        $addressForm->handleRequest($request);
 
-            return $this->redirectToRoute('app_adresse_new');
+        if ($addressForm->isSubmitted() && $addressForm->isValid()) {
+            $adresse->setUser($user);
+
+            $entityManager->persist($adresse);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Adresse enregistrée.');
+
+            return $this->redirectToRoute('app_checkout');
         }
 
         $commande = new Commande();
@@ -101,6 +112,8 @@ final class CheckoutController extends AbstractController
 
         return $this->render('checkout/index.html.twig', [
             'form' => $form->createView(),
+            'address_form' => $addressForm->createView(),
+            'has_adresses' => count($adresses) > 0,
             'lignes' => $lignes,
             'totalHt' => $totalHt,
             'totalTaxe' => $totalTaxe,
