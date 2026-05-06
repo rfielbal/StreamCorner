@@ -46,9 +46,45 @@ class ProduitRepository extends ServiceEntityRepository
         ));
 
         if ($selectedCategories !== []) {
-            $qb
-                ->andWhere('c.id IN (:categories)')
-                ->setParameter('categories', $selectedCategories);
+            $categoryIds = [];
+            $categorySlugs = [];
+
+            foreach ($selectedCategories as $category) {
+                if (ctype_digit($category)) {
+                    $categoryIds[] = $category;
+                } else {
+                    $categorySlugs[] = $this->normalizeCategorySlug($category);
+                }
+            }
+
+            $categoryConditions = [];
+
+            if ($categoryIds !== []) {
+                $categoryConditions[] = 'c.id IN (:categoryIds)';
+                $qb->setParameter('categoryIds', $categoryIds);
+            }
+
+            foreach (array_unique($categorySlugs) as $index => $slug) {
+                $aliases = $this->categoryAliases($slug);
+                if ($aliases === []) {
+                    continue;
+                }
+
+                $aliasConditions = [];
+                foreach ($aliases as $aliasIndex => $alias) {
+                    $parameter = sprintf('categorySlug_%d_%d', $index, $aliasIndex);
+                    $aliasConditions[] = sprintf('LOWER(c.nomCategorie) LIKE :%s', $parameter);
+                    $qb->setParameter($parameter, '%' . $alias . '%');
+                }
+
+                $categoryConditions[] = '(' . implode(' OR ', $aliasConditions) . ')';
+            }
+
+            if ($categoryConditions !== []) {
+                $qb->andWhere('(' . implode(' OR ', $categoryConditions) . ')');
+            } else {
+                $qb->andWhere('1 = 0');
+            }
         }
 
         if ($maxPrice !== null && is_numeric($maxPrice) && (float) $maxPrice < 2000.0) {
@@ -85,6 +121,32 @@ class ProduitRepository extends ServiceEntityRepository
     public function recherche(string $value): array
     {
         return $this->search($value);
+    }
+
+    private function normalizeCategorySlug(string $value): string
+    {
+        $normalized = strtolower(trim($value));
+        $normalized = str_replace(['é', 'è', 'ê', 'ë'], 'e', $normalized);
+        $normalized = str_replace(['à', 'â', 'ä'], 'a', $normalized);
+        $normalized = str_replace(['î', 'ï'], 'i', $normalized);
+        $normalized = str_replace(['ô', 'ö'], 'o', $normalized);
+        $normalized = str_replace(['ù', 'û', 'ü'], 'u', $normalized);
+        $normalized = str_replace(['ç'], 'c', $normalized);
+
+        return preg_replace('/[^a-z0-9]+/', '', $normalized) ?? $normalized;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function categoryAliases(string $slug): array
+    {
+        return match ($slug) {
+            'audio' => ['audio'],
+            'eclairage' => ['eclairage', 'éclairage', 'light'],
+            'diffusion' => ['diffusion', 'stream', 'video', 'vidéo', 'controle', 'contrôle', 'accessoire'],
+            default => [$slug],
+        };
     }
 
     //    public function findOneBySomeField($value): ?Produit

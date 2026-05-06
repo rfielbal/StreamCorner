@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}StreamCorner | {{ title }}{% endblock %}
+{% block body_class %}page-shell{% endblock %}
+
+{% block body %}
+  <main class="section legal-page">
+    <div class="container legal-layout">
+      <header class="legal-hero panel">
+        <div class="stack-md">
+          <div>
+            <div class="eyebrow eyebrow-bright">{{ kicker }}</div>
+            <h1 class="section-title">{{ headline }}</h1>
+          </div>
+          <p class="section-lead">{{ intro }}</p>
+          <div class="legal-meta">
+            <span class="status-badge status-info">Projet académique</span>
+            <span class="meta-text">Dernière mise à jour : {{ updated_at }}</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="legal-content panel">
+        {% for section in sections %}
+          <article class="legal-section">
+            <h2 class="product-name">{{ section.title }}</h2>
+            {% for paragraph in section.content %}
+              <p class="muted">{{ paragraph }}</p>
+            {% endfor %}
+          </article>
+        {% endfor %}
+      </section>
+
+      <aside class="legal-aside panel">
+        <div class="stack-md">
+          <div>
+            <div class="eyebrow eyebrow-bright">Pages légales</div>
+            <h2 class="product-name">Navigation</h2>
+          </div>
+          <div class="legal-side-links">
+            <a href="{{ path('app_legal_cgu') }}">CGU</a>
+            <a href="{{ path('app_legal_cgv') }}">CGV</a>
+            <a href="{{ path('app_legal_mentions') }}">Mentions légales</a>
+          </div>
+          <p class="muted">Ces contenus sont des modèles pédagogiques à compléter par des informations réelles avant publication commerciale.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+{% endblock %}

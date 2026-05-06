@@ -1,119 +1,179 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ parent() }}Panier{% endblock %}
+{% set has_lines = lignes|length > 0 %}
+
+{% block title %}StreamCorner | Panier{% endblock %}
+{% block body_class %}page-shell cart-page{% endblock %}
+{% block body_data %}data-nav-icon="panier"{% endblock %}
 
 {% block body %}
-	<div class="container py-5">
-		<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5">
-			<div>
-				<p class="text-primary fw-bold text-uppercase small mb-2">Commande</p>
-				<h1 class="display-5 fw-bold mb-0">Mon panier</h1>
+	<main class="section">
+		<div class="container stack-lg" data-cart-page>
+			<div class="split-header cart-header">
+				<div>
+					<div class="eyebrow eyebrow-bright">Commande</div>
+					<h1 class="section-title">Panier_Actif</h1>
+					<p class="muted">Ajustez vos quantités avant de passer au paiement.</p>
+				</div>
+				<div class="cart-header-actions" data-cart-actions {{ has_lines ? '' : 'hidden' }}>
+					<a href="{{ path('app_catalogue') }}" class="btn btn-secondary">
+						<span class="material-symbols-outlined">arrow_back</span>
+						Continuer mes achats
+					</a>
+					<a href="{{ path('app_checkout') }}" class="btn btn-primary">
+						Valider la commande
+						<span class="material-symbols-outlined">arrow_forward</span>
+					</a>
+				</div>
 			</div>
-			<div class="d-flex flex-wrap gap-2">
-				<a href="{{ path('app_mes_produits') }}" class="btn btn-outline-primary">
-					<i class="bi bi-bag me-1"></i>
-					Continuer mes achats
-				</a>
-				{% if lignes|length > 0 %}
-					<a href="{{ path('app_checkout') }}" class="btn btn-primary">Valider la commande</a>
-				{% endif %}
-			</div>
-		</div>
 
-		{% include 'components/_flash_messages.html.twig' ignore missing %}
+			<article class="cart-empty-state panel" data-cart-empty-state {{ has_lines ? 'hidden' : '' }}>
+				<div class="stack-md">
+					<div class="pill">
+						<span class="material-symbols-outlined">shopping_cart</span>
+						Panier vide
+					</div>
+					<h2 class="product-name">Votre panier est vide</h2>
+					<p class="muted">Ajoutez des produits depuis la boutique pour préparer votre commande.</p>
+					<a href="{{ path('app_catalogue') }}" class="btn btn-primary">
+						Voir la boutique
+						<span class="material-symbols-outlined">arrow_forward</span>
+					</a>
+				</div>
+			</article>
 
-		{% if lignes|length == 0 %}
-			<div class="bg-white border rounded p-5 text-center">
-				<i class="bi bi-cart fs-1 text-muted"></i>
-				<h2 class="h4 mt-3">Votre panier est vide</h2>
-				<p class="text-muted mb-4">Ajoutez des produits depuis la boutique pour préparer votre commande.</p>
-				<a href="{{ path('app_mes_produits') }}" class="btn btn-primary">Voir la boutique</a>
-			</div>
-		{% else %}
-			<div class="row g-4">
-				<section class="col-lg-8">
-					<div class="list-group shadow-sm">
+			<div class="cart-layout" data-cart-content {{ has_lines ? '' : 'hidden' }}>
+				<section class="cart-items-panel panel">
+					<div class="cart-panel-header">
+						<div>
+							<div class="eyebrow eyebrow-bright">Sélection</div>
+							<h2 class="product-name">Produits</h2>
+						</div>
+						<span class="cart-count" data-cart-items-count>{{ lignes|reduce((total, ligne) => total + ligne.quantite, 0) }} article(s)</span>
+					</div>
+
+					<div class="cart-list" data-cart-items>
 						{% for ligne in lignes %}
 							{% set produit = ligne.produit %}
 							{% set hasImage = produit.image is not empty %}
 							{% set imageSrc = hasImage and (produit.image starts with 'http' or produit.image starts with '/') ? produit.image : '/assets/images/products/' ~ produit.image %}
-							{% set lineTotal = ligne.quantite * produit.prixUnitHT %}
+							{% set lineTotal = ligne.quantite * ligne.prixHt %}
+							{% set is_favorite = produit in user.produitsAimers %}
 
-							<div class="list-group-item p-3">
-								<div class="d-flex gap-3">
-									<div class="stream-cart-media flex-shrink-0">
-										{% if hasImage %}
-											<img src="{{ imageSrc }}" alt="{{ produit.designation }}" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
-											<div class="stream-product-placeholder d-none">
-												<i class="bi bi-camera-video"></i>
-											</div>
-										{% else %}
-											<div class="stream-product-placeholder">
-												<i class="bi bi-camera-video"></i>
-											</div>
-										{% endif %}
+							<article class="cart-line" data-cart-line data-product-id="{{ produit.id }}">
+								<a class="cart-line-media" href="{{ path('app_produit_show', { id: produit.id }) }}">
+									{% if hasImage %}
+										<img src="{{ imageSrc }}" alt="{{ produit.designation }}" onerror="this.classList.add('is-hidden'); this.nextElementSibling.classList.remove('is-hidden');">
+										<span class="cart-line-placeholder is-hidden">
+											<span class="material-symbols-outlined">videocam</span>
+										</span>
+									{% else %}
+										<span class="cart-line-placeholder">
+											<span class="material-symbols-outlined">videocam</span>
+										</span>
+									{% endif %}
+								</a>
+
+								<div class="cart-line-main">
+									<div>
+										<div class="eyebrow eyebrow-bright">{{ produit.categorie.nomCategorie }}</div>
+										<h3 class="cart-line-title">{{ produit.designation }}</h3>
+										<div class="cart-line-unit">
+											<span data-cart-line-unit>{{ ligne.prixHt|number_format(2, ',', ' ') }} EUR</span>
+											<span>par unité</span>
+										</div>
 									</div>
 
-									<div class="flex-grow-1">
-										<div class="d-flex flex-column flex-md-row justify-content-between gap-2">
-											<div>
-												<p class="text-primary fw-bold small mb-1">{{ produit.categorie.nomCategorie }}</p>
-												<h2 class="h5 mb-1">{{ produit.designation }}</h2>
-												<p class="text-muted small mb-0">{{ produit.prixUnitHT|number_format(2, ',', ' ') }} € / unité</p>
-											</div>
-											<p class="fw-bold fs-5 mb-0 text-nowrap">{{ lineTotal|number_format(2, ',', ' ') }} €</p>
-										</div>
-
-										<div class="d-flex flex-wrap align-items-center gap-2 mt-3">
-											<div class="btn-group" role="group" aria-label="Quantité">
-												<a href="{{ path('app_panier_moins', {id: produit.id}) }}" class="btn btn-outline-secondary btn-sm">
-													<i class="bi bi-dash"></i>
-												</a>
-												<span class="btn btn-outline-secondary btn-sm disabled">{{ ligne.quantite }}</span>
-												<a href="{{ path('app_panier_plus', {id: produit.id}) }}" class="btn btn-outline-secondary btn-sm">
-													<i class="bi bi-plus"></i>
-												</a>
-											</div>
-
-											<a href="{{ path('app_panier_supprimer', {id: produit.id}) }}" class="btn btn-outline-danger btn-sm">
-												<i class="bi bi-trash me-1"></i>
-												Supprimer
+									<div class="cart-line-controls">
+										<div class="cart-quantity" aria-label="Quantité">
+											<a
+												href="{{ path('app_panier_moins', { id: produit.id }) }}"
+												class="cart-control"
+												data-cart-action
+												data-cart-action-type="minus"
+												data-product-id="{{ produit.id }}"
+												aria-label="Retirer une unité"
+											>
+												<span class="material-symbols-outlined">remove</span>
 											</a>
-
-											<a href="{{ path('app_favoris', {id: produit.id}) }}" class="btn btn-outline-primary btn-sm">
-												<i class="bi {{ produit in user.produitsAimers ? 'bi-heart-fill' : 'bi-heart' }} me-1"></i>
-												Favori
+											<span class="cart-quantity-value" data-cart-quantity>{{ ligne.quantite }}</span>
+											<a
+												href="{{ path('app_panier_plus', { id: produit.id }) }}"
+												class="cart-control"
+												data-cart-action
+												data-cart-action-type="plus"
+												data-product-id="{{ produit.id }}"
+												aria-label="Ajouter une unité"
+											>
+												<span class="material-symbols-outlined">add</span>
 											</a>
 										</div>
+
+										<a
+											href="{{ path('app_favoris', { id: produit.id }) }}"
+											class="cart-link-action {{ is_favorite ? 'is-active' : '' }}"
+											data-favorite-toggle
+											data-product-id="{{ produit.id }}"
+											aria-label="{{ is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}"
+											aria-pressed="{{ is_favorite ? 'true' : 'false' }}"
+										>
+											<span class="material-symbols-outlined">favorite</span>
+											<span data-favorite-label>Favori</span>
+										</a>
+
+										<a
+											href="{{ path('app_panier_supprimer', { id: produit.id }) }}"
+											class="cart-link-action danger"
+											data-cart-action
+											data-cart-action-type="remove"
+											data-product-id="{{ produit.id }}"
+											aria-label="Supprimer du panier"
+										>
+											<span class="material-symbols-outlined">delete</span>
+											Supprimer
+										</a>
 									</div>
 								</div>
-							</div>
+
+								<div class="cart-line-total">
+									<span class="meta-text">Total ligne</span>
+									<strong data-cart-line-total>{{ lineTotal|number_format(2, ',', ' ') }} EUR</strong>
+								</div>
+							</article>
 						{% endfor %}
 					</div>
 				</section>
 
-				<aside class="col-lg-4">
-					<div class="card shadow-sm">
-						<div class="card-body">
-							<h2 class="h4 mb-4">Récapitulatif</h2>
-							<div class="d-flex justify-content-between mb-2">
-								<span>Total HT</span>
-								<strong>{{ total|number_format(2, ',', ' ') }} €</strong>
-							</div>
-							<div class="d-flex justify-content-between text-muted mb-3">
-								<span>TVA estimée</span>
-								<span>{{ (total * 0.2)|number_format(2, ',', ' ') }} €</span>
-							</div>
-							<hr>
-							<div class="d-flex justify-content-between fs-5">
-								<span>Total TTC</span>
-								<strong>{{ (total * 1.2)|number_format(2, ',', ' ') }} €</strong>
-							</div>
-							<a class="btn btn-primary w-100 mt-4" href="{{ path('app_checkout') }}">Valider la commande</a>
+				<aside class="cart-summary-panel panel">
+					<div class="stack-md">
+						<div>
+							<div class="eyebrow eyebrow-bright">Résumé</div>
+							<h2 class="product-name">Commande</h2>
 						</div>
+
+						<div class="cart-summary-lines">
+							<div class="requirements-row">
+								<span>Total HT</span>
+								<strong data-cart-total-ht>{{ total|number_format(2, ',', ' ') }} EUR</strong>
+							</div>
+							<div class="requirements-row muted">
+								<span>TVA estimée</span>
+								<span data-cart-tax>{{ (total * 0.2)|number_format(2, ',', ' ') }} EUR</span>
+							</div>
+							<div class="cart-grand-total">
+								<span>Total TTC</span>
+								<strong data-cart-total-ttc>{{ (total * 1.2)|number_format(2, ',', ' ') }} EUR</strong>
+							</div>
+						</div>
+
+						<a class="btn btn-primary" href="{{ path('app_checkout') }}">
+							Valider la commande
+							<span class="material-symbols-outlined">lock</span>
+						</a>
+						<p class="muted cart-summary-note">Les quantités sont synchronisées immédiatement avec votre panier.</p>
 					</div>
 				</aside>
 			</div>
-		{% endif %}
-	</div>
+		</div>
+	</main>
 {% endblock %}

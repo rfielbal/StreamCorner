@@ -38,6 +38,85 @@
           submit_label: submit_label,
           back_path: back_path
         } %}
+
+        {% if resource|default(null) == 'produits' and entity is defined and entity.id %}
+          <article class="admin-product-images-panel panel">
+            <div class="stack-lg">
+              <div class="profile-section-head">
+                <div>
+                  <div class="eyebrow eyebrow-bright">Galerie produit</div>
+                  <h2 class="product-name">Images_Actuelles</h2>
+                </div>
+                <span class="status-badge status-info">{{ entity.images|length }} image(s)</span>
+              </div>
+
+              {% if entity.images|length > 0 %}
+                <div class="admin-product-image-grid">
+                  {% for image in entity.images %}
+                    {% set raw_image = image.filename %}
+                    {% set image_src = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
+                    {% set is_primary = image.filename == entity.image %}
+                    <article class="admin-product-image-card {{ is_primary ? 'is-primary' : '' }}">
+                      <div class="admin-product-image-media">
+                        <img src="{{ image_src }}" alt="{{ image.alt ?: entity.designation }}">
+                        {% if is_primary %}
+                          <span class="status-badge status-success">Principale</span>
+                        {% endif %}
+                      </div>
+
+                      <div class="admin-product-image-body">
+                        <div>
+                          <strong>{{ image.alt ?: entity.designation }}</strong>
+                          <span class="admin-product-image-filename">{{ image.filename }}</span>
+                        </div>
+
+                        <form class="admin-image-replace-form" method="post" enctype="multipart/form-data" action="{{ path('app_admin_product_image_replace', { productId: entity.id, imageId: image.id }) }}">
+                          <input type="hidden" name="_token" value="{{ csrf_token('replace-product-image-' ~ image.id) }}">
+                          <label class="admin-image-file-label" for="replace-product-image-{{ image.id }}">
+                            <span class="material-symbols-outlined">image</span>
+                            <input id="replace-product-image-{{ image.id }}" type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif">
+                          </label>
+                          <button class="btn btn-secondary" type="submit">
+                            <span class="material-symbols-outlined">sync</span>
+                            Remplacer
+                          </button>
+                        </form>
+
+                        <div class="admin-product-image-actions">
+                          {% if not is_primary %}
+                            <form method="post" action="{{ path('app_admin_product_image_primary', { productId: entity.id, imageId: image.id }) }}">
+                              <input type="hidden" name="_token" value="{{ csrf_token('primary-product-image-' ~ image.id) }}">
+                              <button class="btn btn-ghost" type="submit">
+                                <span class="material-symbols-outlined">star</span>
+                                Principale
+                              </button>
+                            </form>
+                          {% endif %}
+
+                          <form method="post" action="{{ path('app_admin_product_image_delete', { productId: entity.id, imageId: image.id }) }}" onsubmit="return confirm('Supprimer cette image du produit et du serveur ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-product-image-' ~ image.id) }}">
+                            <button class="btn btn-secondary danger-action" type="submit" {{ entity.images|length <= 1 ? 'disabled' : '' }}>
+                              <span class="material-symbols-outlined">delete</span>
+                              Supprimer
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </article>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="profile-empty-state">
+                  <span class="material-symbols-outlined">photo_library</span>
+                  <div>
+                    <strong>Aucune galerie</strong>
+                    <p>Ajoutez une image principale ou des photos supplémentaires puis enregistrez le produit.</p>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </article>
+        {% endif %}
       </section>
     </main>
   </div>

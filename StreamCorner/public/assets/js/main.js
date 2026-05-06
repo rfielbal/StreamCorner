@@ -627,6 +627,195 @@ syncNavIcons();
 syncProductPage();
 window.addEventListener("hashchange", syncNavLinks);
 
+const refreshFavoritesEmptyState = () => {
+  const grid = document.querySelector("[data-favorites-grid]");
+  const emptyState = document.querySelector("[data-favorites-empty]");
+  if (!grid || !emptyState) return;
+
+  const hasItems = Boolean(grid.querySelector("[data-favorites-item]"));
+  grid.hidden = !hasItems;
+  emptyState.hidden = hasItems;
+};
+
+const syncFavoriteButtons = (productId, isFavorite, label) => {
+  document.querySelectorAll(`[data-favorite-toggle][data-product-id="${productId}"]`).forEach((button) => {
+    button.classList.toggle("is-active", isFavorite);
+    button.setAttribute("aria-pressed", isFavorite ? "true" : "false");
+    button.setAttribute("aria-label", label);
+    button.setAttribute("title", label);
+
+    button.querySelectorAll("[data-favorite-label]").forEach((labelNode) => {
+      labelNode.textContent = label;
+    });
+
+    const bootstrapIcon = button.querySelector(".bi-heart, .bi-heart-fill");
+    if (bootstrapIcon) {
+      bootstrapIcon.classList.toggle("bi-heart-fill", isFavorite);
+      bootstrapIcon.classList.toggle("bi-heart", !isFavorite);
+      bootstrapIcon.classList.toggle("text-danger", isFavorite);
+    }
+  });
+};
+
+document.querySelectorAll("[data-favorite-toggle]").forEach((button) => {
+  button.addEventListener("click", async (event) => {
+    const productId = button.getAttribute("data-product-id");
+    if (!productId || button.dataset.favoritePending === "true") return;
+
+    event.preventDefault();
+    button.dataset.favoritePending = "true";
+    button.setAttribute("aria-busy", "true");
+    button.classList.add("is-pending");
+
+    try {
+      const response = await fetch(button.href, {
+        headers: {
+          Accept: "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        credentials: "same-origin",
+      });
+
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        window.location.href = button.href;
+        return;
+      }
+
+      const data = await response.json();
+      if (data.redirect) {
+        window.location.href = data.redirect;
+        return;
+      }
+
+      if (!response.ok) {
+        window.location.href = button.href;
+        return;
+      }
+
+      const isFavorite = Boolean(data.favorited);
+      const nextLabel = data.label || (isFavorite ? "Retirer des favoris" : "Ajouter aux favoris");
+      syncFavoriteButtons(String(data.productId || productId), isFavorite, nextLabel);
+
+      const favoriteItem = button.closest("[data-favorites-item]");
+      if (favoriteItem && !isFavorite) {
+        favoriteItem.remove();
+        refreshFavoritesEmptyState();
+      }
+    } catch (error) {
+      window.location.href = button.href;
+    } finally {
+      delete button.dataset.favoritePending;
+      button.removeAttribute("aria-busy");
+      button.classList.remove("is-pending");
+    }
+  });
+});
+
+const setCartLabel = (button, text) => {
+  const label = button.querySelector("[data-cart-action-label]");
+  if (!label) return;
+
+  const initialText = label.dataset.initialText || label.textContent;
+  label.dataset.initialText = initialText;
+  label.textContent = text;
+
+  window.setTimeout(() => {
+    label.textContent = initialText;
+  }, 1200);
+};
+
+const refreshCartSummary = (cart) => {
+  if (!cart) return;
+
+  const content = document.querySelector("[data-cart-content]");
+  const emptyState = document.querySelector("[data-cart-empty-state]");
+  const actions = document.querySelector("[data-cart-actions]");
+  const count = document.querySelector("[data-cart-items-count]");
+  const totalHt = document.querySelector("[data-cart-total-ht]");
+  const tax = document.querySelector("[data-cart-tax]");
+  const totalTtc = document.querySelector("[data-cart-total-ttc]");
+
+  if (count) count.textContent = `${cart.itemsCount} article(s)`;
+  if (totalHt) totalHt.textContent = cart.totalHt;
+  if (tax) tax.textContent = cart.tax;
+  if (totalTtc) totalTtc.textContent = cart.totalTtc;
+
+  if (content) content.hidden = Boolean(cart.isEmpty);
+  if (emptyState) emptyState.hidden = !cart.isEmpty;
+  if (actions) actions.hidden = Boolean(cart.isEmpty);
+};
+
+const refreshCartLine = (data) => {
+  if (!data?.productId) return;
+
+  const line = document.querySelector(`[data-cart-line][data-product-id="${data.productId}"]`);
+  if (!line) return;
+
+  if (data.removed) {
+    line.remove();
+    return;
+  }
+
+  const quantity = line.querySelector("[data-cart-quantity]");
+  const lineTotal = line.querySelector("[data-cart-line-total]");
+  const unitPrice = line.querySelector("[data-cart-line-unit]");
+
+  if (quantity) quantity.textContent = data.line.quantity;
+  if (lineTotal) lineTotal.textContent = data.line.total;
+  if (unitPrice) unitPrice.textContent = data.line.unitPrice;
+};
+
+document.querySelectorAll("[data-cart-action]").forEach((button) => {
+  button.addEventListener("click", async (event) => {
+    if (button.dataset.cartPending === "true") return;
+
+    event.preventDefault();
+    button.dataset.cartPending = "true";
+    button.setAttribute("aria-busy", "true");
+    button.classList.add("is-pending");
+
+    try {
+      const response = await fetch(button.href, {
+        headers: {
+          Accept: "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        credentials: "same-origin",
+      });
+
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        window.location.href = button.href;
+        return;
+      }
+
+      const data = await response.json();
+      if (data.redirect) {
+        window.location.href = data.redirect;
+        return;
+      }
+
+      if (response.ok) {
+        refreshCartLine(data);
+        refreshCartSummary(data.cart);
+
+        if (button.getAttribute("data-cart-action-type") === "add") {
+          setCartLabel(button, "Ajouté");
+        }
+      } else if (data.message) {
+        setCartLabel(button, "Stock max");
+      }
+    } catch (error) {
+      window.location.href = button.href;
+    } finally {
+      delete button.dataset.cartPending;
+      button.removeAttribute("aria-busy");
+      button.classList.remove("is-pending");
+    }
+  });
+});
+
 document.querySelectorAll("[data-toggle-target]").forEach((button) => {
   button.addEventListener("click", () => {
     const targets = resolveTargets(button.getAttribute("data-toggle-target"));

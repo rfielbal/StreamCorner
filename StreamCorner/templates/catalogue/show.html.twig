@@ -6,11 +6,12 @@
 {% set product_description = produit ? produit.description : "Console de pilotage compacte pour lancer vos scènes, overlays et macros sans quitter l'écran principal. Une vraie tour de contrôle pour le setup." %}
 {% set product_category = produit and produit.categorie ? produit.categorie.nomCategorie : 'Console modulaire' %}
 {% set product_gallery = produit ? produit.images : [] %}
-{% set primary_gallery_image = product_gallery|length > 0 ? product_gallery|first : null %}
-{% set raw_image = primary_gallery_image ? primary_gallery_image.filename : (produit ? produit.image : 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZUd-zzhzhAwqcvVN5x5xiWvonJvYqPAkq0-VDcd0aCS63A6R_t0PQvISa5_NAig1uME07IzXOJNXHelnRUs_By0otGuKb2EDXVChqpX070n8cok3eul7x_uOw21uugQsspPJR7uEh6Hhpa8xlsb5KsaQuYscb0Mrb8O3jSOZ1z5NBLFbau_3-tOJMW7dqXyMJakzEzgkWA5ibVFFJsCbsGa6Snfh9fcAgohgQ46LdAZjQRDeLDsYPOsE5UzHblvRIbyt0SelZa2s') %}
+{% set raw_image = produit ? produit.image : 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZUd-zzhzhAwqcvVN5x5xiWvonJvYqPAkq0-VDcd0aCS63A6R_t0PQvISa5_NAig1uME07IzXOJNXHelnRUs_By0otGuKb2EDXVChqpX070n8cok3eul7x_uOw21uugQsspPJR7uEh6Hhpa8xlsb5KsaQuYscb0Mrb8O3jSOZ1z5NBLFbau_3-tOJMW7dqXyMJakzEzgkWA5ibVFFJsCbsGa6Snfh9fcAgohgQ46LdAZjQRDeLDsYPOsE5UzHblvRIbyt0SelZa2s' %}
 {% set product_image = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
+{% set primary_in_gallery = product_gallery|filter(image => image.filename == raw_image)|length > 0 %}
 {% set cart_path = produit ? path('app_panier_add', { id: produit.id }) : path('app_catalogue') %}
 {% set favorite_path = produit ? path('app_favoris', { id: produit.id }) : path('app_login') %}
+{% set is_favorite = app.user and produit and produit in app.user.produitsAimers %}
 
 {% block title %}StreamCorner | {{ product_name }}{% endblock %}
 {% block body_class %}page-shell product-page{% endblock %}
@@ -29,8 +30,9 @@
             {% if product_gallery|length > 0 %}
               {% for image in product_gallery %}
                 {% set gallery_src = (image.filename starts with 'http' or image.filename starts with '/') ? image.filename : '/assets/images/products/' ~ image.filename %}
+                {% set is_primary_thumb = image.filename == raw_image %}
                 <button
-                  class="gallery-thumb {{ loop.first ? 'is-active' : '' }}"
+                  class="gallery-thumb {{ is_primary_thumb ? 'is-active' : '' }}"
                   type="button"
                   data-gallery-thumb
                   data-product-gallery-slot="{{ loop.index0 }}"
@@ -41,6 +43,19 @@
                   <img src="{{ gallery_src }}" alt="{{ image.alt ?: product_name }}">
                 </button>
               {% endfor %}
+              {% if not primary_in_gallery %}
+                <button
+                  class="gallery-thumb is-active"
+                  type="button"
+                  data-gallery-thumb
+                  data-product-gallery-slot="primary"
+                  data-gallery-src="{{ product_image }}"
+                  data-gallery-alt="{{ product_name }}"
+                  aria-label="{{ product_name }}"
+                >
+                  <img src="{{ product_image }}" alt="{{ product_name }}">
+                </button>
+              {% endif %}
             {% else %}
               <button
                 class="gallery-thumb is-active"
@@ -75,13 +90,33 @@
               </div>
 
               <div class="summary-actions">
-                <a class="btn btn-primary {{ produit and produit.stock <= 0 ? 'is-disabled' : '' }}" href="{{ cart_path }}" data-product-buy aria-disabled="{{ produit and produit.stock <= 0 ? 'true' : 'false' }}">
+                <a
+                  class="btn btn-primary {{ produit and produit.stock <= 0 ? 'is-disabled' : '' }}"
+                  href="{{ app.user ? cart_path : path('app_login') }}"
+                  data-product-buy
+                  {% if app.user and produit and produit.stock > 0 %}
+                    data-cart-action
+                    data-cart-action-type="add"
+                    data-product-id="{{ produit.id }}"
+                  {% endif %}
+                  aria-disabled="{{ produit and produit.stock <= 0 ? 'true' : 'false' }}"
+                >
                   <span class="material-symbols-outlined">shopping_cart</span>
-                  {{ produit and produit.stock <= 0 ? 'Rupture' : 'Ajouter au panier' }}
+                  <span data-cart-action-label>{{ produit and produit.stock <= 0 ? 'Rupture' : 'Ajouter au panier' }}</span>
                 </a>
-                <a class="btn btn-secondary" href="{{ favorite_path }}" data-product-favorite>
+                <a
+                  class="btn btn-secondary {{ is_favorite ? 'is-active' : '' }}"
+                  href="{{ app.user ? favorite_path : path('app_login') }}"
+                  data-product-favorite
+                  {% if app.user and produit %}
+                    data-favorite-toggle
+                    data-product-id="{{ produit.id }}"
+                  {% endif %}
+                  aria-label="{{ is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}"
+                  aria-pressed="{{ is_favorite ? 'true' : 'false' }}"
+                >
                   <span class="material-symbols-outlined">favorite</span>
-                  Ajouter aux favoris
+                  <span data-favorite-label>{{ is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}</span>
                 </a>
               </div>
             </div>

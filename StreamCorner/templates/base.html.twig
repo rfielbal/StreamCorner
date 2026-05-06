@@ -4,12 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}StreamCorner{% endblock %}</title>
+    <link rel="icon" type="image/png" sizes="128x128" href="/assets/images/favicon.png?v=20260506-user">
     {% block stylesheets %}
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Space+Grotesk:wght@400;500;700;900&amp;display=swap" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;500;700&amp;display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="/assets/css/main.css?v=20260506">
+      <link rel="stylesheet" href="/assets/css/main.css?v=20260506-nav">
     {% endblock %}
   </head>
   <body class="{% block body_class %}page-shell{% endblock %}" {% block body_data %}{% endblock %}>
@@ -24,7 +25,7 @@
     {% endblock %}
 
     {% block javascripts %}
-      <script src="/assets/js/main.js?v=20260506" defer></script>
+      <script src="/assets/js/main.js?v=20260506-cart" defer></script>
     {% endblock %}
   </body>
 </html>

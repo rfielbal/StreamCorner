@@ -3,10 +3,17 @@
     <a class="brand" href="{{ path('app_accueil') }}">STREAM_CORNER</a>
     <nav class="site-nav" aria-label="Navigation principale">
       <a data-nav-item="accueil" href="{{ path('app_accueil') }}">Accueil</a>
-      <a data-nav-item="boutique" href="{{ path('app_catalogue') }}">Boutique</a>
-      <a data-nav-item="streaming" href="{{ path('app_catalogue') }}">Diffusion</a>
-      <a data-nav-item="audio" href="{{ path('app_catalogue') }}#audio">Audio</a>
-      <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
+      <div class="nav-dropdown">
+        <a class="nav-dropdown-toggle" data-nav-item="boutique" href="{{ path('app_catalogue') }}" aria-haspopup="true">
+          Boutique
+          <span class="material-symbols-outlined">expand_more</span>
+        </a>
+        <div class="nav-dropdown-menu" aria-label="Catégories boutique">
+          <a href="{{ path('app_catalogue', { categorie: 'diffusion' }) }}">Diffusion</a>
+          <a href="{{ path('app_catalogue', { categorie: 'audio' }) }}">Audio</a>
+          <a href="{{ path('app_catalogue', { categorie: 'eclairage' }) }}">Éclairage</a>
+        </div>
+      </div>
       <a data-nav-item="contact" href="{{ path('app_contact') }}">Contact</a>
       {% if app.user %}
         <a data-nav-item="commandes" href="{{ path('app_commande_index') }}">Commandes</a>
@@ -46,10 +53,14 @@
     <div class="mobile-nav" id="mobile-nav">
       <nav class="site-nav" aria-label="Navigation mobile">
         <a data-nav-item="accueil" href="{{ path('app_accueil') }}">Accueil</a>
-        <a data-nav-item="boutique" href="{{ path('app_catalogue') }}">Boutique</a>
-        <a data-nav-item="streaming" href="{{ path('app_catalogue') }}">Diffusion</a>
-        <a data-nav-item="audio" href="{{ path('app_catalogue') }}#audio">Audio</a>
-        <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
+        <div class="mobile-category-group">
+          <a data-nav-item="boutique" href="{{ path('app_catalogue') }}">Boutique</a>
+          <div class="mobile-subnav">
+            <a href="{{ path('app_catalogue', { categorie: 'diffusion' }) }}">Diffusion</a>
+            <a href="{{ path('app_catalogue', { categorie: 'audio' }) }}">Audio</a>
+            <a href="{{ path('app_catalogue', { categorie: 'eclairage' }) }}">Éclairage</a>
+          </div>
+        </div>
         <a data-nav-item="contact" href="{{ path('app_contact') }}">Contact</a>
         <a href="{{ path('app_panier') }}">Panier</a>
         <a href="{{ app.user ? path('app_liste_favoris') : path('app_login') }}">Favoris</a>
