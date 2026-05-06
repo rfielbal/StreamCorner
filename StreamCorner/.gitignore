@@ -8,4 +8,5 @@
 /var/
 /vendor/
 /.DS_Store
+/*.sql
 ###< symfony/framework-bundle ###
