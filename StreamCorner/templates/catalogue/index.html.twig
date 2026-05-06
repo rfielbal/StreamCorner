@@ -6,6 +6,7 @@
 {% set onlyInStock = inStock|default(false) %}
 {% set filter_route = searchTerm ? 'app_resultat' : 'app_catalogue' %}
 {% set reset_params = searchTerm ? { q: searchTerm } : {} %}
+{% set activeFilterCount = selectedCategories|length + (currentMaxPrice != '2000' ? 1 : 0) + (onlyInStock ? 1 : 0) %}
 
 {% block title %}StreamCorner | Catalogue{% endblock %}
 {% block body_class %}page-shell{% endblock %}
@@ -17,7 +18,7 @@
   <main class="container">
     <div class="catalog-layout">
       <aside class="catalog-sidebar" id="catalogue-filters">
-        <form id="catalogue-filter-form" class="stack-lg catalog-filter-form" method="get" action="{{ path(filter_route) }}">
+        <form id="catalogue-filter-form" class="stack-lg catalog-filter-form" method="get" action="{{ path(filter_route) }}" data-catalogue-filter-form>
           {% if searchTerm %}
             <input type="hidden" name="q" value="{{ searchTerm }}">
           {% endif %}
@@ -35,13 +36,23 @@
           <section class="filter-group">
             <h2 class="filter-label">Catégorie</h2>
             <div class="filter-options">
-              <label class="checkbox-line"><input type="checkbox" disabled {{ selectedCategories is empty ? 'checked' : '' }}>Tout le matériel</label>
+              <label class="checkbox-line">
+                <input
+                  type="checkbox"
+                  name="all_categories"
+                  value="1"
+                  data-filter-all-categories
+                  {{ selectedCategories is empty ? 'checked' : '' }}
+                >
+                Tout le matériel
+              </label>
               {% for categorie in categories %}
                 <label class="checkbox-line">
                   <input
                     type="checkbox"
                     name="categories[]"
                     value="{{ categorie.id }}"
+                    data-filter-category
                     {{ categorie.id ~ '' in selectedCategories ? 'checked' : '' }}
                   >
                   {{ categorie.nomCategorie }}
@@ -54,10 +65,10 @@
 
           <section class="filter-group">
             <h2 class="filter-label">Prix maximum</h2>
-            <input type="range" name="max_price" min="0" max="2000" step="10" value="{{ currentMaxPrice }}">
+            <input id="catalogue-max-price" type="range" name="max_price" min="0" max="2000" step="10" value="{{ currentMaxPrice }}" data-filter-price>
             <div class="mini-row muted">
               <span>0 EUR</span>
-              <span>{{ currentMaxPrice == '2000' ? '2 000 EUR+' : currentMaxPrice ~ ' EUR' }}</span>
+              <span data-filter-price-output>{{ currentMaxPrice == '2000' ? '2 000 EUR+' : currentMaxPrice ~ ' EUR' }}</span>
             </div>
           </section>
 
@@ -74,6 +85,10 @@
           <div class="filter-actions">
             <button class="btn btn-primary" type="submit">Appliquer</button>
             <a class="btn btn-ghost" href="{{ path(filter_route, reset_params) }}">Réinitialiser</a>
+          </div>
+
+          <div class="filter-status meta-text" data-filter-status>
+            {{ activeFilterCount > 0 ? activeFilterCount ~ ' filtre(s) actif(s)' : 'Tous les produits' }}
           </div>
         </form>
       </aside>

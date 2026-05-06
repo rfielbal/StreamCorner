@@ -25,6 +25,9 @@
           <span class="material-symbols-outlined">admin_panel_settings</span>
         </a>
       {% endif %}
+      <a class="btn-icon" data-nav-icon-item="favoris" href="{{ app.user ? path('app_liste_favoris') : path('app_login') }}" aria-label="Favoris">
+        <span class="material-symbols-outlined">favorite</span>
+      </a>
       <a class="btn-icon" data-nav-icon-item="panier" href="{{ path('app_panier') }}" aria-label="Panier">
         <span class="material-symbols-outlined">shopping_cart</span>
       </a>
@@ -49,6 +52,7 @@
         <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
         <a data-nav-item="contact" href="{{ path('app_contact') }}">Contact</a>
         <a href="{{ path('app_panier') }}">Panier</a>
+        <a href="{{ app.user ? path('app_liste_favoris') : path('app_login') }}">Favoris</a>
         {% if is_granted('ROLE_ADMIN') %}
           <a href="{{ path('app_admin_dashboard') }}">Administration</a>
         {% endif %}

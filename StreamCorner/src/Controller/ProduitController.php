@@ -78,14 +78,17 @@ final class ProduitController extends AbstractController
             $rawCategories = [$rawCategories];
         }
 
-        $selectedCategories = array_values(array_filter(
-            array_map(static fn (mixed $id): string => trim((string) $id), $rawCategories),
-            static fn (string $id): bool => $id !== ''
-        ));
+        $selectedCategories = [];
+        if ($request->query->get('all_categories') !== '1') {
+            $selectedCategories = array_values(array_filter(
+                array_map(static fn (mixed $id): string => trim((string) $id), $rawCategories),
+                static fn (string $id): bool => $id !== ''
+            ));
 
-        $legacyCategory = $request->query->get('categorie');
-        if ($selectedCategories === [] && $legacyCategory !== null && trim((string) $legacyCategory) !== '') {
-            $selectedCategories = [trim((string) $legacyCategory)];
+            $legacyCategory = $request->query->get('categorie');
+            if ($selectedCategories === [] && $legacyCategory !== null && trim((string) $legacyCategory) !== '') {
+                $selectedCategories = [trim((string) $legacyCategory)];
+            }
         }
 
         $sort = (string) $request->query->get('sort', 'newest');
@@ -97,6 +100,7 @@ final class ProduitController extends AbstractController
         if (!is_numeric($maxPrice)) {
             $maxPrice = '2000';
         }
+        $maxPrice = (string) max(0, min(2000, (int) $maxPrice));
 
         return [
             'selectedCategories' => $selectedCategories,

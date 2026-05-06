@@ -1327,6 +1327,10 @@ main {
   gap: 0.75rem;
 }
 
+.filter-status {
+  text-align: center;
+}
+
 .checkbox-line,
 .radio-line {
   display: flex;

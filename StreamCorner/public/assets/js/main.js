@@ -680,6 +680,67 @@ document.querySelectorAll("[data-gallery-thumb]").forEach((button) => {
   });
 });
 
+document.querySelectorAll("[data-catalogue-filter-form]").forEach((form) => {
+  const allCategoriesInput = form.querySelector("[data-filter-all-categories]");
+  const categoryInputs = Array.from(form.querySelectorAll("[data-filter-category]"));
+  const priceInput = form.querySelector("[data-filter-price]");
+  const priceOutput = form.querySelector("[data-filter-price-output]");
+  const status = form.querySelector("[data-filter-status]");
+  const stockInput = form.querySelector('input[name="in_stock"]');
+
+  const formatPrice = (value) => {
+    const price = Number.parseInt(value || "2000", 10);
+    return price >= 2000 ? "2 000 EUR+" : `${price.toLocaleString("fr-FR")} EUR`;
+  };
+
+  const activeFilterCount = () => {
+    const categoryCount = categoryInputs.filter((input) => input.checked).length;
+    const priceIsFiltered = priceInput && Number.parseInt(priceInput.value || "2000", 10) < 2000;
+    return categoryCount + (priceIsFiltered ? 1 : 0) + (stockInput?.checked ? 1 : 0);
+  };
+
+  const syncStatus = () => {
+    if (!status) return;
+    const count = activeFilterCount();
+    status.textContent = count > 0 ? `${count} filtre(s) actif(s)` : "Tous les produits";
+  };
+
+  const syncCategories = (source = null) => {
+    if (source === allCategoriesInput && allCategoriesInput?.checked) {
+      categoryInputs.forEach((input) => {
+        input.checked = false;
+      });
+    }
+
+    if (source && categoryInputs.includes(source) && source.checked && allCategoriesInput) {
+      allCategoriesInput.checked = false;
+    }
+
+    if (allCategoriesInput && categoryInputs.every((input) => !input.checked)) {
+      allCategoriesInput.checked = true;
+    }
+
+    syncStatus();
+  };
+
+  const syncPrice = () => {
+    if (priceInput && priceOutput) {
+      priceOutput.textContent = formatPrice(priceInput.value);
+    }
+    syncStatus();
+  };
+
+  allCategoriesInput?.addEventListener("change", () => syncCategories(allCategoriesInput));
+  categoryInputs.forEach((input) => {
+    input.addEventListener("change", () => syncCategories(input));
+  });
+  priceInput?.addEventListener("input", syncPrice);
+  stockInput?.addEventListener("change", syncStatus);
+
+  syncCategories();
+  syncPrice();
+});
+
 document.querySelectorAll("[data-select-group]").forEach((group) => {
   const syncGroup = () => {
     group.querySelectorAll(".radio-card").forEach((card) => {
