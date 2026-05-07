@@ -155,6 +155,12 @@
             {% set raw_image = item.image %}
             {% set image_src = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
             <article class="product-card">
+              <a
+                class="product-card-overlay"
+                href="{{ path('app_produit_show', { id: item.id }) }}"
+                aria-label="Voir la fiche {{ item.designation }}"
+                tabindex="-1"
+              ></a>
               <div class="product-media">
                 <img src="{{ image_src }}" alt="{{ item.designation }}">
               </div>

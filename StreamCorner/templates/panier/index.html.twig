@@ -27,6 +27,8 @@
 				</div>
 			</div>
 
+			{% include 'components/_flash_messages.html.twig' ignore missing %}
+
 			<article class="cart-empty-state panel" data-cart-empty-state {{ has_lines ? 'hidden' : '' }}>
 				<div class="stack-md">
 					<div class="pill">
@@ -59,6 +61,8 @@
 							{% set imageSrc = hasImage and (produit.image starts with 'http' or produit.image starts with '/') ? produit.image : '/assets/images/products/' ~ produit.image %}
 							{% set lineTotal = ligne.quantite * ligne.prixHt %}
 							{% set is_favorite = produit in user.produitsAimers %}
+							{% set available_stock = produit.stock < 0 ? 0 : produit.stock %}
+							{% set max_reached = ligne.quantite >= available_stock %}
 
 							<article class="cart-line" data-cart-line data-product-id="{{ produit.id }}">
 								<a class="cart-line-media" href="{{ path('app_produit_show', { id: produit.id }) }}">
@@ -81,6 +85,7 @@
 										<div class="cart-line-unit">
 											<span data-cart-line-unit>{{ ligne.prixHt|number_format(2, ',', ' ') }} EUR</span>
 											<span>par unité</span>
+											<span data-cart-stock-note>Stock disponible : {{ available_stock }} unité(s)</span>
 										</div>
 									</div>
 
@@ -99,10 +104,11 @@
 											<span class="cart-quantity-value" data-cart-quantity>{{ ligne.quantite }}</span>
 											<a
 												href="{{ path('app_panier_plus', { id: produit.id }) }}"
-												class="cart-control"
+												class="cart-control {{ max_reached ? 'is-disabled' : '' }}"
 												data-cart-action
 												data-cart-action-type="plus"
 												data-product-id="{{ produit.id }}"
+												aria-disabled="{{ max_reached ? 'true' : 'false' }}"
 												aria-label="Ajouter une unité"
 											>
 												<span class="material-symbols-outlined">add</span>

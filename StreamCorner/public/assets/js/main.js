@@ -760,14 +760,27 @@ const refreshCartLine = (data) => {
   const quantity = line.querySelector("[data-cart-quantity]");
   const lineTotal = line.querySelector("[data-cart-line-total]");
   const unitPrice = line.querySelector("[data-cart-line-unit]");
+  const stockNote = line.querySelector("[data-cart-stock-note]");
+  const plusControl = line.querySelector('[data-cart-action-type="plus"]');
 
   if (quantity) quantity.textContent = data.line.quantity;
   if (lineTotal) lineTotal.textContent = data.line.total;
   if (unitPrice) unitPrice.textContent = data.line.unitPrice;
+  if (stockNote) stockNote.textContent = `Stock disponible : ${data.line.stock} unité(s)`;
+
+  if (plusControl) {
+    plusControl.classList.toggle("is-disabled", Boolean(data.line.maxReached));
+    plusControl.setAttribute("aria-disabled", data.line.maxReached ? "true" : "false");
+  }
 };
 
 document.querySelectorAll("[data-cart-action]").forEach((button) => {
   button.addEventListener("click", async (event) => {
+    if (button.getAttribute("aria-disabled") === "true") {
+      event.preventDefault();
+      return;
+    }
+
     if (button.dataset.cartPending === "true") return;
 
     event.preventDefault();

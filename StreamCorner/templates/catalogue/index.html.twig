@@ -133,6 +133,12 @@
                   <span class="catalog-anchor" id="eclairage" aria-hidden="true"></span>
                 {% endif %}
                 <a
+                  class="product-card-overlay"
+                  href="{{ path('app_produit_show', { id: produit.id }) }}"
+                  aria-label="Voir la fiche {{ produit.designation }}"
+                  tabindex="-1"
+                ></a>
+                <a
                   class="product-favorite btn-icon {{ is_favorite ? 'is-active' : '' }}"
                   href="{{ app.user ? path('app_favoris', { id: produit.id }) : path('app_login') }}"
                   aria-label="{{ is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}"

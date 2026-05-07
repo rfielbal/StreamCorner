@@ -33,20 +33,25 @@ final class PanierController extends AbstractController
 
         $panier = $this->getOrCreatePanier($user, $entityManager);
         $ligne = $this->findLine($panier, $produit);
+        $availableStock = $this->availableStock($produit);
 
-        if ($produit->getStock() <= 0) {
+        if ($availableStock <= 0) {
             if ($this->isAjaxRequest($request)) {
                 return $this->cartJson($panier, $produit, $ligne, 'Ce produit est en rupture de stock.', Response::HTTP_CONFLICT);
             }
+
+            $this->addFlash('danger', 'Ce produit est en rupture de stock.');
 
             return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_mes_produits'));
         }
 
         if ($ligne !== null) {
-            if ($ligne->getQuantite() >= $produit->getStock()) {
+            if ($ligne->getQuantite() >= $availableStock) {
                 if ($this->isAjaxRequest($request)) {
                     return $this->cartJson($panier, $produit, $ligne, 'Stock maximum atteint pour ce produit.', Response::HTTP_CONFLICT);
                 }
+
+                $this->addFlash('danger', 'Stock maximum atteint pour ce produit.');
             } else {
                 $ligne->setQuantite($ligne->getQuantite() + 1);
             }
@@ -83,6 +88,10 @@ final class PanierController extends AbstractController
         $panier = $user->getPanier();
 
         if ($panier !== null) {
+            if ($this->syncCartWithStock($panier, $entityManager)) {
+                $this->addFlash('danger', 'Certaines quantités ont été ajustées selon le stock disponible.');
+            }
+
             $this->refreshTotal($panier);
             $entityManager->flush();
         }
@@ -113,11 +122,14 @@ final class PanierController extends AbstractController
 
         $panier = $this->getOrCreatePanier($user, $entityManager);
         $ligne = $this->findLine($panier, $produit);
+        $availableStock = $this->availableStock($produit);
 
-        if ($ligne !== null && $ligne->getQuantite() < $produit->getStock()) {
+        if ($ligne !== null && $ligne->getQuantite() < $availableStock) {
             $ligne->setQuantite($ligne->getQuantite() + 1);
         } elseif ($ligne !== null && $this->isAjaxRequest($request)) {
             return $this->cartJson($panier, $produit, $ligne, 'Stock maximum atteint pour ce produit.', Response::HTTP_CONFLICT);
+        } elseif ($ligne !== null) {
+            $this->addFlash('danger', 'Stock maximum atteint pour ce produit.');
         }
 
         $this->refreshTotal($panier);
@@ -243,6 +255,37 @@ final class PanierController extends AbstractController
         $panier->setTotalHtPa(number_format($total, 2, '.', ''));
     }
 
+    private function syncCartWithStock(Panier $panier, EntityManagerInterface $entityManager): bool
+    {
+        $changed = false;
+
+        foreach ($panier->getAjouters()->toArray() as $ligne) {
+            $produit = $ligne->getProduit();
+
+            if ($produit === null || $this->availableStock($produit) <= 0) {
+                $panier->removeAjouter($ligne);
+                $entityManager->remove($ligne);
+                $changed = true;
+
+                continue;
+            }
+
+            $availableStock = $this->availableStock($produit);
+
+            if ($ligne->getQuantite() > $availableStock) {
+                $ligne->setQuantite($availableStock);
+                $changed = true;
+            }
+        }
+
+        return $changed;
+    }
+
+    private function availableStock(Produit $produit): int
+    {
+        return max(0, $produit->getStock() ?? 0);
+    }
+
     private function isAjaxRequest(Request $request): bool
     {
         return $request->isXmlHttpRequest() || str_contains((string) $request->headers->get('Accept'), 'application/json');
@@ -266,6 +309,7 @@ final class PanierController extends AbstractController
         $lineQuantity = $removed ? 0 : ($ligne?->getQuantite() ?? 0);
         $lineUnitPrice = $ligne !== null ? (float) $ligne->getPrixHt() : (float) $produit->getPrixUnitHT();
         $lineTotal = $lineQuantity * $lineUnitPrice;
+        $availableStock = $this->availableStock($produit);
 
         return new JsonResponse([
             'message' => $message,
@@ -275,6 +319,8 @@ final class PanierController extends AbstractController
                 'quantity' => $lineQuantity,
                 'unitPrice' => $this->formatMoney($lineUnitPrice),
                 'total' => $this->formatMoney($lineTotal),
+                'stock' => $availableStock,
+                'maxReached' => $availableStock <= 0 || $lineQuantity >= $availableStock,
             ],
             'cart' => [
                 'itemsCount' => $itemsCount,

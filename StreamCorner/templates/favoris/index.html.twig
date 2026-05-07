@@ -44,6 +44,12 @@
             {% set category_name = produit.categorie ? produit.categorie.nomCategorie : 'Matériel streaming' %}
             <article class="product-card" id="favori-{{ produit.id }}" data-favorites-item data-product-id="{{ produit.id }}">
               <a
+                class="product-card-overlay"
+                href="{{ path('app_produit_show', { id: produit.id }) }}"
+                aria-label="Voir la fiche {{ produit.designation }}"
+                tabindex="-1"
+              ></a>
+              <a
                 class="product-favorite btn-icon is-active"
                 href="{{ path('app_favoris', { id: produit.id }) }}"
                 aria-label="Retirer des favoris"
