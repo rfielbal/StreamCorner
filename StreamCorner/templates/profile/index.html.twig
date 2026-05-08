@@ -54,10 +54,6 @@
               <strong>{{ user.email }}</strong>
             </div>
             <div>
-              <span>Validation</span>
-              <strong>{{ user.verified ? 'Email vérifié' : 'En attente' }}</strong>
-            </div>
-            <div>
               <span>Accès</span>
               <strong>{{ is_granted('ROLE_ADMIN') ? 'Client + Admin' : 'Client' }}</strong>
             </div>
