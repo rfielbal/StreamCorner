@@ -5,6 +5,8 @@
 {% block body_data %}data-nav-section="accueil"{% endblock %}
 
 {% block body %}
+  {% set commandCenterProduct = setupProducts['Command Center']|default(null) %}
+
   <main>
     <section class="home-hero">
       <div class="home-hero-media" aria-hidden="true">
@@ -23,8 +25,8 @@
               Contrôle tactile total. Retour visuel instantané. Précision conçue pour les créateurs et streamers exigeants.
             </p>
             <div class="home-hero-actions">
-              <a class="btn btn-primary" href="{{ path('app_resultat', { q: 'Command Center' }) }}">
-                Configurer maintenant
+              <a class="btn btn-primary" href="{{ commandCenterProduct ? path('app_produit_show', { id: commandCenterProduct.id }) : path('app_resultat', { q: 'Command Center' }) }}">
+                Découvrez-le maintenant
                 <span class="material-symbols-outlined">arrow_forward</span>
               </a>
               <a class="btn btn-secondary" href="{{ path('app_catalogue') }}">Voir le catalogue</a>
@@ -92,7 +94,7 @@
       <div class="container">
         <div class="split-header">
           <div>
-            <h2 class="section-title">DÉPARTEMENTS_SYSTÈME</h2>
+            <h2 class="section-title">Univers_Streaming</h2>
             <p class="home-section-subtitle">Sélectionnez votre niveau d'équipement</p>
           </div>
         </div>
@@ -141,8 +143,8 @@
       <div class="container">
         <div class="split-header">
           <div>
-            <h2 class="section-title">Essentiels_Diffusion</h2>
-            <p class="muted">Une sélection compatible avec le modèle Symfony `Produit`.</p>
+            <h2 class="section-title">Produits_à_la_une</h2>
+            <p class="muted">Découvrez une sélection d'équipements pensés pour améliorer votre setup streaming.</p>
           </div>
         </div>
 
@@ -194,11 +196,10 @@
           <p class="muted">Une question sur un produit, une commande ou un setup streaming ? Envoyez un message au support.</p>
           <div class="newsletter-form">
             <a class="btn btn-primary" href="{{ path('app_contact') }}">
-              Ouvrir le formulaire
+              Nous contacter
               <span class="material-symbols-outlined">arrow_forward</span>
             </a>
           </div>
-          <div class="newsletter-note">Messages stockés en base // Consultation administration</div>
         </div>
       </div>
     </section>
