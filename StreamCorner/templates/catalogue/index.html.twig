@@ -104,8 +104,8 @@
               <span class="material-symbols-outlined">tune</span>
             </button>
             <label class="toolbar-sort" for="catalog-sort">
-              Trier
-              <select id="catalog-sort" name="sort" form="catalogue-filter-form" onchange="this.form.submit()">
+              <span class="toolbar-sort-label">Trier</span>
+              <select id="catalog-sort" name="sort" form="catalogue-filter-form" onchange="this.form.submit()" aria-label="Trier les produits">
                 <option value="newest" {{ currentSort == 'newest' ? 'selected' : '' }}>Nouveautés</option>
                 <option value="name_asc" {{ currentSort == 'name_asc' ? 'selected' : '' }}>Nom A-Z</option>
                 <option value="name_desc" {{ currentSort == 'name_desc' ? 'selected' : '' }}>Nom Z-A</option>
