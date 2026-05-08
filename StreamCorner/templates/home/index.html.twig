@@ -41,51 +41,47 @@
             <div class="eyebrow eyebrow-bright">Carte interactive</div>
             <h2 class="section-title setup-dream-heading" id="setup-dream-title">Réalisez le Setup de vos rêves</h2>
           </div>
-          <p class="setup-dream-copy">Survolez un repère pour ouvrir la fiche produit associée.</p>
+          <p class="setup-dream-copy">Survolez une main pour afficher le produit, cliquez pour ouvrir sa fiche.</p>
         </div>
       </div>
 
       <div class="setup-dream-breakout">
         <div class="setup-dream-card">
           <div class="setup-dream-scene">
-            <img src="/assets/images/setup-dream-base.png" alt="Setup de streaming interactif avec plusieurs produits repérés">
+            <img src="/assets/images/design.png" alt="Setup de streaming interactif avec plusieurs produits repérés">
 
             {% set hotspots = [
               {
-                x: '14.1%', y: '43.8%', line_left: '0.95rem', line_top: '2.35rem', line_width: '8.6rem', line_height: '4.8rem', label_left: '3.65rem', label_top: '0.35rem', label_width: '10rem', line_class: 'setup-dream-line--right-down', slug: 'command-center', label: 'Command Center'
+                x: '10%', y: '62.5%', label_left: '1.95rem', label_top: '-2.25rem', label_width: '10rem', product: 'Command Center', label: 'Command Center'
               },
               {
-                x: '55.2%', y: '18.6%', line_left: '-5.9rem', line_top: '0.9rem', line_width: '5.1rem', line_height: '4.2rem', label_left: '-0.45rem', label_top: '2.9rem', label_width: '10rem', line_class: 'setup-dream-line--left-down', slug: 'obsidian-stream-webcam', label: 'Obsidian Webcam'
+                x: '54.6%', y: '15.8%', label_left: '1.8rem', label_top: '-0.7rem', label_width: '11.8rem', product: 'Obsidian Stream Webcam', label: 'Obsidian Stream Webcam'
               },
               {
-                x: '85.6%', y: '20.8%', line_left: '-6.3rem', line_top: '2.2rem', line_width: '5.6rem', line_height: '4rem', label_left: '-10.8rem', label_top: '0.35rem', label_width: '9rem', line_class: 'setup-dream-line--left-down', slug: 'aether-pro-led-panels', label: 'Aether LED Panels'
+                x: '85.7%', y: '18.2%', label_left: '-11.4rem', label_top: '-0.7rem', label_width: '10.2rem', product: 'Aether Pro LED Panels', label: 'Aether Pro LED Panels'
               },
               {
-                x: '51%', y: '57.8%', line_left: '-5.7rem', line_top: '-3.35rem', line_width: '4.8rem', line_height: '3.4rem', label_left: '-10.45rem', label_top: '-0.2rem', label_width: '9rem', line_class: 'setup-dream-line--left-up', slug: 'vector-boom-arm', label: 'Vector Boom Arm'
+                x: '63.4%', y: '57.2%', label_left: '-8.8rem', label_top: '-0.85rem', label_width: '7.5rem', product: 'Pulse Mic', label: 'Pulse Mic'
               },
               {
-                x: '65%', y: '63.7%', line_left: '-7.6rem', line_top: '1.15rem', line_width: '6.5rem', line_height: '0.85rem', label_left: '3.65rem', label_top: '0.55rem', label_width: '7rem', line_class: 'setup-dream-line--left-flat', slug: 'pulse-mic', label: 'Pulse Mic'
+                x: '89.5%', y: '70.9%', label_left: '-10.95rem', label_top: '-0.75rem', label_width: '9.6rem', product: 'Vox Monitor Speaker', label: 'Vox Monitor Speaker'
               },
               {
-                x: '88.5%', y: '73.8%', line_left: '-7.2rem', line_top: '1.5rem', line_width: '6rem', line_height: '0.85rem', label_left: '-8.95rem', label_top: '0.5rem', label_width: '7rem', line_class: 'setup-dream-line--left-flat', slug: 'vox-monitor-speaker', label: 'Vox Speaker'
-              },
-              {
-                x: '28.8%', y: '79%', line_left: '1.1rem', line_top: '-3.05rem', line_width: '6.4rem', line_height: '3.1rem', label_left: '3.7rem', label_top: '-2.2rem', label_width: '7rem', line_class: 'setup-dream-line--right-up', slug: 'kraken-tkl-mechanical-keyboard', label: 'Kraken TKL'
+                x: '36.9%', y: '82.5%', label_left: '1.95rem', label_top: '-1rem', label_width: '9.6rem', product: 'Kraken TKL Keyboard', label: 'Kraken TKL Keyboard'
               }
             ] %}
 
             {% for hotspot in hotspots %}
-              <div
+              {% set setupProduct = setupProducts[hotspot.product]|default(null) %}
+              <a
                 class="setup-dream-hotspot"
-                style="--x: {{ hotspot.x }}; --y: {{ hotspot.y }}; --line-left: {{ hotspot.line_left }}; --line-top: {{ hotspot.line_top }}; --line-width: {{ hotspot.line_width }}; --line-height: {{ hotspot.line_height }}; --label-left: {{ hotspot.label_left }}; --label-top: {{ hotspot.label_top }}; --label-width: {{ hotspot.label_width }};"
+                style="--x: {{ hotspot.x }}; --y: {{ hotspot.y }}; --label-left: {{ hotspot.label_left }}; --label-top: {{ hotspot.label_top }}; --label-width: {{ hotspot.label_width }};"
+                href="{{ setupProduct ? path('app_produit_show', { id: setupProduct.id }) : path('app_resultat', { q: hotspot.product }) }}"
+                aria-label="Voir la fiche produit {{ hotspot.product }}"
               >
-                <span class="setup-dream-line {{ hotspot.line_class }}" aria-hidden="true"></span>
-                <a class="setup-dream-trigger" href="{{ path('app_resultat', { q: hotspot.label }) }}" aria-label="Voir la fiche produit {{ hotspot.label }}">
-                  <img src="/assets/images/setup-dream-hotspot.png" alt="" aria-hidden="true">
-                  <span class="sr-only">{{ hotspot.label }}</span>
-                </a>
+                <span class="setup-dream-trigger" aria-hidden="true"></span>
                 <span class="setup-dream-title">{{ hotspot.label }}</span>
-              </div>
+              </a>
             {% endfor %}
           </div>
         </div>
