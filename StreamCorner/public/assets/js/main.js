@@ -8,7 +8,7 @@ const productCatalog = {
     stockText: "En stock",
     stockMeta: "Livraison 48h",
     price: "149,99 €",
-    priceNote: "Prix net",
+    priceNote: "Prix HT",
     buyHref: "/checkout?product=command-center",
     summarySpecs: [
       { label: "Commande", value: "15 touches LCD" },
@@ -67,7 +67,7 @@ const productCatalog = {
     stockText: "En stock",
     stockMeta: "Expédition 24h",
     price: "299,99 €",
-    priceNote: "Prix net",
+    priceNote: "Prix HT",
     buyHref: "/checkout?product=obsidian-stream-webcam",
     summarySpecs: [
       { label: "Résolution", value: "4K60" },
@@ -244,7 +244,7 @@ const productCatalog = {
     stockText: "En stock",
     stockMeta: "Prêt pour le live",
     price: "169,99 €",
-    priceNote: "Prix net",
+    priceNote: "Prix HT",
     buyHref: "/checkout?product=pulse-mic",
     summarySpecs: [
       { label: "Capsule", value: "Cardioïde" },
@@ -303,7 +303,7 @@ const productCatalog = {
     stockText: "En stock",
     stockMeta: "Switches remplaçables",
     price: "210 €",
-    priceNote: "Prix net",
+    priceNote: "Prix HT",
     buyHref: "/checkout?product=kraken-tkl-mechanical-keyboard",
     summarySpecs: [
       { label: "Format", value: "TKL" },
@@ -362,7 +362,7 @@ const productCatalog = {
     stockText: "En stock",
     stockMeta: "Montage bureau",
     price: "89,99 €",
-    priceNote: "Prix net",
+    priceNote: "Prix HT",
     buyHref: "/checkout?product=vector-boom-arm",
     summarySpecs: [
       { label: "Portée", value: "87 cm" },

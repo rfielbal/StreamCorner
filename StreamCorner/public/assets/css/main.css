@@ -1770,6 +1770,10 @@ main {
   gap: 1rem;
 }
 
+.product-benefit-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .spec-card {
   padding: 1.4rem;
   border-radius: 1rem;

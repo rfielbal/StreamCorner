@@ -87,7 +87,7 @@
 
                 <div class="price-row">
                   <span class="price-value" data-product-price>{{ product_price }}</span>
-                  <span class="meta-text" data-product-price-note>Prix net</span>
+                  <span class="meta-text" data-product-price-note>Prix HT</span>
                 </div>
 
                 <div class="summary-actions">
@@ -138,85 +138,32 @@
       </div>
     </section>
 
-    <section class="feature-band">
-      <div class="container feature-band-grid">
-        <div class="stack-md">
-          <div class="eyebrow eyebrow-bright" data-product-feature-eyebrow">Actions multiples</div>
-          <h2 class="section-title" data-product-feature-title>Une fiche, <em>contrôle total</em></h2>
-          <p class="muted" data-product-feature-text">
-            Cette fiche affiche les données Doctrine du produit, sa galerie complète, son stock et ses actions panier/favoris.
-          </p>
-          <div class="stack-sm">
-            <div class="mini-stat">
-              <span data-product-feature-stat-text="0">Données produit branchées sur Symfony</span>
-              <span class="material-symbols-outlined" data-product-feature-stat-icon="0">database</span>
-            </div>
-            <div class="mini-stat">
-              <span data-product-feature-stat-text="1">Galerie alimentée par les uploads admin</span>
-              <span class="material-symbols-outlined" data-product-feature-stat-icon="1">photo_library</span>
-            </div>
-          </div>
-        </div>
-        <div class="feature-visual">
-          <img data-product-feature-image src="{{ product_image }}" alt="{{ product_name }}">
-        </div>
-      </div>
-    </section>
-
     <section class="section">
       <div class="container stack-lg">
         <div class="split-header">
           <div>
-            <h2 class="section-title">Spécifications_<em>Système</em></h2>
-            <p class="muted" data-product-specs-intro">Informations enregistrées depuis le formulaire d'administration.</p>
+            <h2 class="section-title">Pourquoi_<em>le choisir</em></h2>
+            <p class="muted">Un aperçu clair de ce que ce produit apporte à votre setup avant de passer commande.</p>
           </div>
-          <div class="meta-text" data-product-protocol>Référence produit : {{ produit ? produit.id : 'DEMO' }}</div>
         </div>
 
-        <div class="spec-grid">
+        <div class="spec-grid product-benefit-grid">
           <article class="spec-card">
-            <strong data-product-spec-label="0">Désignation</strong>
-            <h3 class="product-name" data-product-spec-value="0">{{ product_name }}</h3>
-            <p class="muted" data-product-spec-text="0">Nom commercial affiché dans le catalogue.</p>
+            <strong>Usage</strong>
+            <h3 class="product-name">{{ product_category }}</h3>
+            <p class="muted">Un équipement conçu pour s'intégrer naturellement dans un setup de streaming, de création ou de jeu.</p>
           </article>
           <article class="spec-card">
-            <strong data-product-spec-label="1">Catégorie</strong>
-            <h3 class="product-name" data-product-spec-value="1">{{ product_category }}</h3>
-            <p class="muted" data-product-spec-text="1">Relation Doctrine avec l'entité Catégorie.</p>
-          </article>
-          <article class="spec-card">
-            <strong data-product-spec-label="2">Stock</strong>
-            <h3 class="product-name" data-product-spec-value="2">{{ produit ? produit.stock : 'Demo' }}</h3>
-            <p class="muted" data-product-spec-text="2">Valeur exploitable ensuite par le panier.</p>
-          </article>
-          <article class="spec-card">
-            <strong data-product-spec-label="3">Prix HT</strong>
-            <h3 class="product-name" data-product-spec-value="3">{{ product_price }}</h3>
-            <p class="muted" data-product-spec-text="3">Prix actuel du produit.</p>
+            <strong>Accompagnement</strong>
+            <h3 class="product-name">Conseil & support</h3>
+            <p class="muted">Une question sur la compatibilité ou le choix du matériel ? Le support peut vous orienter avant l'achat.</p>
           </article>
         </div>
 
-        <div class="requirements-panel glass-panel">
-          <div class="stack-md">
-            <div class="eyebrow eyebrow-bright">Intégration Symfony</div>
-            <div class="requirements-grid">
-              <div class="requirements-list">
-                <div class="requirements-row">
-                  <span class="meta-text" data-product-requirement-label="0">Route</span>
-                  <span data-product-requirement-value="0">{{ produit ? path('app_produit_show', { id: produit.id }) : path('app_produit_demo') }}</span>
-                </div>
-                <div class="requirements-row">
-                  <span class="meta-text" data-product-requirement-label="1">Panier</span>
-                  <span data-product-requirement-value="1">{{ cart_path }}</span>
-                </div>
-              </div>
-              <div class="requirements-note">
-                <div class="eyebrow eyebrow-bright">Note technique</div>
-                <p class="muted" data-product-note">
-                  Les images de galerie proviennent de la table produit_image, et l'image principale reste utilisée dans les cartes catalogue.
-                </p>
-              </div>
-            </div>
+        <div class="split-header">
+          <div>
+            <div class="eyebrow eyebrow-bright">Avis produit</div>
+            <h2 class="section-title">Retours_<em>clients</em></h2>
           </div>
         </div>
 
@@ -234,7 +181,7 @@
               <div class="stack-lg">
                 <div>
                   <div class="eyebrow eyebrow-bright">Avis produit</div>
-                  <h2 class="product-name">Retour_Client</h2>
+                  <h2 class="product-name">Donnez votre avis</h2>
                 </div>
 
                 {% include 'components/_flash_messages.html.twig' ignore missing %}
