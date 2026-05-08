@@ -14,7 +14,7 @@
         {% for child in form %}
           {% if child.vars.name != '_token' %}
             {% set is_expanded = child.vars.expanded is defined and child.vars.expanded %}
-            {% set is_wide = 'textarea' in child.vars.block_prefixes or is_expanded %}
+            {% set is_wide = 'textarea' in child.vars.block_prefixes or is_expanded or child.vars.name in wide_fields|default([]) %}
             <div class="field {{ is_wide ? 'full' : '' }}">
               {{ form_row(child) }}
             </div>

@@ -27,32 +27,10 @@
           title: 'Message_Client',
           kicker: 'Formulaire contact',
           submit_label: 'Envoyer le message',
-          back_path: path('app_accueil')
+          back_path: path('app_accueil'),
+          wide_fields: ['sujet']
         } %}
       </section>
-
-      <aside class="contact-aside panel">
-        <div class="stack-md">
-          <div>
-            <div class="eyebrow eyebrow-bright">Suivi admin</div>
-            <h2 class="product-name">Messages centralisés</h2>
-          </div>
-          <div class="requirements-list">
-            <div class="requirements-row">
-              <span class="meta-text">Champs</span>
-              <span>Nom, prénom, sujet, message</span>
-            </div>
-            <div class="requirements-row">
-              <span class="meta-text">Stockage</span>
-              <span>Base StreamCorner</span>
-            </div>
-            <div class="requirements-row">
-              <span class="meta-text">Lecture</span>
-              <span>Administration</span>
-            </div>
-          </div>
-        </div>
-      </aside>
     </div>
   </main>
 {% endblock %}

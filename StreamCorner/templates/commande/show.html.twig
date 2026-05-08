@@ -27,18 +27,38 @@
               <h2 class="product-name">{{ commande.parvenirs|length }} produit(s)</h2>
             </div>
 
-            <div class="summary-items">
+            <div class="order-line-list">
               {% for ligne in commande.parvenirs %}
                 {% set produit = ligne.produit %}
-                <article class="summary-item">
-                  <div class="stack-sm">
-                    <div>
-                      <h3 class="product-name">{{ produit ? produit.designation : 'Produit supprimé' }}</h3>
-                      <div class="eyebrow eyebrow-bright">{{ ligne.prixHt|number_format(2, ',', ' ') }} € HT</div>
+                {% set raw_image = produit ? produit.image : '' %}
+                {% set image_src = raw_image ? ((raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image) : null %}
+                <article class="order-line-card">
+                  <div class="order-line-media">
+                    {% if produit and image_src %}
+                      <img src="{{ image_src }}" alt="{{ produit.designation }}">
+                    {% else %}
+                      <span class="material-symbols-outlined" aria-hidden="true">inventory_2</span>
+                    {% endif %}
+                  </div>
+
+                  <div class="order-line-main">
+                    <div class="order-line-heading">
+                      <div>
+                        <h3 class="order-line-title product-name">{{ produit ? produit.designation : 'Produit supprimé' }}</h3>
+                        <div class="eyebrow eyebrow-bright">Prix unitaire HT</div>
+                      </div>
+                      <strong class="order-line-unit">{{ ligne.prixHt|number_format(2, ',', ' ') }} €</strong>
                     </div>
-                    <div class="mini-row">
-                      <span class="muted">Quantité : {{ ligne.quantite }}</span>
-                      <strong>{{ (ligne.quantite * ligne.prixHt)|number_format(2, ',', ' ') }} €</strong>
+
+                    <div class="order-line-meta">
+                      <div class="order-line-stat">
+                        <span class="order-line-label">Quantité</span>
+                        <strong class="order-line-value">{{ ligne.quantite }}</strong>
+                      </div>
+                      <div class="order-line-stat">
+                        <span class="order-line-label">Sous-total HT</span>
+                        <strong class="order-line-value">{{ (ligne.quantite * ligne.prixHt)|number_format(2, ',', ' ') }} €</strong>
+                      </div>
                     </div>
                   </div>
                 </article>
