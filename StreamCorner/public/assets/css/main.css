@@ -1272,6 +1272,9 @@ main {
 
 .product-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow: hidden;
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -1324,6 +1327,7 @@ main {
 
 .product-media {
   position: relative;
+  flex: 0 0 auto;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--surface-mid);
@@ -1348,6 +1352,10 @@ main {
 }
 
 .product-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
   padding: 1.45rem;
 }
 
@@ -1357,7 +1365,8 @@ main {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
-  margin-top: 1.1rem;
+  margin-top: auto;
+  padding-top: 1.1rem;
 }
 
 .product-card-actions .btn {
@@ -1372,12 +1381,18 @@ main {
   padding: 2rem;
 }
 
+.catalog-empty-state .pill + .product-name,
+.cart-empty-state .pill + .product-name {
+  margin-top: 1.85rem;
+}
+
 .product-meta {
   display: flex;
   justify-content: space-between;
   align-items: start;
   gap: 1rem;
   margin-bottom: 1rem;
+  min-width: 0;
 }
 
 .product-name {
@@ -1388,6 +1403,14 @@ main {
   letter-spacing: -0.06em;
   line-height: 1;
   text-transform: uppercase;
+}
+
+.catalog-grid .product-card .product-name {
+  display: -webkit-box;
+  min-height: 2em;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .price-value {
@@ -1404,6 +1427,14 @@ main {
   font-size: 0.73rem;
   line-height: 1.7;
   text-transform: uppercase;
+}
+
+.catalog-grid .product-description {
+  display: -webkit-box;
+  min-height: 3.72rem;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .newsletter {
@@ -2299,8 +2330,8 @@ main {
 
 .cart-empty-state {
   max-width: 42rem;
-  margin-inline: auto;
-  text-align: center;
+  margin-inline: 0;
+  text-align: left;
 }
 
 [data-cart-action].is-pending {
@@ -3065,6 +3096,30 @@ main {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.admin-user > div {
+  min-width: 0;
+}
+
+.admin-user .eyebrow,
+.admin-user .muted {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-user .eyebrow {
+  font-size: 0.56rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.admin-user .muted {
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
 .admin-user-avatar,
 .admin-user img {
   width: 2.5rem;
@@ -3176,6 +3231,17 @@ main {
 
 .admin-profile-panel {
   padding: 1.6rem;
+}
+
+.admin-profile-panel .product-name {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(0.72rem, 1vw, 1.08rem);
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
 }
 
 .admin-profile-mark {

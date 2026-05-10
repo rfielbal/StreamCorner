@@ -1000,17 +1000,31 @@ document.querySelectorAll("[data-otp-input]").forEach((input, index, list) => {
   });
 });
 
-document.querySelectorAll("[data-filter-table]").forEach((input) => {
-  input.addEventListener("input", () => {
-    const selector = input.getAttribute("data-filter-table");
-    const table = document.querySelector(selector);
-    if (!table) return;
+const filterTable = (input) => {
+  const selector = input.getAttribute("data-filter-table");
+  const table = document.querySelector(selector);
+  if (!table) return;
 
-    const term = input.value.trim().toLowerCase();
-    table.querySelectorAll("tbody tr").forEach((row) => {
-      const text = row.textContent?.toLowerCase() || "";
-      row.style.display = text.includes(term) ? "" : "none";
-    });
+  const term = input.value.trim().toLowerCase();
+  table.querySelectorAll("tbody tr").forEach((row) => {
+    const text = row.textContent?.toLowerCase() || "";
+    row.style.display = text.includes(term) ? "" : "none";
+  });
+};
+
+document.querySelectorAll("[data-filter-table]").forEach((input) => {
+  input.addEventListener("input", () => filterTable(input));
+  input.addEventListener("search", () => filterTable(input));
+});
+
+document.querySelectorAll("[data-filter-table-trigger]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const group = button.closest(".search-group");
+    const input = group?.querySelector("[data-filter-table]");
+    if (!input) return;
+
+    filterTable(input);
+    input.focus();
   });
 });
 
