@@ -121,7 +121,7 @@ final class LegalController extends AbstractController
                     'content' => [
                         'Nom du site : StreamCorner.',
                         'Nature : projet académique individuel réalisé en BTS SIO.',
-                        'Responsable de publication : étudiant porteur du projet StreamCorner.',
+                        'Responsable de publication : Raphaël Coursier',
                         'Contact : formulaire disponible sur la page Contact du site.',
                     ],
                 ],
@@ -129,7 +129,7 @@ final class LegalController extends AbstractController
                     'title' => 'Hébergement',
                     'content' => [
                         'Version de développement : application Symfony exécutée dans un environnement local Docker avec serveur Apache.',
-                        'En cas de mise en ligne publique, les informations complètes de l’hébergeur devront être indiquées : nom, dénomination sociale, adresse et moyen de contact.',
+                        'L\'hébergement du site est assuré par OVH, en multi-site avec mon portfolio.',
                     ],
                 ],
                 [
@@ -144,14 +144,12 @@ final class LegalController extends AbstractController
                     'content' => [
                         'Le site peut traiter des données liées aux comptes, adresses, favoris, paniers, commandes, messages de contact, avis et demandes SAV.',
                         'Ces données sont utilisées pour démontrer les fonctionnalités e-commerce et d’administration du projet.',
-                        'Dans une exploitation réelle, l’utilisateur devrait recevoir une information complète sur le responsable du traitement, les finalités, la base légale, les durées de conservation et l’exercice de ses droits.',
                     ],
                 ],
                 [
                     'title' => 'Cookies et traceurs',
                     'content' => [
-                        'Le site peut utiliser des cookies techniques nécessaires à la session, à l’authentification ou au fonctionnement du panier.',
-                        'Aucun usage publicitaire n’est prévu dans la version académique. Tout ajout d’outils de mesure d’audience, publicité ou services tiers devrait être accompagné d’une information adaptée et, si nécessaire, d’un consentement.',
+                        'Le site ne contient et n\'utilise aucun traceur ni cookie.',
                     ],
                 ],
             ],

@@ -722,6 +722,24 @@ main {
   background: rgba(0, 252, 64, 0.06);
 }
 
+.legal-layout,
+.legal-hero,
+.legal-content,
+.legal-aside,
+.legal-section {
+  min-width: 0;
+}
+
+.legal-page .section-title,
+.legal-page .section-lead,
+.legal-section .product-name,
+.legal-section p,
+.legal-aside .muted,
+.legal-side-links a {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 .hero {
   position: relative;
   min-height: calc(100vh - var(--topbar-height));
@@ -1563,6 +1581,11 @@ main {
 
 .filter-status {
   text-align: center;
+}
+
+.catalog-sidebar input[type="range"] {
+  display: block;
+  width: 100%;
 }
 
 .checkbox-line,
@@ -3248,12 +3271,20 @@ main {
 .admin-profile-panel .product-name {
   max-width: 100%;
   overflow: hidden;
-  font-size: clamp(0.72rem, 1vw, 1.08rem);
+  font-size: clamp(0.92rem, 1.15vw, 1.16rem);
   letter-spacing: 0;
   line-height: 1.1;
   text-overflow: ellipsis;
   text-transform: none;
   white-space: nowrap;
+}
+
+.admin-profile-panel .admin-profile-list span {
+  font-size: 0.68rem;
+}
+
+.admin-profile-panel .admin-profile-list strong {
+  font-size: 0.78rem;
 }
 
 .admin-profile-mark {
@@ -3741,6 +3772,7 @@ button:disabled:hover {
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  min-width: 0;
 }
 
 .search-input {
@@ -4323,5 +4355,177 @@ button:disabled:hover {
   .data-table th,
   .data-table td {
     padding: 0.85rem 0.9rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .topbar-inner {
+    justify-content: flex-start;
+    gap: 0.65rem;
+  }
+
+  .topbar-actions {
+    margin-left: auto;
+  }
+
+  .catalog-sidebar {
+    height: 100dvh;
+    max-height: 100dvh;
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+    overscroll-behavior: contain;
+  }
+
+  .catalog-filter-form {
+    min-height: 100%;
+    padding-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 840px) {
+  .inventory-toolbar .search-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: 100%;
+  }
+
+  .inventory-toolbar .search-input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .inventory-toolbar .search-group .btn-icon {
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+
+  .legal-hero,
+  .legal-content,
+  .legal-aside {
+    padding: 1.25rem;
+  }
+
+  .legal-side-links {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .legal-side-links a {
+    justify-content: center;
+    min-width: 0;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.25;
+    letter-spacing: 0.08em;
+  }
+}
+
+@media (max-width: 640px) {
+  .container.topbar-inner {
+    width: min(calc(100% - 0.8rem), var(--container));
+  }
+
+  .topbar-inner {
+    gap: 0.38rem;
+  }
+
+  .nav-toggle,
+  .topbar-actions .btn-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .nav-toggle .material-symbols-outlined,
+  .topbar-actions .btn-icon .material-symbols-outlined {
+    font-size: 1.12rem;
+  }
+
+  .topbar-actions {
+    gap: 0.28rem;
+    min-width: 0;
+  }
+
+  .brand {
+    min-width: 0;
+    max-width: 42vw;
+    overflow: hidden;
+    font-size: clamp(0.78rem, 4vw, 0.94rem);
+    letter-spacing: -0.05em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav-count-badge {
+    top: -0.12rem;
+    right: -0.12rem;
+    min-width: 0.94rem;
+    height: 0.94rem;
+    padding: 0 0.2rem;
+    border-width: 1px;
+    font-size: 0.52rem;
+  }
+
+  .newsletter-panel {
+    place-items: start;
+    padding: 2.2rem 1.1rem;
+    text-align: left;
+  }
+
+  .newsletter-panel .section-title {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    font-size: clamp(1.75rem, 11.5vw, 2.45rem);
+    line-height: 0.98;
+  }
+
+  .newsletter-panel .muted {
+    max-width: 100%;
+    margin-right: 0;
+    overflow-wrap: anywhere;
+    line-height: 1.65;
+    text-align: left;
+  }
+
+  .newsletter-form {
+    justify-content: start;
+    width: 100%;
+  }
+
+  .legal-page {
+    padding-top: 2rem;
+  }
+
+  .legal-hero,
+  .legal-content,
+  .legal-aside {
+    padding: 1rem;
+  }
+
+  .legal-meta {
+    align-items: flex-start;
+  }
+
+  .legal-meta .status-badge,
+  .legal-meta .meta-text {
+    max-width: 100%;
+    white-space: normal;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .legal-side-links {
+    grid-template-columns: 1fr;
+  }
+
+  .legal-side-links a {
+    width: 100%;
+    padding: 0.75rem;
+  }
+
+  .legal-section p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .admin-profile-panel .product-name {
+    font-size: clamp(0.95rem, 4vw, 1.1rem);
   }
 }

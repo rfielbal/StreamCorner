@@ -5,6 +5,9 @@
 
 <header class="topbar">
   <div class="container topbar-inner">
+    <button class="nav-toggle" type="button" data-toggle-target="#mobile-nav" aria-label="Ouvrir la navigation">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
     <a class="brand" href="{{ path('app_accueil') }}">STREAM_CORNER</a>
     <nav class="site-nav" aria-label="Navigation principale">
       <a data-nav-item="accueil" href="{{ path('app_accueil') }}">Accueil</a>
@@ -29,9 +32,6 @@
         <span class="material-symbols-outlined">search</span>
         <input type="search" name="q" placeholder="rechercher_matériel..." value="{{ app.request.query.get('q') }}">
       </form>
-      <button class="nav-toggle" type="button" data-toggle-target="#mobile-nav" aria-label="Ouvrir la navigation">
-        <span class="material-symbols-outlined">menu</span>
-      </button>
       {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_VISITEUR') %}
         <a class="btn-icon" data-nav-icon-item="admin" href="{{ path('app_admin_dashboard') }}" aria-label="Administration">
           <span class="material-symbols-outlined">admin_panel_settings</span>
