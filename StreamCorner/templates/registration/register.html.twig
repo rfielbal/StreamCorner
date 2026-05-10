@@ -56,7 +56,7 @@
               {{ form_errors(registrationForm) }}
             </div>
 
-            {{ form_start(registrationForm, { attr: { class: 'stack-md' } }) }}
+            {{ form_start(registrationForm, { attr: { class: 'stack-md', novalidate: 'novalidate' } }) }}
               <div class="field-grid auth-field-grid">
                 <div class="field">
                   {{ form_label(registrationForm.prenom, 'Prénom') }}
