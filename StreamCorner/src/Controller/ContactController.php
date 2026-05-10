@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Contact;
+use App\Entity\User;
 use App\Form\ContactType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,6 +17,20 @@ final class ContactController extends AbstractController
     public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
         $contact = new Contact();
+        $user = $this->getUser();
+
+        if ($user instanceof User) {
+            if ($user->getNom()) {
+                $contact->setNom($user->getNom());
+            }
+
+            if ($user->getPrenom()) {
+                $contact->setPrenom($user->getPrenom());
+            }
+
+            $contact->setEmail($user->getEmail());
+        }
+
         $form = $this->createForm(ContactType::class, $contact);
         $form->handleRequest($request);
 

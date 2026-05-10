@@ -20,6 +20,9 @@ class Contact
     #[ORM\Column(length: 100)]
     private ?string $prenom = null;
 
+    #[ORM\Column(length: 180)]
+    private ?string $email = null;
+
     #[ORM\Column(length: 150)]
     private ?string $sujet = null;
 
@@ -54,6 +57,18 @@ class Contact
     public function setPrenom(string $prenom): static
     {
         $this->prenom = $prenom;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
 
         return $this;
     }
