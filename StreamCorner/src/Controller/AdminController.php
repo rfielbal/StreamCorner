@@ -145,7 +145,7 @@ final class AdminController extends AbstractController
     #[Route('/droits', name: 'app_admin_permissions')]
     public function permissions(EntityManagerInterface $entityManager): Response
     {
-        return $this->renderIndex('admins', $entityManager);
+        return $this->renderIndex('droits', $entityManager);
     }
 
     #[Route('/adresses', name: 'app_admin_addresses')]
@@ -467,6 +467,7 @@ final class AdminController extends AbstractController
             'avis' => ['admin' => true],
             'sav' => ['admin' => true],
             'utilisateurs' => ['require_password' => $entity instanceof User && $entity->getId() === null],
+            'droits' => ['require_password' => $entity instanceof User && $entity->getId() === null],
             'admins' => ['require_password' => $entity instanceof Admin && $entity->getId() === null],
             default => [],
         };
@@ -944,6 +945,18 @@ final class AdminController extends AbstractController
                 'new_title' => 'Nouveau_Admin',
                 'edit_title' => 'Modifier_Admin',
             ],
+            'droits' => [
+                'active' => 'permissions',
+                'title' => 'Droits',
+                'kicker' => 'Table User // rôles applicatifs',
+                'entity' => User::class,
+                'form' => UserAdminType::class,
+                'order' => ['email' => 'ASC'],
+                'columns' => ['ID', 'Utilisateur', 'Email', 'Rôles'],
+                'empty' => 'Aucun utilisateur enregistré.',
+                'new_title' => 'Nouvel_Utilisateur',
+                'edit_title' => 'Modifier_Droits',
+            ],
         ];
 
         if (!isset($configs[$resource])) {
@@ -1067,6 +1080,12 @@ final class AdminController extends AbstractController
                 $this->shorten($item->getMessage()),
                 $this->formatDate($item->getDateEnvoi()),
             ],
+            'droits' => [
+                (string) $item->getId(),
+                trim(($item->getPrenom() ?? '') . ' ' . ($item->getNom() ?? '')) ?: 'Profil incomplet',
+                $item->getEmail() ?? '',
+                implode(', ', $item->getRoles()),
+            ],
             'admins' => [
                 (string) $item->getId(),
                 $item->getEmailA() ?? '',
@@ -1111,7 +1130,7 @@ final class AdminController extends AbstractController
      */
     private function adminSections(EntityManagerInterface $entityManager): array
     {
-        $resources = ['produits', 'categories', 'commandes', 'utilisateurs', 'adresses', 'paniers', 'ajouter', 'parvenir', 'avis', 'sav', 'contacts', 'admins'];
+        $resources = ['produits', 'categories', 'commandes', 'utilisateurs', 'adresses', 'paniers', 'ajouter', 'parvenir', 'avis', 'sav', 'contacts', 'droits'];
 
         return array_map(function (string $resource) use ($entityManager): array {
             $config = $this->resourceConfig($resource);
@@ -1130,7 +1149,7 @@ final class AdminController extends AbstractController
                     'avis' => 'rate_review',
                     'sav' => 'support_agent',
                     'contacts' => 'contact_mail',
-                    'admins' => 'admin_panel_settings',
+                    'droits' => 'admin_panel_settings',
                     default => 'table',
                 },
                 'resource' => $resource,

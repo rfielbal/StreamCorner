@@ -1017,14 +1017,13 @@ document.querySelectorAll("[data-filter-table]").forEach((input) => {
   input.addEventListener("search", () => filterTable(input));
 });
 
-document.querySelectorAll("[data-filter-table-trigger]").forEach((button) => {
+document.querySelectorAll("[data-reverse-table]").forEach((button) => {
   button.addEventListener("click", () => {
-    const group = button.closest(".search-group");
-    const input = group?.querySelector("[data-filter-table]");
-    if (!input) return;
+    const table = document.querySelector(button.getAttribute("data-reverse-table"));
+    const tbody = table?.querySelector("tbody");
+    if (!tbody) return;
 
-    filterTable(input);
-    input.focus();
+    Array.from(tbody.querySelectorAll("tr")).reverse().forEach((row) => tbody.appendChild(row));
   });
 });
 
