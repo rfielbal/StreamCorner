@@ -73,13 +73,41 @@
           </div>
         </article>
 
-        {% include 'components/_form_panel.html.twig' with {
-          form: savForm,
-          title: 'Contacter_le_SAV',
-          kicker: 'Commande #' ~ commande.id,
-          submit_label: 'Envoyer',
-          back_path: null
-        } %}
+        <aside class="order-side-stack stack-md">
+          {% include 'components/_form_panel.html.twig' with {
+            form: addressForm,
+            title: "Modifier_l'adresse",
+            kicker: 'Livraison #SC-' ~ commande.id,
+            submit_label: "Modifier l'adresse",
+            back_path: null
+          } %}
+
+          <article class="admin-card padded order-cancel-panel">
+            <div class="stack-md">
+              <div>
+                <div class="eyebrow eyebrow-bright">Annulation</div>
+                <h2 class="product-name">Annuler_la_commande</h2>
+                <p class="muted">Cette action supprime la commande et remet les produits concernés en stock.</p>
+              </div>
+
+              <form method="post" action="{{ path('app_commande_cancel', { id: commande.id }) }}" onsubmit="return confirm('Annuler définitivement cette commande ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('cancel-commande-' ~ commande.id) }}">
+                <button class="btn btn-secondary danger-action" type="submit">
+                  <span class="material-symbols-outlined">cancel</span>
+                  Annuler la commande
+                </button>
+              </form>
+            </div>
+          </article>
+
+          {% include 'components/_form_panel.html.twig' with {
+            form: savForm,
+            title: 'Contacter_le_SAV',
+            kicker: 'Commande #' ~ commande.id,
+            submit_label: 'Envoyer',
+            back_path: null
+          } %}
+        </aside>
       </section>
     </div>
   </main>

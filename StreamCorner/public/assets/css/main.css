@@ -2093,6 +2093,18 @@ main {
   letter-spacing: -0.06em;
 }
 
+.order-side-stack {
+  min-width: 0;
+}
+
+.order-cancel-panel {
+  border-color: rgba(255, 115, 81, 0.18);
+}
+
+.order-cancel-panel .danger-action {
+  width: 100%;
+}
+
 .cart-header {
   align-items: center;
 }
