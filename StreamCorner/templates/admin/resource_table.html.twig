@@ -6,6 +6,7 @@
 {% block footer %}{% endblock %}
 
 {% block body %}
+  {% set readonly = admin_readonly|default(false) %}
   <div class="sidebar-backdrop" id="{{ overlay_id }}" data-close-target="#{{ sidebar_id }}, #{{ overlay_id }}"></div>
 
   <div class="admin-shell">
@@ -23,9 +24,9 @@
 
         <div class="admin-header-actions">
           <div class="toolbar-actions">
-            <a class="btn btn-primary" href="{{ path('app_admin_crud_new', { resource: resource }) }}">
-              <span class="material-symbols-outlined">add_circle</span>
-              Ajouter
+            <a class="btn {{ readonly ? 'btn-secondary' : 'btn-primary' }}" href="{{ path('app_admin_crud_new', { resource: resource }) }}">
+              <span class="material-symbols-outlined">{{ readonly ? 'visibility' : 'add_circle' }}</span>
+              {{ readonly ? 'Voir formulaire' : 'Ajouter' }}
             </a>
             <a class="btn btn-secondary" href="{{ path('app_admin_dashboard') }}">
               <span class="material-symbols-outlined">dashboard</span>
@@ -49,7 +50,7 @@
 
           <div class="toolbar-actions">
             <span class="status-badge status-info">{{ rows|length }} ligne(s)</span>
-            <span class="status-badge status-success">CRUD actif</span>
+            <span class="status-badge {{ readonly ? 'status-info' : 'status-success' }}">{{ readonly ? 'Lecture seule' : 'CRUD actif' }}</span>
           </div>
         </div>
 
@@ -71,15 +72,21 @@
                   {% endfor %}
                   <td>
                     <div class="toolbar-actions table-actions">
-                      <a class="btn-icon" href="{{ path('app_admin_crud_edit', { resource: resource, id: row.id }) }}" aria-label="Modifier">
-                        <span class="material-symbols-outlined">edit</span>
+                      <a class="btn-icon" href="{{ path('app_admin_crud_edit', { resource: resource, id: row.id }) }}" aria-label="{{ readonly ? 'Voir' : 'Modifier' }}">
+                        <span class="material-symbols-outlined">{{ readonly ? 'visibility' : 'edit' }}</span>
                       </a>
-                      <form method="post" action="{{ path('app_admin_crud_delete', { resource: resource, id: row.id }) }}" onsubmit="return confirm('Confirmer la suppression ?');">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete-' ~ resource ~ '-' ~ row.id) }}">
-                        <button class="btn-icon" type="submit" aria-label="Supprimer">
+                      {% if readonly %}
+                        <span class="btn-icon is-disabled" aria-disabled="true" aria-label="Suppression désactivée">
                           <span class="material-symbols-outlined">delete</span>
-                        </button>
-                      </form>
+                        </span>
+                      {% else %}
+                        <form method="post" action="{{ path('app_admin_crud_delete', { resource: resource, id: row.id }) }}" onsubmit="return confirm('Confirmer la suppression ?');">
+                          <input type="hidden" name="_token" value="{{ csrf_token('delete-' ~ resource ~ '-' ~ row.id) }}">
+                          <button class="btn-icon" type="submit" aria-label="Supprimer">
+                            <span class="material-symbols-outlined">delete</span>
+                          </button>
+                        </form>
+                      {% endif %}
                     </div>
                   </td>
                 </tr>

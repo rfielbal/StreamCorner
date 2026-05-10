@@ -6,6 +6,7 @@
 {% block footer %}{% endblock %}
 
 {% block body %}
+  {% set readonly = admin_readonly|default(false) %}
   <div class="sidebar-backdrop" id="{{ overlay_id }}" data-close-target="#{{ sidebar_id }}, #{{ overlay_id }}"></div>
 
   <div class="admin-shell">
@@ -30,13 +31,17 @@
         </div>
       </header>
 
+      {% include 'components/_flash_messages.html.twig' ignore missing %}
+
       <section class="admin-form-layout">
         {% include 'components/_form_panel.html.twig' with {
           form: form,
           title: title,
           kicker: kicker,
           submit_label: submit_label,
-          back_path: back_path
+          back_path: back_path,
+          readonly: readonly,
+          readonly_message: 'Mode visiteur : ce formulaire est affiché pour comprendre le fonctionnement admin, sans enregistrement possible.'
         } %}
 
         {% if resource|default(null) == 'produits' and entity is defined and entity.id %}
@@ -47,7 +52,7 @@
                   <div class="eyebrow eyebrow-bright">Galerie produit</div>
                   <h2 class="product-name">Images_Actuelles</h2>
                 </div>
-                <span class="status-badge status-info">{{ entity.images|length }} image(s)</span>
+                <span class="status-badge {{ readonly ? 'status-info' : 'status-success' }}">{{ readonly ? 'Lecture seule' : entity.images|length ~ ' image(s)' }}</span>
               </div>
 
               {% if entity.images|length > 0 %}
@@ -70,20 +75,38 @@
                           <span class="admin-product-image-filename">{{ image.filename }}</span>
                         </div>
 
-                        <form class="admin-image-replace-form" method="post" enctype="multipart/form-data" action="{{ path('app_admin_product_image_replace', { productId: entity.id, imageId: image.id }) }}">
-                          <input type="hidden" name="_token" value="{{ csrf_token('replace-product-image-' ~ image.id) }}">
-                          <label class="admin-image-file-label" for="replace-product-image-{{ image.id }}">
-                            <span class="material-symbols-outlined">image</span>
-                            <input id="replace-product-image-{{ image.id }}" type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif">
-                          </label>
-                          <button class="btn btn-secondary" type="submit">
-                            <span class="material-symbols-outlined">sync</span>
-                            Remplacer
-                          </button>
-                        </form>
+                        {% if readonly %}
+                          <div class="admin-image-replace-form">
+                            <label class="admin-image-file-label" for="replace-product-image-{{ image.id }}">
+                              <span class="material-symbols-outlined">image</span>
+                              <input id="replace-product-image-{{ image.id }}" type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif" disabled>
+                            </label>
+                            <span class="btn btn-secondary is-disabled" aria-disabled="true">
+                              <span class="material-symbols-outlined">sync</span>
+                              Remplacer
+                            </span>
+                          </div>
+                        {% else %}
+                          <form class="admin-image-replace-form" method="post" enctype="multipart/form-data" action="{{ path('app_admin_product_image_replace', { productId: entity.id, imageId: image.id }) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('replace-product-image-' ~ image.id) }}">
+                            <label class="admin-image-file-label" for="replace-product-image-{{ image.id }}">
+                              <span class="material-symbols-outlined">image</span>
+                              <input id="replace-product-image-{{ image.id }}" type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif">
+                            </label>
+                            <button class="btn btn-secondary" type="submit">
+                              <span class="material-symbols-outlined">sync</span>
+                              Remplacer
+                            </button>
+                          </form>
+                        {% endif %}
 
                         <div class="admin-product-image-actions">
-                          {% if not is_primary %}
+                          {% if readonly and not is_primary %}
+                            <span class="btn btn-ghost is-disabled" aria-disabled="true">
+                              <span class="material-symbols-outlined">star</span>
+                              Principale
+                            </span>
+                          {% elseif not is_primary %}
                             <form method="post" action="{{ path('app_admin_product_image_primary', { productId: entity.id, imageId: image.id }) }}">
                               <input type="hidden" name="_token" value="{{ csrf_token('primary-product-image-' ~ image.id) }}">
                               <button class="btn btn-ghost" type="submit">
@@ -93,13 +116,20 @@
                             </form>
                           {% endif %}
 
-                          <form method="post" action="{{ path('app_admin_product_image_delete', { productId: entity.id, imageId: image.id }) }}" onsubmit="return confirm('Supprimer cette image du produit et du serveur ?');">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete-product-image-' ~ image.id) }}">
-                            <button class="btn btn-secondary danger-action" type="submit" {{ entity.images|length <= 1 ? 'disabled' : '' }}>
+                          {% if readonly %}
+                            <span class="btn btn-secondary danger-action is-disabled" aria-disabled="true">
                               <span class="material-symbols-outlined">delete</span>
                               Supprimer
-                            </button>
-                          </form>
+                            </span>
+                          {% else %}
+                            <form method="post" action="{{ path('app_admin_product_image_delete', { productId: entity.id, imageId: image.id }) }}" onsubmit="return confirm('Supprimer cette image du produit et du serveur ?');">
+                              <input type="hidden" name="_token" value="{{ csrf_token('delete-product-image-' ~ image.id) }}">
+                              <button class="btn btn-secondary danger-action" type="submit" {{ entity.images|length <= 1 ? 'disabled' : '' }}>
+                                <span class="material-symbols-outlined">delete</span>
+                                Supprimer
+                              </button>
+                            </form>
+                          {% endif %}
                         </div>
                       </div>
                     </article>

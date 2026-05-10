@@ -12,6 +12,9 @@
 {% set cart_path = produit ? path('app_panier_add', { id: produit.id }) : path('app_catalogue') %}
 {% set favorite_path = produit ? path('app_favoris', { id: produit.id }) : path('app_login') %}
 {% set is_favorite = app.user and produit and produit in app.user.produitsAimers %}
+{% set rating_count = ratingCount|default(0) %}
+{% set average_rating = averageRating|default(null) %}
+{% set average_rating_rounded = averageRatingRounded|default(0) %}
 
 {% block title %}StreamCorner | {{ product_name }}{% endblock %}
 {% block body_class %}page-shell product-page{% endblock %}
@@ -83,6 +86,18 @@
                 <div class="stock-note">
                   <span data-product-stock-text>{{ produit and produit.stock <= 0 ? 'Rupture' : 'En stock' }}</span>
                   <span class="eyebrow eyebrow-bright" data-product-stock-meta>{{ produit ? produit.stock ~ ' unité(s)' : 'Livraison 48h' }}</span>
+                </div>
+
+                <div class="rating-summary">
+                  <div class="star-rating" aria-label="{{ average_rating is not null ? 'Note moyenne ' ~ average_rating|number_format(1, ',', ' ') ~ ' sur 5' : 'Aucune note produit' }}">
+                    {% for star in 1..5 %}
+                      <span class="{{ star <= average_rating_rounded ? 'is-filled' : '' }}">★</span>
+                    {% endfor %}
+                  </div>
+                  <div>
+                    <strong>{{ average_rating is not null ? average_rating|number_format(1, ',', ' ') ~ '/5' : 'Aucune note' }}</strong>
+                    <span class="rating-summary-count">{{ rating_count }} avis noté{{ rating_count > 1 ? 's' : '' }}</span>
+                  </div>
                 </div>
 
                 <div class="price-row">
@@ -188,6 +203,14 @@
 
                 {% if app.user and userReview %}
                   <div class="requirements-panel glass-panel">
+                    <div class="review-rating">
+                      <div class="star-rating" aria-label="Votre note {{ userReview.note }} sur 5">
+                        {% for star in 1..5 %}
+                          <span class="{{ star <= userReview.note ? 'is-filled' : '' }}">★</span>
+                        {% endfor %}
+                      </div>
+                      <span>{{ userReview.note }}/5</span>
+                    </div>
                     <p class="muted">Vous avez déjà donné un avis pour ce produit.</p>
                   </div>
                 {% elseif not app.user %}
@@ -216,6 +239,14 @@
                       <div class="mini-row">
                         <strong>{{ avis.user ? avis.user.email : 'Client' }}</strong>
                         <span class="meta-text">{{ avis.dateMessage ? avis.dateMessage|date('d/m/Y') : '' }}</span>
+                      </div>
+                      <div class="review-rating">
+                        <div class="star-rating" aria-label="Note {{ avis.note }} sur 5">
+                          {% for star in 1..5 %}
+                            <span class="{{ star <= avis.note ? 'is-filled' : '' }}">★</span>
+                          {% endfor %}
+                        </div>
+                        <span>{{ avis.note }}/5</span>
                       </div>
                       <p class="muted">{{ avis.message }}</p>
                     </div>

@@ -468,6 +468,7 @@ main {
 }
 
 .topbar-actions .btn-icon {
+  position: relative;
   color: var(--text-muted);
 }
 
@@ -481,6 +482,30 @@ main {
   border-color: rgba(0, 252, 64, 0.32);
   background: rgba(0, 252, 64, 0.08);
   box-shadow: 0 0 20px rgba(0, 252, 64, 0.16);
+}
+
+.nav-count-badge {
+  position: absolute;
+  top: -0.22rem;
+  right: -0.22rem;
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.12rem;
+  height: 1.12rem;
+  padding: 0 0.28rem;
+  border: 2px solid #0c0c0c;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #001b05;
+  font-size: 0.63rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  box-shadow: 0 0 16px rgba(0, 252, 64, 0.35);
+}
+
+.nav-count-badge[hidden] {
+  display: none;
 }
 
 .nav-search {
@@ -1694,6 +1719,50 @@ main {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.rating-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(0, 252, 64, 0.12);
+  background: rgba(0, 252, 64, 0.055);
+}
+
+.rating-summary strong,
+.review-rating span {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.rating-summary-count {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+  color: rgba(255, 255, 255, 0.18);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.star-rating .is-filled {
+  color: var(--primary);
+  text-shadow: 0 0 16px rgba(0, 252, 64, 0.24);
+}
+
 .price-row {
   display: flex;
   align-items: baseline;
@@ -2328,6 +2397,53 @@ main {
   padding: 0.95rem 1rem;
 }
 
+.rating-choice-group {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.rating-choice-group input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rating-choice-group label {
+  display: grid;
+  place-items: center;
+  min-height: 3rem;
+  margin: 0;
+  padding: 0.65rem 0.35rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  transition: color 180ms ease, border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.rating-choice-group label:hover,
+.rating-choice-group input[type="radio"]:checked + label {
+  border-color: rgba(0, 252, 64, 0.35);
+  background: rgba(0, 252, 64, 0.08);
+  color: var(--primary);
+}
+
+.rating-choice-group label:hover {
+  transform: translateY(-2px);
+}
+
+.rating-choice-group input[type="radio"]:focus-visible + label {
+  outline: 2px solid rgba(0, 252, 64, 0.55);
+  outline-offset: 0.2rem;
+}
+
 .radio-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2376,6 +2492,31 @@ main {
 .form-panel {
   width: 100%;
   padding: 1.6rem;
+}
+
+.form-panel.is-readonly {
+  border-color: rgba(102, 157, 255, 0.16);
+}
+
+.form-panel.is-readonly .auth-feedback.is-info {
+  margin-top: 1.4rem;
+}
+
+.readonly-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.readonly-fieldset:disabled {
+  opacity: 0.72;
+}
+
+.readonly-fieldset:disabled input,
+.readonly-fieldset:disabled textarea,
+.readonly-fieldset:disabled select {
+  cursor: not-allowed;
 }
 
 .form-panel .form-error-list ul,
@@ -2428,6 +2569,19 @@ main {
 .review-item {
   padding: 1rem 0;
   border-top: 1px solid var(--outline-strong);
+}
+
+.review-rating {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.55rem;
+  color: var(--primary);
+}
+
+.review-rating + .muted {
+  margin-top: 0.65rem;
 }
 
 .admin-form-layout {
@@ -2670,6 +2824,15 @@ main {
 
 .auth-feedback.is-success .material-symbols-outlined {
   color: var(--success);
+}
+
+.auth-feedback.is-info {
+  border-color: rgba(102, 157, 255, 0.18);
+  background: rgba(102, 157, 255, 0.07);
+}
+
+.auth-feedback.is-info .material-symbols-outlined {
+  color: var(--secondary);
 }
 
 .auth-feedback.is-danger {

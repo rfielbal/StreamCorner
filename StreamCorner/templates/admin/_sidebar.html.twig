@@ -83,7 +83,7 @@
       <span class="admin-user-avatar material-symbols-outlined">shield_person</span>
       <div>
         <div class="eyebrow">{{ app.user ? app.user.userIdentifier : 'Session locale' }}</div>
-        <div class="muted">{{ is_granted('ROLE_ADMIN') ? 'Accès administrateur' : 'Accès développement' }}</div>
+        <div class="muted">{{ is_granted('ROLE_ADMIN') ? 'Accès administrateur' : (is_granted('ROLE_VISITEUR') ? 'Mode visiteur' : 'Accès développement') }}</div>
       </div>
     </div>
   </div>

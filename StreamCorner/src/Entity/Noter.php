@@ -6,6 +6,7 @@ use App\Repository\NoterRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: NoterRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_NOTER_USER_PRODUIT', columns: ['user_id', 'produit_id'])]
@@ -19,6 +20,15 @@ class Noter
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $message = null;
+
+    #[ORM\Column]
+    #[Assert\NotBlank(message: 'Veuillez sélectionner une note.')]
+    #[Assert\Range(
+        min: 1,
+        max: 5,
+        notInRangeMessage: 'La note doit être comprise entre {{ min }} et {{ max }} étoiles.'
+    )]
+    private ?int $note = null;
 
     #[ORM\Column]
     private ?\DateTime $dateMessage = null;
@@ -44,6 +54,18 @@ class Noter
     public function setMessage(string $message): static
     {
         $this->message = $message;
+
+        return $this;
+    }
+
+    public function getNote(): ?int
+    {
+        return $this->note;
+    }
+
+    public function setNote(int $note): static
+    {
+        $this->note = $note;
 
         return $this;
     }

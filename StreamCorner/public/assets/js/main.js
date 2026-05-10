@@ -657,6 +657,20 @@ const syncFavoriteButtons = (productId, isFavorite, label) => {
   });
 };
 
+const refreshFavoritesNavBadge = (favoritesCount) => {
+  const count = Number(favoritesCount || 0);
+  const badgeValue = count > 9 ? "9+" : String(count);
+
+  document.querySelectorAll("[data-favorites-nav-badge]").forEach((badge) => {
+    badge.textContent = count > 0 ? badgeValue : "";
+    badge.hidden = count <= 0;
+  });
+
+  document.querySelectorAll("[data-favorites-nav-link]").forEach((link) => {
+    link.setAttribute("aria-label", count > 0 ? `Favoris, ${count} produit(s)` : "Favoris");
+  });
+};
+
 document.querySelectorAll("[data-favorite-toggle]").forEach((button) => {
   button.addEventListener("click", async (event) => {
     const productId = button.getAttribute("data-product-id");
@@ -696,6 +710,7 @@ document.querySelectorAll("[data-favorite-toggle]").forEach((button) => {
       const isFavorite = Boolean(data.favorited);
       const nextLabel = data.label || (isFavorite ? "Retirer des favoris" : "Ajouter aux favoris");
       syncFavoriteButtons(String(data.productId || productId), isFavorite, nextLabel);
+      refreshFavoritesNavBadge(data.favoritesCount);
 
       const favoriteItem = button.closest("[data-favorites-item]");
       if (favoriteItem && !isFavorite) {
@@ -725,8 +740,23 @@ const setCartLabel = (button, text) => {
   }, 1200);
 };
 
+const refreshCartNavBadge = (cart) => {
+  const itemsCount = Number(cart?.itemsCount || 0);
+  const badgeValue = itemsCount > 9 ? "9+" : String(itemsCount);
+
+  document.querySelectorAll("[data-cart-nav-badge]").forEach((badge) => {
+    badge.textContent = itemsCount > 0 ? badgeValue : "";
+    badge.hidden = itemsCount <= 0;
+  });
+
+  document.querySelectorAll("[data-cart-nav-link]").forEach((link) => {
+    link.setAttribute("aria-label", itemsCount > 0 ? `Panier, ${itemsCount} produit(s)` : "Panier");
+  });
+};
+
 const refreshCartSummary = (cart) => {
   if (!cart) return;
+  refreshCartNavBadge(cart);
 
   const content = document.querySelector("[data-cart-content]");
   const emptyState = document.querySelector("[data-cart-empty-state]");

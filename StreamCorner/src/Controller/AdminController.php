@@ -96,6 +96,7 @@ final class AdminController extends AbstractController
                 ],
             ],
             'admin_sections' => $sections,
+            'admin_readonly' => $this->isAdminReadonly(),
         ]);
     }
 
@@ -183,6 +184,13 @@ final class AdminController extends AbstractController
         $config = $this->resourceConfig($resource);
         $entity = $this->newEntity($config['entity']);
         $form = $this->createResourceForm($resource, $entity);
+
+        if ($request->isMethod('POST') && !$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_new', ['resource' => $resource]);
+        }
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid() && $this->prepareEntity($entity, $form, true, $slugger)) {
@@ -212,6 +220,13 @@ final class AdminController extends AbstractController
         }
 
         $form = $this->createResourceForm($resource, $entity);
+
+        if ($request->isMethod('POST') && !$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => $resource, 'id' => $id]);
+        }
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid() && $this->prepareEntity($entity, $form, false, $slugger)) {
@@ -232,6 +247,12 @@ final class AdminController extends AbstractController
     #[Route('/gestion/{resource}/{id}/supprimer', name: 'app_admin_crud_delete', methods: ['POST'])]
     public function delete(string $resource, int $id, Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_index', ['resource' => $resource]);
+        }
+
         $config = $this->resourceConfig($resource);
         $entity = $entityManager->getRepository($config['entity'])->find($id);
 
@@ -258,6 +279,12 @@ final class AdminController extends AbstractController
     #[Route('/gestion/produits/{productId<\d+>}/images/{imageId<\d+>}/principale', name: 'app_admin_product_image_primary', methods: ['POST'])]
     public function makeProductImagePrimary(int $productId, int $imageId, Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
         [$produit, $image] = $this->findProductAndImage($productId, $imageId, $entityManager);
 
         if (!$this->isCsrfTokenValid('primary-product-image-' . $imageId, (string) $request->request->get('_token'))) {
@@ -278,6 +305,12 @@ final class AdminController extends AbstractController
     #[Route('/gestion/produits/{productId<\d+>}/images/{imageId<\d+>}/remplacer', name: 'app_admin_product_image_replace', methods: ['POST'])]
     public function replaceProductImage(int $productId, int $imageId, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
+        if (!$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
         [$produit, $image] = $this->findProductAndImage($productId, $imageId, $entityManager);
 
         if (!$this->isCsrfTokenValid('replace-product-image-' . $imageId, (string) $request->request->get('_token'))) {
@@ -328,6 +361,12 @@ final class AdminController extends AbstractController
     #[Route('/gestion/produits/{productId<\d+>}/images/{imageId<\d+>}/supprimer', name: 'app_admin_product_image_delete', methods: ['POST'])]
     public function deleteProductImage(int $productId, int $imageId, Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
         [$produit, $image] = $this->findProductAndImage($productId, $imageId, $entityManager);
 
         if (!$this->isCsrfTokenValid('delete-product-image-' . $imageId, (string) $request->request->get('_token'))) {
@@ -380,6 +419,7 @@ final class AdminController extends AbstractController
             'columns' => $config['columns'],
             'rows' => $this->rows($resource, $items),
             'empty_message' => $config['empty'],
+            'admin_readonly' => $this->isAdminReadonly(),
         ]);
     }
 
@@ -398,7 +438,23 @@ final class AdminController extends AbstractController
             'entity' => $entity,
             'back_path' => $this->generateUrl('app_admin_crud_index', ['resource' => $resource]),
             'submit_label' => 'Envoyer',
+            'admin_readonly' => $this->isAdminReadonly(),
         ]);
+    }
+
+    private function canWriteAdmin(): bool
+    {
+        return $this->isGranted('ROLE_ADMIN');
+    }
+
+    private function isAdminReadonly(): bool
+    {
+        return !$this->canWriteAdmin() && $this->isGranted('ROLE_VISITEUR');
+    }
+
+    private function addReadonlyFlash(): void
+    {
+        $this->addFlash('danger', 'Mode visiteur : les ajouts, modifications et suppressions sont désactivés.');
     }
 
     private function createResourceForm(string $resource, object $entity): FormInterface
@@ -847,7 +903,7 @@ final class AdminController extends AbstractController
                 'entity' => Noter::class,
                 'form' => NoterType::class,
                 'order' => ['dateMessage' => 'DESC'],
-                'columns' => ['ID', 'Produit', 'Client', 'Message', 'Date'],
+                'columns' => ['ID', 'Produit', 'Client', 'Note', 'Message', 'Date'],
                 'empty' => 'Aucun avis enregistré.',
                 'new_title' => 'Nouvel_Avis',
                 'edit_title' => 'Modifier_Avis',
@@ -990,6 +1046,7 @@ final class AdminController extends AbstractController
                 (string) $item->getId(),
                 $item->getProduit()?->getDesignation() ?? 'Produit supprimé',
                 $item->getUser()?->getEmail() ?? 'Client supprimé',
+                $item->getNote() ? $item->getNote() . '/5' : 'Sans note',
                 $this->shorten($item->getMessage()),
                 $this->formatDate($item->getDateMessage()),
             ],
