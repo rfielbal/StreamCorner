@@ -104,8 +104,8 @@
               <span class="material-symbols-outlined">tune</span>
             </button>
             <label class="toolbar-sort" for="catalog-sort">
-              Trier
-              <select id="catalog-sort" name="sort" form="catalogue-filter-form" onchange="this.form.submit()">
+              <span class="toolbar-sort-label">Trier</span>
+              <select id="catalog-sort" name="sort" form="catalogue-filter-form" onchange="this.form.submit()" aria-label="Trier les produits">
                 <option value="newest" {{ currentSort == 'newest' ? 'selected' : '' }}>Nouveautés</option>
                 <option value="name_asc" {{ currentSort == 'name_asc' ? 'selected' : '' }}>Nom A-Z</option>
                 <option value="name_desc" {{ currentSort == 'name_desc' ? 'selected' : '' }}>Nom Z-A</option>
@@ -132,7 +132,22 @@
                 {% elseif 'eclairage' in category_key or 'light' in category_key %}
                   <span class="catalog-anchor" id="eclairage" aria-hidden="true"></span>
                 {% endif %}
-                <a class="product-favorite btn-icon {{ is_favorite ? 'is-active' : '' }}" href="{{ app.user ? path('app_favoris', { id: produit.id }) : path('app_login') }}" aria-label="{{ is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
+                <a
+                  class="product-card-overlay"
+                  href="{{ path('app_produit_show', { id: produit.id }) }}"
+                  aria-label="Voir la fiche {{ produit.designation }}"
+                  tabindex="-1"
+                ></a>
+                <a
+                  class="product-favorite btn-icon {{ is_favorite ? 'is-active' : '' }}"
+                  href="{{ app.user ? path('app_favoris', { id: produit.id }) : path('app_login') }}"
+                  aria-label="{{ is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}"
+                  aria-pressed="{{ is_favorite ? 'true' : 'false' }}"
+                  {% if app.user %}
+                    data-favorite-toggle
+                    data-product-id="{{ produit.id }}"
+                  {% endif %}
+                >
                   <span class="material-symbols-outlined">favorite</span>
                 </a>
                 <div class="product-media">
@@ -148,9 +163,17 @@
                   <div class="product-card-actions">
                     <a class="btn btn-secondary" href="{{ path('app_produit_show', { id: produit.id }) }}">Voir la fiche</a>
                     {% if produit.stock > 0 %}
-                      <a class="btn btn-primary" href="{{ app.user ? path('app_panier_add', { id: produit.id }) : path('app_login') }}">
+                      <a
+                        class="btn btn-primary"
+                        href="{{ app.user ? path('app_panier_add', { id: produit.id }) : path('app_login') }}"
+                        {% if app.user %}
+                          data-cart-action
+                          data-cart-action-type="add"
+                          data-product-id="{{ produit.id }}"
+                        {% endif %}
+                      >
                         <span class="material-symbols-outlined">add_shopping_cart</span>
-                        Ajouter
+                        <span data-cart-action-label>Ajouter</span>
                       </a>
                     {% else %}
                       <span class="btn btn-secondary is-disabled" aria-disabled="true">Rupture</span>

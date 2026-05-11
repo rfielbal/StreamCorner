@@ -32,6 +32,18 @@ final class CatalogueController extends AbstractController
         $user = $this->getUser();
         $reviewFormView = null;
         $userReview = null;
+        $ratedReviews = $produit->getNoters()->filter(static fn (Noter $avis): bool => $avis->getNote() !== null);
+        $ratingCount = $ratedReviews->count();
+        $averageRating = null;
+
+        if ($ratingCount > 0) {
+            $ratingSum = array_reduce(
+                $ratedReviews->toArray(),
+                static fn (int $total, Noter $avis): int => $total + (int) $avis->getNote(),
+                0
+            );
+            $averageRating = $ratingSum / $ratingCount;
+        }
 
         if ($user instanceof User) {
             $userReview = $noterRepository->findOneBy([
@@ -70,6 +82,9 @@ final class CatalogueController extends AbstractController
             'demo_mode' => false,
             'noterForm' => $reviewFormView,
             'userReview' => $userReview,
+            'averageRating' => $averageRating,
+            'averageRatingRounded' => $averageRating === null ? 0 : (int) round($averageRating),
+            'ratingCount' => $ratingCount,
         ]);
     }
 }

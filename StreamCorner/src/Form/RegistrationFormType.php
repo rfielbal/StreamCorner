@@ -22,6 +22,7 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('prenom', TextType::class, [
                 'attr' => ['autocomplete' => 'given-name'],
+                'invalid_message' => 'Veuillez saisir un prénom valide.',
                 'constraints' => [
                     new NotBlank([
                         'message'=> 'Veuillez saisir votre prénom.',
@@ -30,11 +31,13 @@ class RegistrationFormType extends AbstractType
                         'min'=> 2,
                         'minMessage'=> 'Votre prénom doit contenir au moins {{ limit }} caractères.',
                         'max'=> 100,
+                        'maxMessage'=> 'Votre prénom ne peut pas dépasser {{ limit }} caractères.',
                     ]),
                 ],
             ])
             ->add('nom', TextType::class, [
                 'attr' => ['autocomplete' => 'family-name'],
+                'invalid_message' => 'Veuillez saisir un nom valide.',
                 'constraints' => [
                     new NotBlank([
                         'message'=> 'Veuillez saisir votre nom.',
@@ -43,11 +46,13 @@ class RegistrationFormType extends AbstractType
                         'min'=> 2,
                         'minMessage'=> 'Votre nom doit contenir au moins {{ limit }} caractères.',
                         'max'=> 100,
+                        'maxMessage'=> 'Votre nom ne peut pas dépasser {{ limit }} caractères.',
                     ]),
                 ],
             ])
             ->add('email', EmailType::class, [
                 'attr' => ['autocomplete' => 'email'],
+                'invalid_message' => 'Veuillez saisir une adresse email valide.',
                 'constraints' => [
                     new NotBlank([
                         'message'=> 'Veuillez saisir votre email.',
@@ -57,6 +62,7 @@ class RegistrationFormType extends AbstractType
                     ]),
                     new Length([
                         'max'=> 180,
+                        'maxMessage'=> 'Votre email ne peut pas dépasser {{ limit }} caractères.',
                     ]),
                 ],
             ])
@@ -72,6 +78,7 @@ class RegistrationFormType extends AbstractType
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
                 'attr' => ['autocomplete' => 'new-password'],
+                'invalid_message' => 'Veuillez saisir un mot de passe valide.',
                 'constraints' => [
                     new NotBlank([
                         'message'=> 'Veuillez saisir un mot de passe.',
@@ -80,6 +87,7 @@ class RegistrationFormType extends AbstractType
                         'min'=> 6,
                         'minMessage'=> 'Votre mot de passe doit contenir au moins {{ limit }} caractères.',
                         'max'=> 4096,
+                        'maxMessage'=> 'Votre mot de passe ne peut pas dépasser {{ limit }} caractères.',
                     ]),
                 ],
             ])
@@ -90,6 +98,7 @@ class RegistrationFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'csrf_message' => 'Le formulaire d’inscription a expiré. Veuillez réessayer.',
         ]);
     }
 }

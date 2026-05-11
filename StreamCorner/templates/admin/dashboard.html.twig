@@ -6,6 +6,7 @@
 {% block footer %}{% endblock %}
 
 {% block body %}
+  {% set readonly = admin_readonly|default(false) %}
   <div class="sidebar-backdrop" id="admin-overlay" data-close-target="#admin-sidebar, #admin-overlay"></div>
 
   <div class="admin-shell">
@@ -47,15 +48,15 @@
             <div class="admin-profile-list">
               <div>
                 <span>Role actif</span>
-                <strong>{{ is_granted('ROLE_ADMIN') ? 'ROLE_ADMIN' : (app.user ? 'ROLE_USER' : 'MODE_DEV') }}</strong>
+                <strong>{{ is_granted('ROLE_ADMIN') ? 'ROLE_ADMIN' : (readonly ? 'ROLE_VISITEUR' : (app.user ? 'ROLE_USER' : 'MODE_DEV')) }}</strong>
               </div>
               <div>
                 <span>CRUD</span>
-                <strong>Actif</strong>
+                <strong>{{ readonly ? 'Lecture seule' : 'Actif' }}</strong>
               </div>
               <div>
                 <span>Formulaires</span>
-                <strong>Branchés</strong>
+                <strong>{{ readonly ? 'Consultables' : 'Branchés' }}</strong>
               </div>
             </div>
           </div>
@@ -74,7 +75,7 @@
               </div>
               <div class="admin-action-set">
                 <a class="btn btn-secondary" href="{{ path('app_admin_crud_index', { resource: section.resource }) }}">Lister</a>
-                <a class="btn btn-ghost" href="{{ path('app_admin_crud_new', { resource: section.resource }) }}">Ajouter</a>
+                <a class="btn btn-ghost" href="{{ path('app_admin_crud_new', { resource: section.resource }) }}">{{ readonly ? 'Voir formulaire' : 'Ajouter' }}</a>
               </div>
             </article>
           {% endfor %}
@@ -85,9 +86,9 @@
         <div class="table-controls">
           <div>
             <h2 class="product-name">Couverture_Sujet</h2>
-            <p class="muted">Les écrans de gestion sont organisés autour des tables du MCD.</p>
+            <p class="muted">Retrouvez les outils essentiels pour piloter la boutique, les produits, les commandes et les échanges clients.</p>
           </div>
-          <span class="status-badge status-info">Option profil admin</span>
+          <span class="status-badge status-info">{{ readonly ? 'Mode visiteur' : 'Option profil admin' }}</span>
         </div>
         <div class="admin-check-grid">
           <div>
@@ -95,16 +96,16 @@
             <strong>Lister chaque table</strong>
           </div>
           <div>
-            <span class="material-symbols-outlined">pending_actions</span>
-            <strong>Ajouter par formulaire</strong>
+            <span class="material-symbols-outlined">{{ readonly ? 'visibility' : 'pending_actions' }}</span>
+            <strong>{{ readonly ? 'Voir les formulaires' : 'Ajouter par formulaire' }}</strong>
           </div>
           <div>
-            <span class="material-symbols-outlined">pending_actions</span>
-            <strong>Modifier par formulaire</strong>
+            <span class="material-symbols-outlined">{{ readonly ? 'lock' : 'pending_actions' }}</span>
+            <strong>{{ readonly ? 'Modifications verrouillées' : 'Modifier par formulaire' }}</strong>
           </div>
           <div>
-            <span class="material-symbols-outlined">pending_actions</span>
-            <strong>Supprimer par action sécurisée</strong>
+            <span class="material-symbols-outlined">{{ readonly ? 'lock' : 'pending_actions' }}</span>
+            <strong>{{ readonly ? 'Suppressions verrouillées' : 'Supprimer par action sécurisée' }}</strong>
           </div>
         </div>
       </section>

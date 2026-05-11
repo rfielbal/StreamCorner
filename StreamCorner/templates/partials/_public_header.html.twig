@@ -1,12 +1,29 @@
+{% set cart_items_count = app.user and app.user.panier ? app.user.panier.ajouters|reduce((total, ligne) => total + ligne.quantite, 0) : 0 %}
+{% set cart_badge_value = cart_items_count > 9 ? '9+' : cart_items_count %}
+{% set favorites_count = app.user ? app.user.produitsAimers|length : 0 %}
+{% set favorites_badge_value = favorites_count > 9 ? '9+' : favorites_count %}
+
 <header class="topbar">
   <div class="container topbar-inner">
+    <button class="nav-toggle" type="button" data-toggle-target="#mobile-nav" aria-label="Ouvrir la navigation">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
     <a class="brand" href="{{ path('app_accueil') }}">STREAM_CORNER</a>
     <nav class="site-nav" aria-label="Navigation principale">
       <a data-nav-item="accueil" href="{{ path('app_accueil') }}">Accueil</a>
-      <a data-nav-item="boutique" href="{{ path('app_catalogue') }}">Boutique</a>
-      <a data-nav-item="streaming" href="{{ path('app_catalogue') }}">Diffusion</a>
-      <a data-nav-item="audio" href="{{ path('app_catalogue') }}#audio">Audio</a>
-      <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
+      <div class="nav-dropdown">
+        <a class="nav-dropdown-toggle" data-nav-item="boutique" href="{{ path('app_catalogue') }}" aria-haspopup="true">
+          Boutique
+          <span class="material-symbols-outlined">expand_more</span>
+        </a>
+        <div class="nav-dropdown-menu" aria-label="Catégories boutique">
+          <a href="{{ path('app_catalogue', { categorie: 'diffusion' }) }}">Diffusion</a>
+          <a href="{{ path('app_catalogue', { categorie: 'audio' }) }}">Audio</a>
+          <a href="{{ path('app_catalogue', { categorie: 'eclairage' }) }}">Éclairage</a>
+          <a href="{{ path('app_catalogue', { categorie: 'controle' }) }}">Controle</a>
+          <a href="{{ path('app_catalogue', { categorie: 'accessoires' }) }}">Accessoires</a>
+        </div>
+      </div>
       <a data-nav-item="contact" href="{{ path('app_contact') }}">Contact</a>
       {% if app.user %}
         <a data-nav-item="commandes" href="{{ path('app_commande_index') }}">Commandes</a>
@@ -17,19 +34,18 @@
         <span class="material-symbols-outlined">search</span>
         <input type="search" name="q" placeholder="rechercher_matériel..." value="{{ app.request.query.get('q') }}">
       </form>
-      <button class="nav-toggle" type="button" data-toggle-target="#mobile-nav" aria-label="Ouvrir la navigation">
-        <span class="material-symbols-outlined">menu</span>
-      </button>
-      {% if is_granted('ROLE_ADMIN') %}
+      {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_VISITEUR') %}
         <a class="btn-icon" data-nav-icon-item="admin" href="{{ path('app_admin_dashboard') }}" aria-label="Administration">
           <span class="material-symbols-outlined">admin_panel_settings</span>
         </a>
       {% endif %}
-      <a class="btn-icon" data-nav-icon-item="favoris" href="{{ app.user ? path('app_liste_favoris') : path('app_login') }}" aria-label="Favoris">
+      <a class="btn-icon" data-nav-icon-item="favoris" data-favorites-nav-link href="{{ app.user ? path('app_liste_favoris') : path('app_login') }}" aria-label="{{ favorites_count > 0 ? 'Favoris, ' ~ favorites_count ~ ' produit(s)' : 'Favoris' }}">
         <span class="material-symbols-outlined">favorite</span>
+        <span class="nav-count-badge" data-favorites-nav-badge {{ favorites_count > 0 ? '' : 'hidden' }}>{{ favorites_count > 0 ? favorites_badge_value : '' }}</span>
       </a>
-      <a class="btn-icon" data-nav-icon-item="panier" href="{{ path('app_panier') }}" aria-label="Panier">
+      <a class="btn-icon" data-nav-icon-item="panier" data-cart-nav-link href="{{ path('app_panier') }}" aria-label="{{ cart_items_count > 0 ? 'Panier, ' ~ cart_items_count ~ ' produit(s)' : 'Panier' }}">
         <span class="material-symbols-outlined">shopping_cart</span>
+        <span class="nav-count-badge" data-cart-nav-badge {{ cart_items_count > 0 ? '' : 'hidden' }}>{{ cart_items_count > 0 ? cart_badge_value : '' }}</span>
       </a>
       {% if app.user %}
         <a class="btn-icon" data-nav-icon-item="compte" href="{{ path('app_profil') }}" aria-label="Profil {{ app.user.userIdentifier }}">
@@ -46,14 +62,20 @@
     <div class="mobile-nav" id="mobile-nav">
       <nav class="site-nav" aria-label="Navigation mobile">
         <a data-nav-item="accueil" href="{{ path('app_accueil') }}">Accueil</a>
-        <a data-nav-item="boutique" href="{{ path('app_catalogue') }}">Boutique</a>
-        <a data-nav-item="streaming" href="{{ path('app_catalogue') }}">Diffusion</a>
-        <a data-nav-item="audio" href="{{ path('app_catalogue') }}#audio">Audio</a>
-        <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
+        <div class="mobile-category-group">
+          <a data-nav-item="boutique" href="{{ path('app_catalogue') }}">Boutique</a>
+          <div class="mobile-subnav">
+            <a href="{{ path('app_catalogue', { categorie: 'diffusion' }) }}">Diffusion</a>
+            <a href="{{ path('app_catalogue', { categorie: 'audio' }) }}">Audio</a>
+            <a href="{{ path('app_catalogue', { categorie: 'eclairage' }) }}">Éclairage</a>
+            <a href="{{ path('app_catalogue', { categorie: 'controle' }) }}">Controle</a>
+            <a href="{{ path('app_catalogue', { categorie: 'accessoires' }) }}">Accessoires</a>
+          </div>
+        </div>
         <a data-nav-item="contact" href="{{ path('app_contact') }}">Contact</a>
         <a href="{{ path('app_panier') }}">Panier</a>
         <a href="{{ app.user ? path('app_liste_favoris') : path('app_login') }}">Favoris</a>
-        {% if is_granted('ROLE_ADMIN') %}
+        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_VISITEUR') %}
           <a href="{{ path('app_admin_dashboard') }}">Administration</a>
         {% endif %}
         {% if app.user %}

@@ -63,13 +63,37 @@
 
         {% include 'components/_flash_messages.html.twig' ignore missing %}
 
-        {% include 'components/_form_panel.html.twig' with {
-          form: form,
-          title: 'Adresse_de_livraison',
-          kicker: 'Commande',
-          submit_label: 'Envoyer',
-          back_path: path('app_panier')
-        } %}
+        <div class="checkout-address-stack">
+          {% if has_adresses %}
+            {% include 'components/_form_panel.html.twig' with {
+              form: form,
+              title: 'Adresse_de_livraison',
+              kicker: 'Commande',
+              submit_label: 'Valider la commande',
+              back_path: path('app_panier')
+            } %}
+          {% else %}
+            <article class="checkout-address-empty panel">
+              <span class="material-symbols-outlined">location_on</span>
+              <div>
+                <div class="eyebrow eyebrow-bright">Livraison</div>
+                <h2 class="product-name">Aucune_adresse</h2>
+                <p class="muted">Ajoutez une adresse pour continuer la validation.</p>
+              </div>
+              <a class="btn btn-ghost" href="{{ path('app_panier') }}">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Retour
+              </a>
+            </article>
+          {% endif %}
+
+          {% include 'components/_form_panel.html.twig' with {
+            form: address_form,
+            title: has_adresses ? 'Ajouter_une_adresse' : 'Adresse_de_livraison',
+            kicker: has_adresses ? 'Nouvelle adresse' : 'Livraison',
+            submit_label: 'Enregistrer l’adresse'
+          } %}
+        </div>
       </section>
     </div>
   </main>

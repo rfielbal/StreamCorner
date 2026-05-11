@@ -15,7 +15,17 @@
 			</div>
 		{% endif %}
 
-		<a href="{{ is_granted('IS_AUTHENTICATED_FULLY') ? path('app_favoris', {id: produit.id}) : path('app_login') }}" class="btn btn-light btn-sm rounded-circle stream-favorite-btn" title="{{ isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
+		<a
+			href="{{ is_granted('IS_AUTHENTICATED_FULLY') ? path('app_favoris', {id: produit.id}) : path('app_login') }}"
+			class="btn btn-light btn-sm rounded-circle stream-favorite-btn {{ isFavorite ? 'is-active' : '' }}"
+			title="{{ isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}"
+			aria-label="{{ isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}"
+			aria-pressed="{{ isFavorite ? 'true' : 'false' }}"
+			{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+				data-favorite-toggle
+				data-product-id="{{ produit.id }}"
+			{% endif %}
+		>
 			<i class="bi {{ isFavorite ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
 		</a>
 
@@ -39,9 +49,17 @@
 
 		<div class="d-flex align-items-center justify-content-between gap-2 mt-3">
 			<span class="small text-muted">{{ produit.stock }} en stock</span>
-			<a href="{{ is_granted('IS_AUTHENTICATED_FULLY') ? path('app_panier_add', {id: produit.id}) : path('app_login') }}" class="btn btn-primary btn-sm {{ produit.stock <= 0 ? 'disabled' : '' }}">
+			<a
+				href="{{ is_granted('IS_AUTHENTICATED_FULLY') ? path('app_panier_add', {id: produit.id}) : path('app_login') }}"
+				class="btn btn-primary btn-sm {{ produit.stock <= 0 ? 'disabled' : '' }}"
+				{% if is_granted('IS_AUTHENTICATED_FULLY') and produit.stock > 0 %}
+					data-cart-action
+					data-cart-action-type="add"
+					data-product-id="{{ produit.id }}"
+				{% endif %}
+			>
 				<i class="bi bi-bag-plus me-1"></i>
-				Ajouter
+				<span data-cart-action-label>Ajouter</span>
 			</a>
 		</div>
 	</div>

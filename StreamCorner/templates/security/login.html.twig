@@ -10,21 +10,21 @@
     <div class="container auth-layout">
       <section class="auth-brand stack-lg">
         <div class="stack-md">
-          <div class="eyebrow eyebrow-bright">Nœud d'accès sécurisé</div>
+          <div class="eyebrow eyebrow-bright">Connexion client</div>
           <h1>Stream<br>Corner</h1>
           <p>
-            Accédez à votre espace client, votre panier et l'administration du catalogue selon vos droits.
+            Retrouvez votre panier, vos commandes et vos informations de livraison en quelques secondes.
           </p>
         </div>
 
         <div class="stat-grid">
           <article class="stat-card panel">
-            <div class="eyebrow">Session</div>
-            <h2 class="product-name">Secure</h2>
+            <div class="eyebrow">Vos achats</div>
+            <h2 class="product-name">Suivi commande</h2>
           </article>
           <article class="stat-card panel">
-            <div class="eyebrow">Catalogue</div>
-            <h2 class="product-name">Live</h2>
+            <div class="eyebrow">Votre panier</div>
+            <h2 class="product-name">Articles conservés</h2>
           </article>
         </div>
       </section>
@@ -33,13 +33,14 @@
         <article class="auth-card glass-panel">
           <div class="stack-md">
             <div>
-              <h2 class="product-name">Connexion sécurisée</h2>
-              <p class="muted">Initialisez une session avant d'accéder aux données.</p>
+              <h2 class="product-name">Se connecter</h2>
+              <p class="muted">Accédez à votre compte avec l'adresse email utilisée lors de votre inscription.</p>
             </div>
 
-            {% if error %}
-              <div class="requirements-panel glass-panel">
-                <p class="muted">{{ error.messageKey|trans(error.messageData, 'security') }}</p>
+            {% if login_error %}
+              <div class="requirements-panel glass-panel auth-feedback is-danger">
+                <span class="material-symbols-outlined">error</span>
+                <p class="muted">{{ login_error }}</p>
               </div>
             {% endif %}
 
@@ -52,17 +53,17 @@
               </div>
             {% endif %}
 
-            <form class="stack-md" method="post">
+            <form class="stack-md" method="post" novalidate>
               <div class="field">
-                <label for="inputEmail">Identifiant</label>
+                <label for="inputEmail">Email</label>
                 <div class="input-icon">
                   <span class="material-symbols-outlined">alternate_email</span>
-                  <input id="inputEmail" type="email" value="{{ last_username }}" name="email" autocomplete="email" placeholder="user@streamcorner.fr" required autofocus>
+                  <input id="inputEmail" type="email" value="{{ last_username }}" name="email" autocomplete="email" placeholder="vous@email.fr" required autofocus>
                 </div>
               </div>
 
               <div class="field">
-                <label for="inputPassword">Clé d'accès</label>
+                <label for="inputPassword">Mot de passe</label>
                 <div class="input-icon">
                   <span class="material-symbols-outlined">lock</span>
                   <input id="inputPassword" type="password" name="password" autocomplete="current-password" placeholder="Mot de passe" required>
@@ -70,7 +71,7 @@
               </div>
 
               <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-              <button class="btn btn-primary" type="submit">Authentifier le profil</button>
+              <button class="btn btn-primary" type="submit">Se connecter</button>
             </form>
 
             <div class="auth-meta-line">
@@ -89,30 +90,31 @@
           <div class="stack-md">
             <div class="auth-meta-line">
               <div>
-                <div class="eyebrow eyebrow-bright">Double facteur</div>
-                <h2 class="product-name">Vérification</h2>
+                <div class="eyebrow eyebrow-bright">Votre espace</div>
+                <h2 class="product-name">Compte client</h2>
               </div>
-              <span class="material-symbols-outlined">security</span>
+              <span class="material-symbols-outlined">account_circle</span>
             </div>
 
-            <p class="muted">
-              Bloc visuel prêt à raccorder à un vrai flux 2FA si le projet en a besoin.
-            </p>
-
-            <div class="otp-grid">
-              <input class="otp-input" data-otp-input type="text" value="4">
-              <input class="otp-input" data-otp-input type="text" value="8">
-              <input class="otp-input" data-otp-input type="text" value="1">
-              <input class="otp-input" data-otp-input type="text" placeholder="0">
-              <input class="otp-input" data-otp-input type="text" placeholder="0">
-              <input class="otp-input" data-otp-input type="text" placeholder="0">
+            <div class="auth-benefit-list">
+              <div class="auth-benefit-row">
+                <span class="material-symbols-outlined">receipt_long</span>
+                <p>Consultez l'historique et l'état de vos commandes.</p>
+              </div>
+              <div class="auth-benefit-row">
+                <span class="material-symbols-outlined">location_on</span>
+                <p>Réutilisez vos adresses au moment du paiement.</p>
+              </div>
+              <div class="auth-benefit-row">
+                <span class="material-symbols-outlined">favorite</span>
+                <p>Gardez vos produits favoris pour plus tard.</p>
+              </div>
             </div>
 
-            <button class="btn btn-secondary" type="button">Vérifier le code</button>
-            <button class="btn btn-ghost" type="button">
-              <span class="material-symbols-outlined">refresh</span>
-              Renvoyer dans 00:54
-            </button>
+            <a class="btn btn-secondary" href="{{ path('app_catalogue') }}">
+              <span class="material-symbols-outlined">storefront</span>
+              Continuer mes achats
+            </a>
           </div>
         </article>
 
@@ -120,6 +122,6 @@
       </section>
     </div>
 
-    <div class="auth-watermark" aria-hidden="true">STREAM</div>
+    <div class="auth-watermark" aria-hidden="true">LOGIN</div>
   </main>
 {% endblock %}

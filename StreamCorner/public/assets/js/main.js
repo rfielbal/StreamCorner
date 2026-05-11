@@ -8,7 +8,7 @@ const productCatalog = {
     stockText: "En stock",
     stockMeta: "Livraison 48h",
     price: "149,99 €",
-    priceNote: "Prix net",
+    priceNote: "Prix HT",
     buyHref: "/checkout?product=command-center",
     summarySpecs: [
       { label: "Commande", value: "15 touches LCD" },
@@ -67,7 +67,7 @@ const productCatalog = {
     stockText: "En stock",
     stockMeta: "Expédition 24h",
     price: "299,99 €",
-    priceNote: "Prix net",
+    priceNote: "Prix HT",
     buyHref: "/checkout?product=obsidian-stream-webcam",
     summarySpecs: [
       { label: "Résolution", value: "4K60" },
@@ -244,7 +244,7 @@ const productCatalog = {
     stockText: "En stock",
     stockMeta: "Prêt pour le live",
     price: "169,99 €",
-    priceNote: "Prix net",
+    priceNote: "Prix HT",
     buyHref: "/checkout?product=pulse-mic",
     summarySpecs: [
       { label: "Capsule", value: "Cardioïde" },
@@ -303,7 +303,7 @@ const productCatalog = {
     stockText: "En stock",
     stockMeta: "Switches remplaçables",
     price: "210 €",
-    priceNote: "Prix net",
+    priceNote: "Prix HT",
     buyHref: "/checkout?product=kraken-tkl-mechanical-keyboard",
     summarySpecs: [
       { label: "Format", value: "TKL" },
@@ -362,7 +362,7 @@ const productCatalog = {
     stockText: "En stock",
     stockMeta: "Montage bureau",
     price: "89,99 €",
-    priceNote: "Prix net",
+    priceNote: "Prix HT",
     buyHref: "/checkout?product=vector-boom-arm",
     summarySpecs: [
       { label: "Portée", value: "87 cm" },
@@ -476,7 +476,7 @@ const productCatalog = {
 const toggleLocks = () => {
   const openPanels = document.querySelectorAll(".is-open");
   const hasOverlayPanel = Array.from(openPanels).some((panel) =>
-    panel.matches(".mobile-nav, .catalog-sidebar, .admin-sidebar, .sidebar-backdrop")
+    panel.matches(".mobile-nav, .catalog-sidebar, .admin-sidebar, .sidebar-backdrop, .product-lightbox")
   );
   document.body.classList.toggle("is-locked", hasOverlayPanel);
 };
@@ -627,6 +627,238 @@ syncNavIcons();
 syncProductPage();
 window.addEventListener("hashchange", syncNavLinks);
 
+const refreshFavoritesEmptyState = () => {
+  const grid = document.querySelector("[data-favorites-grid]");
+  const emptyState = document.querySelector("[data-favorites-empty]");
+  if (!grid || !emptyState) return;
+
+  const hasItems = Boolean(grid.querySelector("[data-favorites-item]"));
+  grid.hidden = !hasItems;
+  emptyState.hidden = hasItems;
+};
+
+const syncFavoriteButtons = (productId, isFavorite, label) => {
+  document.querySelectorAll(`[data-favorite-toggle][data-product-id="${productId}"]`).forEach((button) => {
+    button.classList.toggle("is-active", isFavorite);
+    button.setAttribute("aria-pressed", isFavorite ? "true" : "false");
+    button.setAttribute("aria-label", label);
+    button.setAttribute("title", label);
+
+    button.querySelectorAll("[data-favorite-label]").forEach((labelNode) => {
+      labelNode.textContent = label;
+    });
+
+    const bootstrapIcon = button.querySelector(".bi-heart, .bi-heart-fill");
+    if (bootstrapIcon) {
+      bootstrapIcon.classList.toggle("bi-heart-fill", isFavorite);
+      bootstrapIcon.classList.toggle("bi-heart", !isFavorite);
+      bootstrapIcon.classList.toggle("text-danger", isFavorite);
+    }
+  });
+};
+
+const refreshFavoritesNavBadge = (favoritesCount) => {
+  const count = Number(favoritesCount || 0);
+  const badgeValue = count > 9 ? "9+" : String(count);
+
+  document.querySelectorAll("[data-favorites-nav-badge]").forEach((badge) => {
+    badge.textContent = count > 0 ? badgeValue : "";
+    badge.hidden = count <= 0;
+  });
+
+  document.querySelectorAll("[data-favorites-nav-link]").forEach((link) => {
+    link.setAttribute("aria-label", count > 0 ? `Favoris, ${count} produit(s)` : "Favoris");
+  });
+};
+
+document.querySelectorAll("[data-favorite-toggle]").forEach((button) => {
+  button.addEventListener("click", async (event) => {
+    const productId = button.getAttribute("data-product-id");
+    if (!productId || button.dataset.favoritePending === "true") return;
+
+    event.preventDefault();
+    button.dataset.favoritePending = "true";
+    button.setAttribute("aria-busy", "true");
+    button.classList.add("is-pending");
+
+    try {
+      const response = await fetch(button.href, {
+        headers: {
+          Accept: "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        credentials: "same-origin",
+      });
+
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        window.location.href = button.href;
+        return;
+      }
+
+      const data = await response.json();
+      if (data.redirect) {
+        window.location.href = data.redirect;
+        return;
+      }
+
+      if (!response.ok) {
+        window.location.href = button.href;
+        return;
+      }
+
+      const isFavorite = Boolean(data.favorited);
+      const nextLabel = data.label || (isFavorite ? "Retirer des favoris" : "Ajouter aux favoris");
+      syncFavoriteButtons(String(data.productId || productId), isFavorite, nextLabel);
+      refreshFavoritesNavBadge(data.favoritesCount);
+
+      const favoriteItem = button.closest("[data-favorites-item]");
+      if (favoriteItem && !isFavorite) {
+        favoriteItem.remove();
+        refreshFavoritesEmptyState();
+      }
+    } catch (error) {
+      window.location.href = button.href;
+    } finally {
+      delete button.dataset.favoritePending;
+      button.removeAttribute("aria-busy");
+      button.classList.remove("is-pending");
+    }
+  });
+});
+
+const setCartLabel = (button, text) => {
+  const label = button.querySelector("[data-cart-action-label]");
+  if (!label) return;
+
+  const initialText = label.dataset.initialText || label.textContent;
+  label.dataset.initialText = initialText;
+  label.textContent = text;
+
+  window.setTimeout(() => {
+    label.textContent = initialText;
+  }, 1200);
+};
+
+const refreshCartNavBadge = (cart) => {
+  const itemsCount = Number(cart?.itemsCount || 0);
+  const badgeValue = itemsCount > 9 ? "9+" : String(itemsCount);
+
+  document.querySelectorAll("[data-cart-nav-badge]").forEach((badge) => {
+    badge.textContent = itemsCount > 0 ? badgeValue : "";
+    badge.hidden = itemsCount <= 0;
+  });
+
+  document.querySelectorAll("[data-cart-nav-link]").forEach((link) => {
+    link.setAttribute("aria-label", itemsCount > 0 ? `Panier, ${itemsCount} produit(s)` : "Panier");
+  });
+};
+
+const refreshCartSummary = (cart) => {
+  if (!cart) return;
+  refreshCartNavBadge(cart);
+
+  const content = document.querySelector("[data-cart-content]");
+  const emptyState = document.querySelector("[data-cart-empty-state]");
+  const actions = document.querySelector("[data-cart-actions]");
+  const count = document.querySelector("[data-cart-items-count]");
+  const totalHt = document.querySelector("[data-cart-total-ht]");
+  const tax = document.querySelector("[data-cart-tax]");
+  const totalTtc = document.querySelector("[data-cart-total-ttc]");
+
+  if (count) count.textContent = `${cart.itemsCount} article(s)`;
+  if (totalHt) totalHt.textContent = cart.totalHt;
+  if (tax) tax.textContent = cart.tax;
+  if (totalTtc) totalTtc.textContent = cart.totalTtc;
+
+  if (content) content.hidden = Boolean(cart.isEmpty);
+  if (emptyState) emptyState.hidden = !cart.isEmpty;
+  if (actions) actions.hidden = Boolean(cart.isEmpty);
+};
+
+const refreshCartLine = (data) => {
+  if (!data?.productId) return;
+
+  const line = document.querySelector(`[data-cart-line][data-product-id="${data.productId}"]`);
+  if (!line) return;
+
+  if (data.removed) {
+    line.remove();
+    return;
+  }
+
+  const quantity = line.querySelector("[data-cart-quantity]");
+  const lineTotal = line.querySelector("[data-cart-line-total]");
+  const unitPrice = line.querySelector("[data-cart-line-unit]");
+  const stockNote = line.querySelector("[data-cart-stock-note]");
+  const plusControl = line.querySelector('[data-cart-action-type="plus"]');
+
+  if (quantity) quantity.textContent = data.line.quantity;
+  if (lineTotal) lineTotal.textContent = data.line.total;
+  if (unitPrice) unitPrice.textContent = data.line.unitPrice;
+  if (stockNote) stockNote.textContent = `Stock disponible : ${data.line.stock} unité(s)`;
+
+  if (plusControl) {
+    plusControl.classList.toggle("is-disabled", Boolean(data.line.maxReached));
+    plusControl.setAttribute("aria-disabled", data.line.maxReached ? "true" : "false");
+  }
+};
+
+document.querySelectorAll("[data-cart-action]").forEach((button) => {
+  button.addEventListener("click", async (event) => {
+    if (button.getAttribute("aria-disabled") === "true") {
+      event.preventDefault();
+      return;
+    }
+
+    if (button.dataset.cartPending === "true") return;
+
+    event.preventDefault();
+    button.dataset.cartPending = "true";
+    button.setAttribute("aria-busy", "true");
+    button.classList.add("is-pending");
+
+    try {
+      const response = await fetch(button.href, {
+        headers: {
+          Accept: "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        credentials: "same-origin",
+      });
+
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        window.location.href = button.href;
+        return;
+      }
+
+      const data = await response.json();
+      if (data.redirect) {
+        window.location.href = data.redirect;
+        return;
+      }
+
+      if (response.ok) {
+        refreshCartLine(data);
+        refreshCartSummary(data.cart);
+
+        if (button.getAttribute("data-cart-action-type") === "add") {
+          setCartLabel(button, "Ajouté");
+        }
+      } else if (data.message) {
+        setCartLabel(button, "Stock max");
+      }
+    } catch (error) {
+      window.location.href = button.href;
+    } finally {
+      delete button.dataset.cartPending;
+      button.removeAttribute("aria-busy");
+      button.classList.remove("is-pending");
+    }
+  });
+});
+
 document.querySelectorAll("[data-toggle-target]").forEach((button) => {
   button.addEventListener("click", () => {
     const targets = resolveTargets(button.getAttribute("data-toggle-target"));
@@ -661,22 +893,100 @@ document.querySelectorAll("[data-close-target]").forEach((button) => {
   });
 });
 
-document.querySelectorAll("[data-gallery-thumb]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const mainImage = document.querySelector("[data-gallery-main]");
-    if (!mainImage) return;
+document.querySelectorAll("[data-product-gallery]").forEach((gallery) => {
+  const lightbox = gallery.querySelector("[data-gallery-lightbox]");
+  const lightboxImage = gallery.querySelector("[data-gallery-lightbox-image]");
+  const lightboxCaption = gallery.querySelector("[data-gallery-lightbox-caption]");
+  const lightboxCounter = gallery.querySelector("[data-gallery-lightbox-counter]");
+  const closeButton = gallery.querySelector("[data-gallery-close]");
+  const previousButton = gallery.querySelector("[data-gallery-prev]");
+  const nextButton = gallery.querySelector("[data-gallery-next]");
+  const slideButtons = Array.from(gallery.querySelectorAll("[data-gallery-lightbox-thumb]"));
+  const slides = slideButtons
+    .map((button) => ({
+      src: button.getAttribute("data-gallery-src"),
+      alt: button.getAttribute("data-gallery-alt") || "",
+    }))
+    .filter((slide) => slide.src);
 
-    const nextSrc = button.getAttribute("data-gallery-src");
-    const nextAlt = button.getAttribute("data-gallery-alt") || "";
-    if (!nextSrc) return;
+  if (!lightbox || !lightboxImage || slides.length === 0) return;
 
-    mainImage.src = nextSrc;
-    mainImage.alt = nextAlt;
+  let currentIndex = 0;
+  let lastFocusedElement = null;
 
-    document.querySelectorAll("[data-gallery-thumb]").forEach((thumb) => {
-      thumb.classList.remove("is-active");
+  const normalizeIndex = (index) => {
+    if (Number.isNaN(index)) return 0;
+    return (index + slides.length) % slides.length;
+  };
+
+  const showSlide = (index) => {
+    currentIndex = normalizeIndex(index);
+    const slide = slides[currentIndex];
+
+    lightboxImage.src = slide.src;
+    lightboxImage.alt = slide.alt;
+
+    if (lightboxCaption) {
+      lightboxCaption.textContent = slide.alt;
+    }
+
+    if (lightboxCounter) {
+      lightboxCounter.textContent = `${currentIndex + 1} / ${slides.length}`;
+    }
+
+    slideButtons.forEach((button, buttonIndex) => {
+      button.classList.toggle("is-active", buttonIndex === currentIndex);
     });
-    button.classList.add("is-active");
+  };
+
+  const openLightbox = (index) => {
+    lastFocusedElement = document.activeElement;
+    showSlide(index);
+    lightbox.classList.add("is-open");
+    lightbox.setAttribute("aria-hidden", "false");
+    toggleLocks();
+    closeButton?.focus({ preventScroll: true });
+  };
+
+  const closeLightbox = () => {
+    lightbox.classList.remove("is-open");
+    lightbox.setAttribute("aria-hidden", "true");
+    toggleLocks();
+    if (lastFocusedElement instanceof HTMLElement) {
+      lastFocusedElement.focus({ preventScroll: true });
+    }
+  };
+
+  gallery.querySelectorAll("[data-gallery-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openLightbox(Number.parseInt(button.getAttribute("data-gallery-index") || "0", 10));
+    });
+  });
+
+  slideButtons.forEach((button, index) => {
+    button.addEventListener("click", () => showSlide(index));
+  });
+
+  previousButton?.addEventListener("click", () => showSlide(currentIndex - 1));
+  nextButton?.addEventListener("click", () => showSlide(currentIndex + 1));
+  closeButton?.addEventListener("click", closeLightbox);
+
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) {
+      closeLightbox();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (!lightbox.classList.contains("is-open")) return;
+
+    if (event.key === "Escape") {
+      closeLightbox();
+    } else if (event.key === "ArrowLeft") {
+      showSlide(currentIndex - 1);
+    } else if (event.key === "ArrowRight") {
+      showSlide(currentIndex + 1);
+    }
   });
 });
 
@@ -768,17 +1078,30 @@ document.querySelectorAll("[data-otp-input]").forEach((input, index, list) => {
   });
 });
 
-document.querySelectorAll("[data-filter-table]").forEach((input) => {
-  input.addEventListener("input", () => {
-    const selector = input.getAttribute("data-filter-table");
-    const table = document.querySelector(selector);
-    if (!table) return;
+const filterTable = (input) => {
+  const selector = input.getAttribute("data-filter-table");
+  const table = document.querySelector(selector);
+  if (!table) return;
 
-    const term = input.value.trim().toLowerCase();
-    table.querySelectorAll("tbody tr").forEach((row) => {
-      const text = row.textContent?.toLowerCase() || "";
-      row.style.display = text.includes(term) ? "" : "none";
-    });
+  const term = input.value.trim().toLowerCase();
+  table.querySelectorAll("tbody tr").forEach((row) => {
+    const text = row.textContent?.toLowerCase() || "";
+    row.style.display = text.includes(term) ? "" : "none";
+  });
+};
+
+document.querySelectorAll("[data-filter-table]").forEach((input) => {
+  input.addEventListener("input", () => filterTable(input));
+  input.addEventListener("search", () => filterTable(input));
+});
+
+document.querySelectorAll("[data-reverse-table]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const table = document.querySelector(button.getAttribute("data-reverse-table"));
+    const tbody = table?.querySelector("tbody");
+    if (!tbody) return;
+
+    Array.from(tbody.querySelectorAll("tr")).reverse().forEach((row) => tbody.appendChild(row));
   });
 });
 

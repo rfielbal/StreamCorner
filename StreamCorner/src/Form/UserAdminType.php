@@ -55,6 +55,7 @@ class UserAdminType extends AbstractType
                 'label' => 'Droits',
                 'choices' => [
                     'Client' => 'ROLE_USER',
+                    'Visiteur admin' => 'ROLE_VISITEUR',
                     'Administrateur' => 'ROLE_ADMIN',
                 ],
                 'multiple' => true,

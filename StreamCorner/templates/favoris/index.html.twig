@@ -19,8 +19,6 @@
         </a>
       </div>
 
-      {% include 'components/_flash_messages.html.twig' ignore missing %}
-
       {% if produits|length == 0 %}
         <article class="catalog-empty-state panel">
           <div class="stack-md">
@@ -39,13 +37,26 @@
           </div>
         </article>
       {% else %}
-        <div class="product-grid catalog-grid">
+        <div class="product-grid catalog-grid" data-favorites-grid>
           {% for produit in produits %}
             {% set raw_image = produit.image %}
             {% set image_src = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
             {% set category_name = produit.categorie ? produit.categorie.nomCategorie : 'Matériel streaming' %}
-            <article class="product-card" id="favori-{{ produit.id }}">
-              <a class="product-favorite btn-icon is-active" href="{{ path('app_favoris', { id: produit.id }) }}" aria-label="Retirer des favoris">
+            <article class="product-card" id="favori-{{ produit.id }}" data-favorites-item data-product-id="{{ produit.id }}">
+              <a
+                class="product-card-overlay"
+                href="{{ path('app_produit_show', { id: produit.id }) }}"
+                aria-label="Voir la fiche {{ produit.designation }}"
+                tabindex="-1"
+              ></a>
+              <a
+                class="product-favorite btn-icon is-active"
+                href="{{ path('app_favoris', { id: produit.id }) }}"
+                aria-label="Retirer des favoris"
+                aria-pressed="true"
+                data-favorite-toggle
+                data-product-id="{{ produit.id }}"
+              >
                 <span class="material-symbols-outlined">favorite</span>
               </a>
               <div class="product-media">
@@ -61,9 +72,15 @@
                 <div class="product-card-actions">
                   <a class="btn btn-secondary" href="{{ path('app_produit_show', { id: produit.id }) }}">Voir la fiche</a>
                   {% if produit.stock > 0 %}
-                    <a class="btn btn-primary" href="{{ path('app_panier_add', { id: produit.id }) }}">
+                    <a
+                      class="btn btn-primary"
+                      href="{{ path('app_panier_add', { id: produit.id }) }}"
+                      data-cart-action
+                      data-cart-action-type="add"
+                      data-product-id="{{ produit.id }}"
+                    >
                       <span class="material-symbols-outlined">add_shopping_cart</span>
-                      Ajouter
+                      <span data-cart-action-label>Ajouter</span>
                     </a>
                   {% else %}
                     <span class="btn btn-secondary is-disabled" aria-disabled="true">Rupture</span>
@@ -73,6 +90,23 @@
             </article>
           {% endfor %}
         </div>
+
+        <article class="catalog-empty-state panel" data-favorites-empty hidden>
+          <div class="stack-md">
+            <div class="pill">
+              <span class="material-symbols-outlined">favorite</span>
+              Liste vide
+            </div>
+            <h2 class="product-name">Aucun favori pour le moment</h2>
+            <p class="muted">
+              Ajoutez des produits depuis le catalogue avec l’icône cœur pour préparer une sélection avant achat.
+            </p>
+            <a href="{{ path('app_catalogue') }}" class="btn btn-primary">
+              Découvrir les produits
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+          </div>
+        </article>
       {% endif %}
     </div>
   </main>

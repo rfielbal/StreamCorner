@@ -10,21 +10,21 @@
     <div class="container auth-layout">
       <section class="auth-brand stack-lg">
         <div class="stack-md">
-          <div class="eyebrow eyebrow-bright">Création de compte</div>
+          <div class="eyebrow eyebrow-bright">Nouveau client</div>
           <h1>Stream<br>Corner</h1>
           <p>
-            Créez votre espace client pour synchroniser le panier, retrouver vos favoris et suivre les commandes du setup.
+            Créez votre compte pour commander plus vite, suivre vos achats et retrouver vos produits favoris.
           </p>
         </div>
 
         <div class="stat-grid">
           <article class="stat-card panel">
-            <div class="eyebrow">Profil</div>
-            <h2 class="product-name">Client</h2>
+            <div class="eyebrow">Commande</div>
+            <h2 class="product-name">Paiement plus rapide</h2>
           </article>
           <article class="stat-card panel">
-            <div class="eyebrow">Accès</div>
-            <h2 class="product-name">Secure</h2>
+            <div class="eyebrow">Après achat</div>
+            <h2 class="product-name">Suivi simplifié</h2>
           </article>
         </div>
       </section>
@@ -33,9 +33,9 @@
         <article class="auth-card glass-panel">
           <div class="stack-md">
             <div>
-              <div class="eyebrow eyebrow-bright">Nouveau profil</div>
-              <h2 class="product-name">Initialisation</h2>
-              <p class="muted">Renseignez vos informations de compte StreamCorner.</p>
+              <div class="eyebrow eyebrow-bright">Inscription</div>
+              <h2 class="product-name">Créer un compte</h2>
+              <p class="muted">Renseignez vos informations pour préparer vos futures commandes.</p>
             </div>
 
             {% for message in app.flashes('success') %}
@@ -56,7 +56,7 @@
               {{ form_errors(registrationForm) }}
             </div>
 
-            {{ form_start(registrationForm, { attr: { class: 'stack-md' } }) }}
+            {{ form_start(registrationForm, { attr: { class: 'stack-md', novalidate: 'novalidate' } }) }}
               <div class="field-grid auth-field-grid">
                 <div class="field">
                   {{ form_label(registrationForm.prenom, 'Prénom') }}
@@ -80,7 +80,7 @@
                   {{ form_label(registrationForm.email, 'Email') }}
                   <div class="input-icon">
                     <span class="material-symbols-outlined">alternate_email</span>
-                    {{ form_widget(registrationForm.email, { attr: { placeholder: 'user@streamcorner.fr' } }) }}
+                    {{ form_widget(registrationForm.email, { attr: { placeholder: 'vous@email.fr' } }) }}
                   </div>
                   {{ form_errors(registrationForm.email) }}
                 </div>
@@ -118,24 +118,24 @@
           <div class="stack-md">
             <div class="auth-meta-line">
               <div>
-                <div class="eyebrow eyebrow-bright">Espace client</div>
-                <h2 class="product-name">Setup synchronisé</h2>
+                <div class="eyebrow eyebrow-bright">Avantages client</div>
+                <h2 class="product-name">Une boutique plus simple</h2>
               </div>
-              <span class="material-symbols-outlined">deployed_code_account</span>
+              <span class="material-symbols-outlined">shopping_bag</span>
             </div>
 
             <div class="auth-benefit-list">
               <div class="auth-benefit-row">
                 <span class="material-symbols-outlined">shopping_cart</span>
-                <p>Panier conservé entre les sessions.</p>
+                <p>Retrouvez votre panier à chaque connexion.</p>
+              </div>
+              <div class="auth-benefit-row">
+                <span class="material-symbols-outlined">local_shipping</span>
+                <p>Suivez vos commandes depuis votre espace client.</p>
               </div>
               <div class="auth-benefit-row">
                 <span class="material-symbols-outlined">favorite</span>
-                <p>Favoris rattachés au profil client.</p>
-              </div>
-              <div class="auth-benefit-row">
-                <span class="material-symbols-outlined">mark_email_read</span>
-                <p>Email de vérification envoyé après inscription.</p>
+                <p>Gardez vos accessoires préférés en favoris.</p>
               </div>
             </div>
 

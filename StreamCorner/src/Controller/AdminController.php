@@ -45,6 +45,19 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/admin')]
 final class AdminController extends AbstractController
 {
+    private const PRODUCT_IMAGE_MAX_SIZE = 10485760;
+    private const PRODUCT_IMAGE_MIME_TYPES = [
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+        'image/gif',
+    ];
+
+    /**
+     * @var string[]
+     */
+    private array $productImageFilesPendingDeletion = [];
+
     public function __construct(private readonly UserPasswordHasherInterface $passwordHasher)
     {
     }
@@ -83,6 +96,7 @@ final class AdminController extends AbstractController
                 ],
             ],
             'admin_sections' => $sections,
+            'admin_readonly' => $this->isAdminReadonly(),
         ]);
     }
 
@@ -131,7 +145,7 @@ final class AdminController extends AbstractController
     #[Route('/droits', name: 'app_admin_permissions')]
     public function permissions(EntityManagerInterface $entityManager): Response
     {
-        return $this->renderIndex('admins', $entityManager);
+        return $this->renderIndex('droits', $entityManager);
     }
 
     #[Route('/adresses', name: 'app_admin_addresses')]
@@ -170,12 +184,20 @@ final class AdminController extends AbstractController
         $config = $this->resourceConfig($resource);
         $entity = $this->newEntity($config['entity']);
         $form = $this->createResourceForm($resource, $entity);
+
+        if ($request->isMethod('POST') && !$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_new', ['resource' => $resource]);
+        }
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid() && $this->prepareEntity($entity, $form, true, $slugger)) {
             try {
                 $entityManager->persist($entity);
                 $entityManager->flush();
+                $this->deletePendingProductImageFiles($entityManager);
                 $this->addFlash('success', 'Enregistrement ajouté.');
 
                 return $this->redirectToRoute('app_admin_crud_index', ['resource' => $resource]);
@@ -184,7 +206,7 @@ final class AdminController extends AbstractController
             }
         }
 
-        return $this->renderFormPage($resource, $config['new_title'], $form);
+        return $this->renderFormPage($resource, $config['new_title'], $form, $entity);
     }
 
     #[Route('/gestion/{resource}/{id}/modifier', name: 'app_admin_crud_edit', methods: ['GET', 'POST'])]
@@ -198,11 +220,19 @@ final class AdminController extends AbstractController
         }
 
         $form = $this->createResourceForm($resource, $entity);
+
+        if ($request->isMethod('POST') && !$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => $resource, 'id' => $id]);
+        }
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid() && $this->prepareEntity($entity, $form, false, $slugger)) {
             try {
                 $entityManager->flush();
+                $this->deletePendingProductImageFiles($entityManager);
                 $this->addFlash('success', 'Enregistrement modifié.');
 
                 return $this->redirectToRoute('app_admin_crud_index', ['resource' => $resource]);
@@ -211,19 +241,32 @@ final class AdminController extends AbstractController
             }
         }
 
-        return $this->renderFormPage($resource, $config['edit_title'], $form);
+        return $this->renderFormPage($resource, $config['edit_title'], $form, $entity);
     }
 
     #[Route('/gestion/{resource}/{id}/supprimer', name: 'app_admin_crud_delete', methods: ['POST'])]
     public function delete(string $resource, int $id, Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_index', ['resource' => $resource]);
+        }
+
         $config = $this->resourceConfig($resource);
         $entity = $entityManager->getRepository($config['entity'])->find($id);
 
         if ($entity !== null && $this->isCsrfTokenValid('delete-' . $resource . '-' . $id, (string) $request->request->get('_token'))) {
+            $productImageFilenames = $entity instanceof Produit ? $this->collectProductImageFilenames($entity) : [];
+
             try {
                 $entityManager->remove($entity);
                 $entityManager->flush();
+
+                foreach ($productImageFilenames as $filename) {
+                    $this->deleteProductImageFileIfUnused($filename, $entityManager);
+                }
+
                 $this->addFlash('success', 'Enregistrement supprimé.');
             } catch (ForeignKeyConstraintViolationException) {
                 $this->addFlash('danger', 'Suppression impossible : cette donnée est encore utilisée ailleurs.');
@@ -231,6 +274,134 @@ final class AdminController extends AbstractController
         }
 
         return $this->redirectToRoute('app_admin_crud_index', ['resource' => $resource]);
+    }
+
+    #[Route('/gestion/produits/{productId<\d+>}/images/{imageId<\d+>}/principale', name: 'app_admin_product_image_primary', methods: ['POST'])]
+    public function makeProductImagePrimary(int $productId, int $imageId, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        if (!$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
+        [$produit, $image] = $this->findProductAndImage($productId, $imageId, $entityManager);
+
+        if (!$this->isCsrfTokenValid('primary-product-image-' . $imageId, (string) $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Jeton de sécurité invalide.');
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
+        $produit->setImage((string) $image->getFilename());
+        $this->reindexProductImages($produit, $image);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Image principale mise à jour.');
+
+        return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+    }
+
+    #[Route('/gestion/produits/{productId<\d+>}/images/{imageId<\d+>}/remplacer', name: 'app_admin_product_image_replace', methods: ['POST'])]
+    public function replaceProductImage(int $productId, int $imageId, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    {
+        if (!$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
+        [$produit, $image] = $this->findProductAndImage($productId, $imageId, $entityManager);
+
+        if (!$this->isCsrfTokenValid('replace-product-image-' . $imageId, (string) $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Jeton de sécurité invalide.');
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
+        $imageFile = $request->files->get('imageFile');
+        if (!$imageFile instanceof UploadedFile) {
+            $this->addFlash('danger', 'Veuillez sélectionner une image à remplacer.');
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
+        $validationError = $this->validateUploadedProductImage($imageFile);
+        if ($validationError !== null) {
+            $this->addFlash('danger', $validationError);
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
+        $previousFilename = $image->getFilename();
+        $serverFilename = $this->storeUploadedProductImage($imageFile, $slugger);
+
+        if ($serverFilename === null) {
+            $this->addFlash('danger', 'Erreur pendant l’envoi de l’image.');
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
+        $image
+            ->setFilename($serverFilename)
+            ->setAlt($produit->getDesignation());
+
+        if ($previousFilename === $produit->getImage()) {
+            $produit->setImage($serverFilename);
+        }
+
+        $entityManager->flush();
+        $this->deleteProductImageFileIfUnused($previousFilename, $entityManager);
+
+        $this->addFlash('success', 'Image remplacée.');
+
+        return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+    }
+
+    #[Route('/gestion/produits/{productId<\d+>}/images/{imageId<\d+>}/supprimer', name: 'app_admin_product_image_delete', methods: ['POST'])]
+    public function deleteProductImage(int $productId, int $imageId, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        if (!$this->canWriteAdmin()) {
+            $this->addReadonlyFlash();
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
+        [$produit, $image] = $this->findProductAndImage($productId, $imageId, $entityManager);
+
+        if (!$this->isCsrfTokenValid('delete-product-image-' . $imageId, (string) $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Jeton de sécurité invalide.');
+
+            return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+        }
+
+        $deletedFilename = $image->getFilename();
+        $deletingPrimary = $deletedFilename === $produit->getImage();
+        $produit->removeImage($image);
+
+        if ($deletingPrimary) {
+            $fallbackImage = $this->firstProductImage($produit);
+
+            if (!$fallbackImage instanceof ProduitImage || $fallbackImage->getFilename() === null) {
+                $produit->addImage($image);
+                $this->addFlash('danger', 'Un produit doit conserver au moins une image principale.');
+
+                return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
+            }
+
+            $produit->setImage($fallbackImage->getFilename());
+            $this->reindexProductImages($produit, $fallbackImage);
+        } else {
+            $this->reindexProductImages($produit, $this->findProductImageByFilename($produit, $produit->getImage()));
+        }
+
+        $entityManager->remove($image);
+        $entityManager->flush();
+        $this->deleteProductImageFileIfUnused($deletedFilename, $entityManager);
+
+        $this->addFlash('success', 'Image supprimée.');
+
+        return $this->redirectToRoute('app_admin_crud_edit', ['resource' => 'produits', 'id' => $productId]);
     }
 
     private function renderIndex(string $resource, EntityManagerInterface $entityManager): Response
@@ -248,10 +419,11 @@ final class AdminController extends AbstractController
             'columns' => $config['columns'],
             'rows' => $this->rows($resource, $items),
             'empty_message' => $config['empty'],
+            'admin_readonly' => $this->isAdminReadonly(),
         ]);
     }
 
-    private function renderFormPage(string $resource, string $title, FormInterface $form): Response
+    private function renderFormPage(string $resource, string $title, FormInterface $form, ?object $entity = null): Response
     {
         $config = $this->resourceConfig($resource);
 
@@ -262,9 +434,27 @@ final class AdminController extends AbstractController
             'title' => $title,
             'kicker' => $config['kicker'],
             'form' => $form->createView(),
+            'resource' => $resource,
+            'entity' => $entity,
             'back_path' => $this->generateUrl('app_admin_crud_index', ['resource' => $resource]),
             'submit_label' => 'Envoyer',
+            'admin_readonly' => $this->isAdminReadonly(),
         ]);
+    }
+
+    private function canWriteAdmin(): bool
+    {
+        return $this->isGranted('ROLE_ADMIN');
+    }
+
+    private function isAdminReadonly(): bool
+    {
+        return !$this->canWriteAdmin() && $this->isGranted('ROLE_VISITEUR');
+    }
+
+    private function addReadonlyFlash(): void
+    {
+        $this->addFlash('danger', 'Mode visiteur : les ajouts, modifications et suppressions sont désactivés.');
     }
 
     private function createResourceForm(string $resource, object $entity): FormInterface
@@ -277,6 +467,7 @@ final class AdminController extends AbstractController
             'avis' => ['admin' => true],
             'sav' => ['admin' => true],
             'utilisateurs' => ['require_password' => $entity instanceof User && $entity->getId() === null],
+            'droits' => ['require_password' => $entity instanceof User && $entity->getId() === null],
             'admins' => ['require_password' => $entity instanceof Admin && $entity->getId() === null],
             default => [],
         };
@@ -286,6 +477,8 @@ final class AdminController extends AbstractController
 
     private function prepareEntity(object $entity, FormInterface $form, bool $isNew, SluggerInterface $slugger): bool
     {
+        $this->productImageFilesPendingDeletion = [];
+
         if ($entity instanceof Produit && !$this->storeProductImages($entity, $form, $slugger)) {
             return false;
         }
@@ -362,7 +555,7 @@ final class AdminController extends AbstractController
         }
 
         $imageFile = $form->get('imageFile')->getData();
-        $nextPosition = $produit->getImages()->count();
+        $nextPosition = $this->nextProductImagePosition($produit);
 
         if (!$imageFile instanceof UploadedFile) {
             if ($produit->getImage() === null) {
@@ -379,13 +572,27 @@ final class AdminController extends AbstractController
                 return false;
             }
 
+            $previousFilename = $produit->getImage();
+            $primaryImage = $this->findProductImageByFilename($produit, $previousFilename);
             $produit->setImage($serverFilename);
-            $produit->addImage(
-                (new ProduitImage())
+
+            if ($primaryImage instanceof ProduitImage) {
+                $primaryImage
                     ->setFilename($serverFilename)
                     ->setAlt($produit->getDesignation())
-                    ->setPosition($nextPosition++)
-            );
+                    ->setPosition(0);
+            } else {
+                $produit->addImage(
+                    (new ProduitImage())
+                        ->setFilename($serverFilename)
+                        ->setAlt($produit->getDesignation())
+                        ->setPosition(0)
+                );
+            }
+
+            if ($previousFilename !== null && $previousFilename !== $serverFilename) {
+                $this->productImageFilesPendingDeletion[] = $previousFilename;
+            }
         }
 
         if ($produit->getImages()->isEmpty() && $produit->getImage() !== null) {
@@ -424,6 +631,8 @@ final class AdminController extends AbstractController
             }
         }
 
+        $this->reindexProductImages($produit, $this->findProductImageByFilename($produit, $produit->getImage()));
+
         return true;
     }
 
@@ -441,6 +650,149 @@ final class AdminController extends AbstractController
         }
 
         return $serverFilename;
+    }
+
+    /**
+     * @return array{Produit, ProduitImage}
+     */
+    private function findProductAndImage(int $productId, int $imageId, EntityManagerInterface $entityManager): array
+    {
+        $produit = $entityManager->getRepository(Produit::class)->find($productId);
+        $image = $entityManager->getRepository(ProduitImage::class)->find($imageId);
+
+        if (!$produit instanceof Produit || !$image instanceof ProduitImage || $image->getProduit()?->getId() !== $produit->getId()) {
+            throw $this->createNotFoundException('Image produit introuvable.');
+        }
+
+        return [$produit, $image];
+    }
+
+    private function validateUploadedProductImage(UploadedFile $imageFile): ?string
+    {
+        if ($imageFile->getSize() !== null && $imageFile->getSize() > self::PRODUCT_IMAGE_MAX_SIZE) {
+            return 'Chaque image doit faire 10 Mo maximum.';
+        }
+
+        if (!in_array((string) $imageFile->getMimeType(), self::PRODUCT_IMAGE_MIME_TYPES, true)) {
+            return 'Le site accepte uniquement les images JPG, PNG, WEBP et GIF.';
+        }
+
+        return null;
+    }
+
+    private function nextProductImagePosition(Produit $produit): int
+    {
+        $position = -1;
+
+        foreach ($produit->getImages() as $image) {
+            $position = max($position, $image->getPosition());
+        }
+
+        return $position + 1;
+    }
+
+    private function findProductImageByFilename(Produit $produit, ?string $filename): ?ProduitImage
+    {
+        if ($filename === null) {
+            return null;
+        }
+
+        foreach ($produit->getImages() as $image) {
+            if ($image->getFilename() === $filename) {
+                return $image;
+            }
+        }
+
+        return null;
+    }
+
+    private function firstProductImage(Produit $produit): ?ProduitImage
+    {
+        foreach ($produit->getImages() as $image) {
+            if ($image->getFilename() !== null) {
+                return $image;
+            }
+        }
+
+        return null;
+    }
+
+    private function reindexProductImages(Produit $produit, ?ProduitImage $primaryImage = null): void
+    {
+        $position = 0;
+
+        if ($primaryImage instanceof ProduitImage && $produit->getImages()->contains($primaryImage)) {
+            $primaryImage->setPosition($position++);
+        }
+
+        foreach ($produit->getImages() as $image) {
+            if ($image === $primaryImage) {
+                continue;
+            }
+
+            $image->setPosition($position++);
+        }
+    }
+
+    /**
+     * @return string[]
+     */
+    private function collectProductImageFilenames(Produit $produit): array
+    {
+        $filenames = [];
+
+        if ($produit->getImage() !== null) {
+            $filenames[] = $produit->getImage();
+        }
+
+        foreach ($produit->getImages() as $image) {
+            if ($image->getFilename() !== null) {
+                $filenames[] = $image->getFilename();
+            }
+        }
+
+        return array_values(array_unique($filenames));
+    }
+
+    private function deletePendingProductImageFiles(EntityManagerInterface $entityManager): void
+    {
+        foreach (array_unique($this->productImageFilesPendingDeletion) as $filename) {
+            $this->deleteProductImageFileIfUnused($filename, $entityManager);
+        }
+
+        $this->productImageFilesPendingDeletion = [];
+    }
+
+    private function deleteProductImageFileIfUnused(?string $filename, EntityManagerInterface $entityManager): void
+    {
+        if ($filename === null || !$this->isLocalProductImageFilename($filename)) {
+            return;
+        }
+
+        if ($this->productImageFilenameIsUsed($filename, $entityManager)) {
+            return;
+        }
+
+        $path = rtrim((string) $this->getParameter('product_images_directory'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $filename;
+
+        if (is_file($path) && !@unlink($path)) {
+            $this->addFlash('danger', 'L’image a été supprimée en base, mais le fichier serveur n’a pas pu être supprimé.');
+        }
+    }
+
+    private function isLocalProductImageFilename(string $filename): bool
+    {
+        return $filename !== ''
+            && !str_contains($filename, "\0")
+            && !str_contains($filename, '/')
+            && !str_contains($filename, '\\')
+            && parse_url($filename, PHP_URL_SCHEME) === null;
+    }
+
+    private function productImageFilenameIsUsed(string $filename, EntityManagerInterface $entityManager): bool
+    {
+        return $entityManager->getRepository(Produit::class)->count(['image' => $filename]) > 0
+            || $entityManager->getRepository(ProduitImage::class)->count(['filename' => $filename]) > 0;
     }
 
     /**
@@ -552,7 +904,7 @@ final class AdminController extends AbstractController
                 'entity' => Noter::class,
                 'form' => NoterType::class,
                 'order' => ['dateMessage' => 'DESC'],
-                'columns' => ['ID', 'Produit', 'Client', 'Message', 'Date'],
+                'columns' => ['ID', 'Produit', 'Client', 'Note', 'Message', 'Date'],
                 'empty' => 'Aucun avis enregistré.',
                 'new_title' => 'Nouvel_Avis',
                 'edit_title' => 'Modifier_Avis',
@@ -576,7 +928,7 @@ final class AdminController extends AbstractController
                 'entity' => Contact::class,
                 'form' => ContactType::class,
                 'order' => ['dateEnvoi' => 'DESC'],
-                'columns' => ['ID', 'Nom', 'Prénom', 'Sujet', 'Message', 'Date'],
+                'columns' => ['ID', 'Nom', 'Prénom', 'Email', 'Sujet', 'Message', 'Date'],
                 'empty' => 'Aucun message de contact enregistré.',
                 'new_title' => 'Nouveau_Contact',
                 'edit_title' => 'Modifier_Contact',
@@ -592,6 +944,18 @@ final class AdminController extends AbstractController
                 'empty' => 'Aucun profil admin enregistré.',
                 'new_title' => 'Nouveau_Admin',
                 'edit_title' => 'Modifier_Admin',
+            ],
+            'droits' => [
+                'active' => 'permissions',
+                'title' => 'Droits',
+                'kicker' => 'Table User // rôles applicatifs',
+                'entity' => User::class,
+                'form' => UserAdminType::class,
+                'order' => ['email' => 'ASC'],
+                'columns' => ['ID', 'Utilisateur', 'Email', 'Rôles'],
+                'empty' => 'Aucun utilisateur enregistré.',
+                'new_title' => 'Nouvel_Utilisateur',
+                'edit_title' => 'Modifier_Droits',
             ],
         ];
 
@@ -695,6 +1059,7 @@ final class AdminController extends AbstractController
                 (string) $item->getId(),
                 $item->getProduit()?->getDesignation() ?? 'Produit supprimé',
                 $item->getUser()?->getEmail() ?? 'Client supprimé',
+                $item->getNote() ? $item->getNote() . '/5' : 'Sans note',
                 $this->shorten($item->getMessage()),
                 $this->formatDate($item->getDateMessage()),
             ],
@@ -710,9 +1075,16 @@ final class AdminController extends AbstractController
                 (string) $item->getId(),
                 $item->getNom() ?? '',
                 $item->getPrenom() ?? '',
+                $item->getEmail() ?? '',
                 $item->getSujet() ?? '',
                 $this->shorten($item->getMessage()),
                 $this->formatDate($item->getDateEnvoi()),
+            ],
+            'droits' => [
+                (string) $item->getId(),
+                trim(($item->getPrenom() ?? '') . ' ' . ($item->getNom() ?? '')) ?: 'Profil incomplet',
+                $item->getEmail() ?? '',
+                implode(', ', $item->getRoles()),
             ],
             'admins' => [
                 (string) $item->getId(),
@@ -758,7 +1130,7 @@ final class AdminController extends AbstractController
      */
     private function adminSections(EntityManagerInterface $entityManager): array
     {
-        $resources = ['produits', 'categories', 'commandes', 'utilisateurs', 'adresses', 'paniers', 'ajouter', 'parvenir', 'avis', 'sav', 'contacts', 'admins'];
+        $resources = ['produits', 'categories', 'commandes', 'utilisateurs', 'adresses', 'paniers', 'ajouter', 'parvenir', 'avis', 'sav', 'contacts', 'droits'];
 
         return array_map(function (string $resource) use ($entityManager): array {
             $config = $this->resourceConfig($resource);
@@ -777,7 +1149,7 @@ final class AdminController extends AbstractController
                     'avis' => 'rate_review',
                     'sav' => 'support_agent',
                     'contacts' => 'contact_mail',
-                    'admins' => 'admin_panel_settings',
+                    'droits' => 'admin_panel_settings',
                     default => 'table',
                 },
                 'resource' => $resource,

@@ -14,7 +14,7 @@
           <p class="section-lead">Vue centrale de votre compte StreamCorner, de vos commandes et de vos préférences d'achat.</p>
         </div>
         <div class="profile-top-actions">
-          {% if is_granted('ROLE_ADMIN') %}
+          {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_VISITEUR') %}
             <a class="btn btn-secondary" href="{{ path('app_admin_dashboard') }}">
               <span class="material-symbols-outlined">admin_panel_settings</span>
               Administration
@@ -54,12 +54,8 @@
               <strong>{{ user.email }}</strong>
             </div>
             <div>
-              <span>Validation</span>
-              <strong>{{ user.verified ? 'Email vérifié' : 'En attente' }}</strong>
-            </div>
-            <div>
               <span>Accès</span>
-              <strong>{{ is_granted('ROLE_ADMIN') ? 'Client + Admin' : 'Client' }}</strong>
+              <strong>{{ is_granted('ROLE_ADMIN') ? 'Client + Admin' : (is_granted('ROLE_VISITEUR') ? 'Client + Visiteur admin' : 'Client') }}</strong>
             </div>
           </div>
 
