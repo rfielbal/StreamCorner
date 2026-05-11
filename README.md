@@ -15,6 +15,26 @@ Le but de StreamCorner est de proposer une boutique spécialisée dans le matér
 
 Le projet sert aussi de support technique pour montrer la maîtrise de Symfony, de Doctrine, de Twig, de Docker et d'une organisation MVC.
 
+## Accès au site 
+
+Pour accéder au site, il suffit simplement de se rendre sur le lien suivant : 
+
+- L'accès client est configuré par défaut lors de la création d'un compte ; 
+- Pour visualiser le site en tant que visiteur administrateur, connectez-vous avez les identifiants suivants :
+
+Adresse mail : 
+
+```bash
+visiteur@streamcorner.com
+```
+
+Mot de passe : 
+
+```bash
+streamcorner
+```
+
+
 ## Thème et méthode de création
 
 L'identité visuelle repose sur un univers sombre, technique et orienté setup de streaming. Le site met en avant des produits comme des stream decks, micros, webcams, éclairages, cartes de capture et accessoires.
