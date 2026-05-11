@@ -4,9 +4,11 @@
     <div class="footer-links">
       <a data-nav-item="accueil" href="{{ path('app_accueil') }}">Accueil</a>
       <a data-nav-item="boutique" href="{{ path('app_catalogue') }}">Boutique</a>
-      <a data-nav-item="streaming" href="{{ path('app_catalogue') }}">Diffusion</a>
-      <a data-nav-item="audio" href="{{ path('app_catalogue') }}#audio">Audio</a>
-      <a data-nav-item="eclairage" href="{{ path('app_catalogue') }}#eclairage">Éclairage</a>
+      <a data-nav-item="streaming" href="{{ path('app_catalogue', { categorie: 'diffusion' }) }}">Diffusion</a>
+      <a data-nav-item="audio" href="{{ path('app_catalogue', { categorie: 'audio' }) }}">Audio</a>
+      <a data-nav-item="eclairage" href="{{ path('app_catalogue', { categorie: 'eclairage' }) }}">Éclairage</a>
+      <a data-nav-item="controle" href="{{ path('app_catalogue', { categorie: 'controle' }) }}">Controle</a>
+      <a data-nav-item="accessoires" href="{{ path('app_catalogue', { categorie: 'accessoires' }) }}">Accessoires</a>
       <a data-nav-item="contact" href="{{ path('app_contact') }}">Contact</a>
     </div>
     <p class="footer-copy">(c) 2026 StreamCorner. Tous droits réservés.</p>

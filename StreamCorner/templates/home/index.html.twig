@@ -5,7 +5,7 @@
 {% block body_data %}data-nav-section="accueil"{% endblock %}
 
 {% block body %}
-  {% set commandCenterProduct = setupProducts['Command Center']|default(null) %}
+  {% set nexusProduct = setupProducts['Nexus Stream Deck']|default(null) %}
 
   <main>
     <section class="home-hero">
@@ -25,7 +25,7 @@
               Contrôle tactile total. Retour visuel instantané. Précision conçue pour les créateurs et streamers exigeants.
             </p>
             <div class="home-hero-actions">
-              <a class="btn btn-primary" href="{{ commandCenterProduct ? path('app_produit_show', { id: commandCenterProduct.id }) : path('app_resultat', { q: 'Command Center' }) }}">
+              <a class="btn btn-primary" href="{{ nexusProduct ? path('app_produit_show', { id: nexusProduct.id }) : path('app_resultat', { q: 'Nexus Stream Deck' }) }}">
                 Découvrez-le maintenant
                 <span class="material-symbols-outlined">arrow_forward</span>
               </a>
@@ -54,22 +54,22 @@
 
             {% set hotspots = [
               {
-                x: '10%', y: '62.5%', label_left: '1.95rem', label_top: '-2.25rem', label_width: '10rem', product: 'Command Center', label: 'Command Center'
+                x: '10%', y: '62.5%', label_left: '1.95rem', label_top: '-2.25rem', label_width: '10rem', product: 'Nexus Stream Deck', label: 'Nexus Stream Deck'
               },
               {
-                x: '54.6%', y: '15.8%', label_left: '1.8rem', label_top: '-0.7rem', label_width: '11.8rem', product: 'Obsidian Stream Webcam', label: 'Obsidian Stream Webcam'
+                x: '54.6%', y: '15.8%', label_left: '1.8rem', label_top: '-0.7rem', label_width: '10rem', product: 'Obsidian Webcam', label: 'Obsidian Webcam'
               },
               {
                 x: '85.7%', y: '18.2%', label_left: '-11.4rem', label_top: '-0.7rem', label_width: '10.2rem', product: 'Aether Pro LED Panels', label: 'Aether Pro LED Panels'
               },
               {
-                x: '63.4%', y: '57.2%', label_left: '-8.8rem', label_top: '-0.85rem', label_width: '7.5rem', product: 'Pulse Mic', label: 'Pulse Mic'
+                x: '63.4%', y: '57.2%', label_left: '-8.8rem', label_top: '-0.85rem', label_width: '7.5rem', product: 'Pulse MIC', label: 'Pulse MIC'
               },
               {
                 x: '89.5%', y: '70.9%', label_left: '-10.95rem', label_top: '-0.75rem', label_width: '9.6rem', product: 'Vox Monitor Speaker', label: 'Vox Monitor Speaker'
               },
               {
-                x: '36.9%', y: '82.5%', label_left: '1.95rem', label_top: '-1rem', label_width: '9.6rem', product: 'Kraken TKL Keyboard', label: 'Kraken TKL Keyboard'
+                x: '36.9%', y: '82.5%', label_left: '1.95rem', label_top: '-1rem', label_width: '9.6rem', product: 'Cobalt Stream Deck', label: 'Cobalt Stream Deck'
               }
             ] %}
 
@@ -95,46 +95,73 @@
         <div class="split-header">
           <div>
             <h2 class="section-title">Univers_Streaming</h2>
-            <p class="home-section-subtitle">Sélectionnez votre niveau d'équipement</p>
+            <p class="home-section-subtitle">Capture, support et monitoring issus du catalogue</p>
           </div>
         </div>
 
-        <div class="grid-cards department-grid">
-          <a class="department-card span-8" href="{{ path('app_catalogue') }}#audio">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCONKbZG9oo0BSgbp8nqZJhsReamLO5La0No6J2GTDcuOFmwTlxZ-QVH_h_ytdj6h96Cjwe7D8MUdZir1dYK5gXNaPE9NtnfyysegiIlz2rgZVyyGWSwImVmyyqT4DMNX4gW5G4-0GORzXDzidQz0hQ1zm6AutezqGb7Ts_oOEhzEQinrW0hCucLbYLkA9ycA-FlGvCAh7wgOa2apLU6kyOeI2vimGsjkiZPLFuyAfaSPOMAHkkPnP5q2nCPbu7c0IYlb3jjuyN66Y" alt="Matériel audio">
-            <div class="card-copy">
-              <div class="eyebrow">Surveillance sans latence</div>
-              <h3 class="product-name">Audio_Core</h3>
-              <div class="eyebrow cta">Explorer la collection +</div>
-            </div>
-          </a>
+        {% set universeCards = [
+          {
+            product: universeProducts['Vector Boom Arm']|default(null),
+            eyebrow: 'Accessoires',
+            category_slug: 'accessoires',
+            title: 'Support micro',
+            copy: 'Un bras articulé pour placer le micro au bon angle, libérer le bureau et garder une voix stable pendant les sessions longues.'
+          },
+          {
+            product: universeProducts['Hyper Capture Card 4K']|default(null),
+            eyebrow: 'Vidéo',
+            category_slug: 'video',
+            title: 'Capture 4K',
+            copy: 'Une carte de capture dédiée pour connecter console, caméra ou second PC avec une image nette et un flux plus propre.'
+          },
+          {
+            product: universeProducts['All-In Monitor Audio']|default(null),
+            eyebrow: 'Controle',
+            category_slug: 'controle',
+            title: 'Station de monitoring',
+            copy: 'Un écran de contrôle audio pour suivre vos sources, ajuster votre retour et garder les alertes lisibles au même endroit.'
+          }
+        ] %}
 
-          <a class="department-card span-4" href="{{ path('app_catalogue') }}#eclairage">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5e7DkhyDt-c5sEjAXgDOGQscSvOeFP9HjSJeOxW0n6fTtaArUhkKvth_FQvy2QYbs43klbbO1UrZ685hy-STN42i7hFUP_0PC7mNkbK5vVdvtBN9mNmgfktMcYKsSJSgnzEZdZiExp_aC8I663MI4lGhB9j9ifr3FIRs4RwgkuBsAwSwxvPSeubWPL8azdTq3U4lFzUDrHOf4BfXwW42lsdORj5d_WMbBUO3e-Udo_U6wRmhBWJXMAtkUC2imJfJcqXQr5VR0Dcg" alt="Éclairage studio">
-            <div class="card-copy">
-              <div class="eyebrow">Panneaux studio bicolores</div>
-              <h3 class="product-name">Light_Flux</h3>
-              <div class="eyebrow cta">Explorer la collection +</div>
-            </div>
-          </a>
-
-          <a class="department-card span-4" href="{{ path('app_catalogue') }}">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAuXteNOZfKsnGZzc82zTDAiCbp6Cpw73hOan_9vKpiSKVy58urQA05cBqzzqXEU1nTo-EXDn_gRmf6YxcQ2aUAzjhAMZR9hz4tjUNITJkX_gKu9JRV7UGD7bskms0f87fwBMm9X_YWCAYYrtItq2D4kGR8aWx0W_rDGORGOMMEzQO2qFskJaqNyhr4UeBoe520mc7JdhL1gRk8erbBmHR2Pv0in3J8zGnXBJ0m-BuRxSBVPFtyBAcTrMCubgg2ycw7WZmJqyT0ow" alt="Contrôle streaming">
-            <div class="card-copy">
-              <div class="eyebrow">Exécution de macros</div>
-              <h3 class="product-name">Synapse_Control</h3>
-              <div class="eyebrow cta">Explorer la collection +</div>
-            </div>
-          </a>
-
-          <a class="department-card span-8" href="{{ path('app_catalogue') }}">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYD9fChum7oAqJDO2-wzHNKuBlW1mHUoUL-wPZa4EGho4puibd1RhSxv0aZO1l7GkfCllBWWK0vJrmhBxMQsIanmAlgjeyQXYdERj4h6C8PeNBr0w5EYQxwcxt_z2PfJIooHfQXBIiquJCYdfqZ0IhksN1qz3W0RUO6_ktASM8z1sGwaDIee_dlpNEd347hhm9WtZJus_jDqTd7_H1o-vgwk1oYDHToGMNpT8Cw1oVuPYWvQDRw9cjAI-0_cFjV_Bd_I9WI8EN9JM" alt="Capture vidéo">
-            <div class="card-copy">
-              <div class="eyebrow">Capture 4K60 pro</div>
-              <h3 class="product-name">Capture_Frame</h3>
-              <div class="eyebrow cta">Explorer la collection +</div>
-            </div>
-          </a>
+        <div class="universe-product-grid">
+          {% for card in universeCards %}
+            {% if card.product %}
+              {% set raw_image = card.product.image %}
+              {% set image_src = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
+              <article class="universe-product-card">
+                <a class="universe-product-media" href="{{ path('app_produit_show', { id: card.product.id }) }}" aria-label="Voir la fiche {{ card.product.designation }}">
+                  <img src="{{ image_src }}" alt="{{ card.product.designation }}">
+                </a>
+                <div class="universe-product-body">
+                  <div>
+                    <div class="eyebrow eyebrow-bright">{{ card.eyebrow }}</div>
+                    <h3 class="product-name">{{ card.product.designation }}</h3>
+                    <p class="universe-product-role">{{ card.title }}</p>
+                  </div>
+                  <p class="universe-product-copy">{{ card.copy }}</p>
+                  <div class="universe-product-meta">
+                    <span class="home-product-price">{{ card.product.prixUnitHT }} EUR</span>
+                    <span class="meta-text">{{ card.product.stock > 0 ? card.product.stock ~ ' en stock' : 'Rupture' }}</span>
+                  </div>
+                  <div class="universe-product-actions">
+                    <a class="btn btn-primary" href="{{ path('app_produit_show', { id: card.product.id }) }}">
+                      Voir la fiche
+                      <span class="material-symbols-outlined">arrow_forward</span>
+                    </a>
+                    <a class="universe-category-link" href="{{ path('app_catalogue', { categorie: card.category_slug }) }}">Voir la catégorie</a>
+                  </div>
+                </div>
+              </article>
+            {% endif %}
+          {% else %}
+            <article class="catalog-empty-state panel">
+              <div class="stack-md">
+                <div class="eyebrow eyebrow-bright">Catalogue</div>
+                <h3 class="product-name">Produits bientôt disponibles</h3>
+                <p class="muted">Les produits complémentaires ajoutés en administration apparaîtront ici.</p>
+              </div>
+            </article>
+          {% endfor %}
         </div>
       </div>
     </section>

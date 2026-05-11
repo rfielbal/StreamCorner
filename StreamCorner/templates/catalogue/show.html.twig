@@ -8,7 +8,7 @@
 {% set product_gallery = produit ? produit.images : [] %}
 {% set raw_image = produit ? produit.image : 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZUd-zzhzhAwqcvVN5x5xiWvonJvYqPAkq0-VDcd0aCS63A6R_t0PQvISa5_NAig1uME07IzXOJNXHelnRUs_By0otGuKb2EDXVChqpX070n8cok3eul7x_uOw21uugQsspPJR7uEh6Hhpa8xlsb5KsaQuYscb0Mrb8O3jSOZ1z5NBLFbau_3-tOJMW7dqXyMJakzEzgkWA5ibVFFJsCbsGa6Snfh9fcAgohgQ46LdAZjQRDeLDsYPOsE5UzHblvRIbyt0SelZa2s' %}
 {% set product_image = (raw_image starts with 'http' or raw_image starts with '/') ? raw_image : '/assets/images/products/' ~ raw_image %}
-{% set primary_in_gallery = product_gallery|filter(image => image.filename == raw_image)|length > 0 %}
+{% set secondary_gallery = product_gallery|filter(image => image.filename != raw_image) %}
 {% set cart_path = produit ? path('app_panier_add', { id: produit.id }) : path('app_catalogue') %}
 {% set favorite_path = produit ? path('app_favoris', { id: produit.id }) : path('app_login') %}
 {% set is_favorite = app.user and produit and produit in app.user.produitsAimers %}
@@ -25,54 +25,92 @@
     <section class="section">
       <div class="container stack-lg">
         <div class="product-layout">
-          <section>
-            <div class="gallery-main">
+          <section class="product-gallery" data-product-gallery>
+            <button
+              class="gallery-main"
+              type="button"
+              data-gallery-open
+              data-gallery-index="0"
+              aria-label="Agrandir l'image principale de {{ product_name }}"
+            >
               <img data-gallery-main src="{{ product_image }}" alt="{{ product_name }}">
-            </div>
+              <span class="gallery-main-zoom" aria-hidden="true">
+                <span class="material-symbols-outlined">zoom_in</span>
+                Agrandir
+              </span>
+            </button>
 
-            <div class="gallery-thumbs">
-              {% if product_gallery|length > 0 %}
-                {% for image in product_gallery %}
+            {% if secondary_gallery|length > 0 %}
+              <div class="gallery-thumbs" aria-label="Autres images de {{ product_name }}">
+                {% set gallery_index = 1 %}
+                {% for image in secondary_gallery %}
                   {% set gallery_src = (image.filename starts with 'http' or image.filename starts with '/') ? image.filename : '/assets/images/products/' ~ image.filename %}
-                  {% set is_primary_thumb = image.filename == raw_image %}
                   <button
-                    class="gallery-thumb {{ is_primary_thumb ? 'is-active' : '' }}"
+                    class="gallery-thumb"
                     type="button"
-                    data-gallery-thumb
-                    data-product-gallery-slot="{{ loop.index0 }}"
+                    data-gallery-open
+                    data-gallery-index="{{ gallery_index }}"
                     data-gallery-src="{{ gallery_src }}"
                     data-gallery-alt="{{ image.alt ?: product_name }}"
-                    aria-label="{{ image.alt ?: product_name }}"
+                    aria-label="Agrandir {{ image.alt ?: product_name }}"
                   >
                     <img src="{{ gallery_src }}" alt="{{ image.alt ?: product_name }}">
                   </button>
+                  {% set gallery_index = gallery_index + 1 %}
                 {% endfor %}
-                {% if not primary_in_gallery %}
-                  <button
-                    class="gallery-thumb is-active"
-                    type="button"
-                    data-gallery-thumb
-                    data-product-gallery-slot="primary"
-                    data-gallery-src="{{ product_image }}"
-                    data-gallery-alt="{{ product_name }}"
-                    aria-label="{{ product_name }}"
-                  >
-                    <img src="{{ product_image }}" alt="{{ product_name }}">
-                  </button>
-                {% endif %}
-              {% else %}
+              </div>
+            {% endif %}
+
+            <div class="product-lightbox" data-gallery-lightbox aria-hidden="true" role="dialog" aria-modal="true" aria-label="Galerie produit {{ product_name }}">
+              <button class="lightbox-close btn-icon" type="button" data-gallery-close aria-label="Fermer la galerie">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+
+              <button class="lightbox-nav lightbox-prev btn-icon" type="button" data-gallery-prev aria-label="Image précédente">
+                <span class="material-symbols-outlined">chevron_left</span>
+              </button>
+
+              <figure class="lightbox-frame">
+                <img data-gallery-lightbox-image src="{{ product_image }}" alt="{{ product_name }}">
+                <figcaption>
+                  <span data-gallery-lightbox-caption>{{ product_name }}</span>
+                  <span class="meta-text" data-gallery-lightbox-counter>1 / {{ secondary_gallery|length + 1 }}</span>
+                </figcaption>
+              </figure>
+
+              <button class="lightbox-nav lightbox-next btn-icon" type="button" data-gallery-next aria-label="Image suivante">
+                <span class="material-symbols-outlined">chevron_right</span>
+              </button>
+
+              <div class="lightbox-strip" aria-label="Images disponibles">
                 <button
-                  class="gallery-thumb is-active"
+                  class="lightbox-thumb is-active"
                   type="button"
-                  data-gallery-thumb
-                  data-product-gallery-slot="0"
+                  data-gallery-lightbox-thumb
+                  data-gallery-index="0"
                   data-gallery-src="{{ product_image }}"
                   data-gallery-alt="{{ product_name }}"
-                  aria-label="{{ product_name }}"
+                  aria-label="Afficher {{ product_name }}"
                 >
                   <img src="{{ product_image }}" alt="{{ product_name }}">
                 </button>
-              {% endif %}
+                {% set lightbox_index = 1 %}
+                {% for image in secondary_gallery %}
+                  {% set gallery_src = (image.filename starts with 'http' or image.filename starts with '/') ? image.filename : '/assets/images/products/' ~ image.filename %}
+                  <button
+                    class="lightbox-thumb"
+                    type="button"
+                    data-gallery-lightbox-thumb
+                    data-gallery-index="{{ lightbox_index }}"
+                    data-gallery-src="{{ gallery_src }}"
+                    data-gallery-alt="{{ image.alt ?: product_name }}"
+                    aria-label="Afficher {{ image.alt ?: product_name }}"
+                  >
+                    <img src="{{ gallery_src }}" alt="{{ image.alt ?: product_name }}">
+                  </button>
+                  {% set lightbox_index = lightbox_index + 1 %}
+                {% endfor %}
+              </div>
             </div>
           </section>
 

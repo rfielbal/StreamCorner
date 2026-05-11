@@ -476,7 +476,7 @@ const productCatalog = {
 const toggleLocks = () => {
   const openPanels = document.querySelectorAll(".is-open");
   const hasOverlayPanel = Array.from(openPanels).some((panel) =>
-    panel.matches(".mobile-nav, .catalog-sidebar, .admin-sidebar, .sidebar-backdrop")
+    panel.matches(".mobile-nav, .catalog-sidebar, .admin-sidebar, .sidebar-backdrop, .product-lightbox")
   );
   document.body.classList.toggle("is-locked", hasOverlayPanel);
 };
@@ -893,22 +893,100 @@ document.querySelectorAll("[data-close-target]").forEach((button) => {
   });
 });
 
-document.querySelectorAll("[data-gallery-thumb]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const mainImage = document.querySelector("[data-gallery-main]");
-    if (!mainImage) return;
+document.querySelectorAll("[data-product-gallery]").forEach((gallery) => {
+  const lightbox = gallery.querySelector("[data-gallery-lightbox]");
+  const lightboxImage = gallery.querySelector("[data-gallery-lightbox-image]");
+  const lightboxCaption = gallery.querySelector("[data-gallery-lightbox-caption]");
+  const lightboxCounter = gallery.querySelector("[data-gallery-lightbox-counter]");
+  const closeButton = gallery.querySelector("[data-gallery-close]");
+  const previousButton = gallery.querySelector("[data-gallery-prev]");
+  const nextButton = gallery.querySelector("[data-gallery-next]");
+  const slideButtons = Array.from(gallery.querySelectorAll("[data-gallery-lightbox-thumb]"));
+  const slides = slideButtons
+    .map((button) => ({
+      src: button.getAttribute("data-gallery-src"),
+      alt: button.getAttribute("data-gallery-alt") || "",
+    }))
+    .filter((slide) => slide.src);
 
-    const nextSrc = button.getAttribute("data-gallery-src");
-    const nextAlt = button.getAttribute("data-gallery-alt") || "";
-    if (!nextSrc) return;
+  if (!lightbox || !lightboxImage || slides.length === 0) return;
 
-    mainImage.src = nextSrc;
-    mainImage.alt = nextAlt;
+  let currentIndex = 0;
+  let lastFocusedElement = null;
 
-    document.querySelectorAll("[data-gallery-thumb]").forEach((thumb) => {
-      thumb.classList.remove("is-active");
+  const normalizeIndex = (index) => {
+    if (Number.isNaN(index)) return 0;
+    return (index + slides.length) % slides.length;
+  };
+
+  const showSlide = (index) => {
+    currentIndex = normalizeIndex(index);
+    const slide = slides[currentIndex];
+
+    lightboxImage.src = slide.src;
+    lightboxImage.alt = slide.alt;
+
+    if (lightboxCaption) {
+      lightboxCaption.textContent = slide.alt;
+    }
+
+    if (lightboxCounter) {
+      lightboxCounter.textContent = `${currentIndex + 1} / ${slides.length}`;
+    }
+
+    slideButtons.forEach((button, buttonIndex) => {
+      button.classList.toggle("is-active", buttonIndex === currentIndex);
     });
-    button.classList.add("is-active");
+  };
+
+  const openLightbox = (index) => {
+    lastFocusedElement = document.activeElement;
+    showSlide(index);
+    lightbox.classList.add("is-open");
+    lightbox.setAttribute("aria-hidden", "false");
+    toggleLocks();
+    closeButton?.focus({ preventScroll: true });
+  };
+
+  const closeLightbox = () => {
+    lightbox.classList.remove("is-open");
+    lightbox.setAttribute("aria-hidden", "true");
+    toggleLocks();
+    if (lastFocusedElement instanceof HTMLElement) {
+      lastFocusedElement.focus({ preventScroll: true });
+    }
+  };
+
+  gallery.querySelectorAll("[data-gallery-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openLightbox(Number.parseInt(button.getAttribute("data-gallery-index") || "0", 10));
+    });
+  });
+
+  slideButtons.forEach((button, index) => {
+    button.addEventListener("click", () => showSlide(index));
+  });
+
+  previousButton?.addEventListener("click", () => showSlide(currentIndex - 1));
+  nextButton?.addEventListener("click", () => showSlide(currentIndex + 1));
+  closeButton?.addEventListener("click", closeLightbox);
+
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) {
+      closeLightbox();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (!lightbox.classList.contains("is-open")) return;
+
+    if (event.key === "Escape") {
+      closeLightbox();
+    } else if (event.key === "ArrowLeft") {
+      showSlide(currentIndex - 1);
+    } else if (event.key === "ArrowRight") {
+      showSlide(currentIndex + 1);
+    }
   });
 });
 
