@@ -26,7 +26,7 @@ final class BaseController extends AbstractController
     ];
 
     private const FEATURED_PRODUCT_NAMES = [
-        'Nexus Stream Deck',
+        'Internal Soundproof Foam',
         'Pulse MIC',
         'Aether Pro LED Panels',
         'Obsidian Webcam',
