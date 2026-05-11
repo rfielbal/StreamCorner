@@ -144,7 +144,7 @@ class ProduitRepository extends ServiceEntityRepository
         return match ($slug) {
             'audio' => ['audio'],
             'eclairage' => ['eclairage', 'éclairage', 'light'],
-            'diffusion' => ['diffusion', 'stream', 'video', 'vidéo', 'controle', 'contrôle', 'accessoire'],
+            'diffusion', 'video' => ['diffusion', 'video', 'vidéo'],
             default => [$slug],
         };
     }

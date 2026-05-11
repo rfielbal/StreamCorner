@@ -17,7 +17,7 @@ Le projet sert aussi de support technique pour montrer la maîtrise de Symfony, 
 
 ## Accès au site 
 
-Pour accéder au site, il suffit simplement de se rendre sur le lien suivant : 
+Pour accéder au site, il suffit simplement de se rendre sur le lien suivant : https://stream-corner.rfielbal.fr
 
 - L'accès client est configuré par défaut lors de la création d'un compte ; 
 - Pour visualiser le site en tant que visiteur administrateur, connectez-vous avez les identifiants suivants :
