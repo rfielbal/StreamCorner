@@ -114,7 +114,7 @@ final class LegalController extends AbstractController
             'headline' => 'Mentions_Legales',
             'kicker' => 'Identification et transparence',
             'updated_at' => '6 mai 2026',
-            'intro' => 'Ces mentions légales sont adaptées à un projet académique fictif. Les informations d’identification d’une entreprise réelle devront être remplacées avant toute publication commerciale.',
+            'intro' => 'Ces mentions légales sont adaptées à un projet académique fictif. Les informations d’identification d’une entreprise réelle doivent être remplacées avant toute publication commerciale.',
             'sections' => [
                 [
                     'title' => 'Éditeur du site',
