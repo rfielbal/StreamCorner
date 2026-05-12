@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : database
--- Généré le : lun. 11 mai 2026 à 14:04
+-- Généré le : mar. 12 mai 2026 à 21:36
 -- Version du serveur : 10.3.39-MariaDB-1:10.3.39+maria~ubu2004
 -- Version de PHP : 8.3.30
 
@@ -74,6 +74,7 @@ CREATE TABLE `aimer` (
 --
 
 INSERT INTO `aimer` (`user_id`, `produit_id`) VALUES
+(1, 7),
 (3, 3),
 (3, 4),
 (3, 5),
@@ -98,7 +99,9 @@ CREATE TABLE `ajouter` (
 --
 
 INSERT INTO `ajouter` (`id`, `quantite`, `prix_ht`, `panier_id`, `produit_id`) VALUES
-(9, 2, 249.99, 3, 8);
+(9, 2, 249.99, 3, 8),
+(19, 1, 119.99, 1, 11),
+(20, 1, 149.00, 1, 5);
 
 -- --------------------------------------------------------
 
@@ -119,7 +122,7 @@ INSERT INTO `categorie` (`id`, `nom_categorie`) VALUES
 (1, 'Audio'),
 (2, 'Eclairage'),
 (3, 'Controle'),
-(4, 'Video'),
+(4, 'Diffusion'),
 (5, 'Accessoires');
 
 -- --------------------------------------------------------
@@ -204,7 +207,8 @@ INSERT INTO `doctrine_migration_versions` (`version`, `executed_at`, `execution_
 ('DoctrineMigrations\\Version20260505100000', '2026-05-05 17:56:33', 53),
 ('DoctrineMigrations\\Version20260505101000', '2026-05-05 18:12:17', 24),
 ('DoctrineMigrations\\Version20260510100000', '2026-05-10 16:29:30', 31),
-('DoctrineMigrations\\Version20260510103000', '2026-05-10 18:24:47', 196);
+('DoctrineMigrations\\Version20260510103000', '2026-05-10 18:24:47', 196),
+('DoctrineMigrations\\Version20260511120000', '2026-05-11 14:15:25', 6);
 
 -- --------------------------------------------------------
 
@@ -248,7 +252,7 @@ CREATE TABLE `panier` (
 --
 
 INSERT INTO `panier` (`id`, `total_ht_pa`, `user_id`) VALUES
-(1, 0.00, 1),
+(1, 268.99, 1),
 (2, 0.00, 3),
 (3, 499.98, 5),
 (4, 0.00, 6);
@@ -428,8 +432,9 @@ INSERT INTO `user` (`id`, `email`, `roles`, `password`, `is_verified`, `prenom`,
 (3, 'coursierap@gmail.com', '[\"ROLE_USER\",\"ROLE_VISITEUR\"]', '$2y$13$DNwHU7uG5Odj5u/jLup/ieiKlasTE2gWq135Sy5.asV1LQCQggbBC', 0, 'Raphaël', 'Coursier'),
 (4, 'louis@gmail.com', '[\"ROLE_USER\"]', '$2y$13$14EtrHF1AZs1gMhWTdOegu/mw869AK1RUy2.yGNHhdK19f4S7M0S2', 0, 'antoine', 'louis'),
 (5, 'btsinfo@gmail.co', '[\"ROLE_USER\"]', '$2y$13$y2UfTG4LUtlp/7FHta/KHe4wEgV7.KWxqw/MYpIZpkbX876ALvOc6', 0, 'louis', 'jean'),
-(6, 'Tom@mail.fr', '[\"ROLE_USER\"]', '$2y$13$FSI00M9zc9eSX/9ZN193C.3dLo/Wf43CefuGMnjZ19GZUA5EgrK7C', 0, 'Thom', 'Dom'),
-(7, 'visiteur@streamcorner.com', '[\"ROLE_VISITEUR\"]', '$2y$13$vb411MauE2M9vRjZvOreWeO/sQVAsU97rHPhPIXpZoaZl/jXxLfCm', 0, 'Visiteur', 'StreamCorner');
+(6, 'Tom@mail.fr', '[\"ROLE_VISITEUR\"]', '$2y$13$FSI00M9zc9eSX/9ZN193C.3dLo/Wf43CefuGMnjZ19GZUA5EgrK7C', 0, 'Thom', 'Dom'),
+(7, 'visiteur@streamcorner.com', '[\"ROLE_VISITEUR\"]', '$2y$13$vb411MauE2M9vRjZvOreWeO/sQVAsU97rHPhPIXpZoaZl/jXxLfCm', 0, 'Visiteur', 'StreamCorner'),
+(8, 'admin@streamcorner.com', '[\"ROLE_USER\",\"ROLE_ADMIN\"]', '$2y$13$wgZX7t/H59pugQ.HJRRee.S9yoJSxACbr/HbdCpozTh.uHbjrBYlC', 0, 'AdminType', 'Guy');
 
 --
 -- Index pour les tables déchargées
@@ -565,7 +570,7 @@ ALTER TABLE `adresse`
 -- AUTO_INCREMENT pour la table `ajouter`
 --
 ALTER TABLE `ajouter`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT pour la table `categorie`
@@ -625,7 +630,7 @@ ALTER TABLE `sav`
 -- AUTO_INCREMENT pour la table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Contraintes pour les tables déchargées
